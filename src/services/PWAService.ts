@@ -279,7 +279,7 @@ export class PWAService {
       console.info(`PWA Service: Install prompt ${outcome}`);
       
       // Clear the deferred prompt
-      (window as unknown).deferredPrompt = null;
+      (window as any).deferredPrompt = null;
       
       return outcome === 'accepted';
     } catch (error) {
