@@ -30,11 +30,6 @@
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 6.4_
 
 - [x] 5. Build patient intake form component
-
-
-
-
-
   - Create PatientIntakeForm component with all required triage fields
   - Implement form validation for vital signs, breathing status, circulation, and consciousness
   - Add age group selection (child/adult) with appropriate UI controls
@@ -42,7 +37,7 @@
   - Add form submission handling with triage calculation integration
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 6. Create patient dashboard and list management
+- [x] 6. Create patient dashboard and list management
   - Build PatientDashboard component displaying all triaged patients
   - Implement color-coded priority display with visual indicators
   - Add patient sorting by priority level (Red, Yellow, Green, Black order)
@@ -50,7 +45,7 @@
   - Implement click-to-view patient details functionality
   - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5_
 
-- [ ] 7. Implement patient editing and status management
+- [x] 7. Implement patient editing and status management
   - Create PatientDetailView component for viewing and editing patient information
   - Add ability to update vital signs and recalculate triage priority
   - Implement status change functionality (treated, transferred, discharged)
@@ -63,7 +58,6 @@
   - Implement app shell caching for offline HTML, CSS, and JavaScript
   - Add runtime caching for dynamic content and API responses
   - Create offline fallback pages and error handling
-  - Test offline functionality with network disconnection scenarios
   - _Requirements: 4.1, 4.2, 4.4, 4.5_
 
 - [ ] 9. Implement internationalization system
@@ -71,7 +65,6 @@
   - Add translation files for all UI text, labels, and triage descriptions
   - Implement language switching functionality with preference persistence
   - Add RTL (right-to-left) layout support for Arabic language
-  - Test all UI components in both languages for proper display
   - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
 
 - [ ] 10. Build responsive UI with Tailwind CSS
@@ -101,9 +94,7 @@
 - [ ] 13. Optimize performance for low-power devices
   - Implement code splitting and lazy loading for components
   - Optimize bundle size by removing unused dependencies
-  - Add performance monitoring and optimization for slow devices
   - Implement efficient re-rendering strategies for patient lists
-  - Test and optimize memory usage during extended app usage
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
 - [ ] 14. Create app routing and navigation
@@ -116,8 +107,7 @@
 
 - [ ] 15. Final integration and PWA optimization
   - Integrate all components into cohesive application flow
-  - Test complete user workflows from patient intake to status management
   - Optimize PWA manifest and service worker for installation
   - Add app update notifications and version management
-  - Perform final testing on target devices and browsers
+  - Add app installation banner for easy access
   - _Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 8.1, 8.2, 8.3, 8.4, 8.5_
