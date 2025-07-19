@@ -1,4 +1,4 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import './app.css';
 import {
   PatientIntakeForm,
@@ -6,6 +6,8 @@ import {
   PatientDetailView,
 } from './components';
 import { ResponsiveContainer, Toast, Button, Card } from './components/ui';
+import { PWAStatus } from './components/PWAStatus';
+import { pwaService } from './services/PWAService';
 
 type AppView = 'home' | 'dashboard' | 'intake' | 'patient-detail';
 
@@ -18,6 +20,24 @@ export function App() {
     message: string;
     type: 'success' | 'error' | 'warning' | 'info';
   } | null>(null);
+  const [pwaInitialized, setPwaInitialized] = useState(false);
+
+  // Initialize PWA service
+  useEffect(() => {
+    const initializePWA = async () => {
+      try {
+        await pwaService.initialize();
+        setPwaInitialized(true);
+        
+      } catch (error) {
+        console.error('Failed to initialize PWA service:', error);
+        // App still works without PWA features
+        setPwaInitialized(true);
+      }
+    };
+
+    initializePWA();
+  }, []);
 
   const handlePatientSubmit = (patientId: string) => {
     setToast({
@@ -76,6 +96,13 @@ export function App() {
 
   return (
     <div class="min-h-screen bg-medical-background">
+      {/* PWA Status Component */}
+      {pwaInitialized && (
+        <div class="fixed top-4 right-4 z-50">
+          <PWAStatus />
+        </div>
+      )}
+
       {/* Navigation Header */}
       {currentView !== 'home' && (
         <nav class="bg-medical-surface shadow-sm border-b border-gray-200 safe-top">
