@@ -38,7 +38,7 @@ export default [
       'react-hooks/exhaustive-deps': 'warn',
       
       // General code quality rules
-      'no-console': ['warn', { allow: ['error', 'warn'] }],
+      'no-console': ['warn', { allow: ['info', 'error', 'warn'] }],
       'no-debugger': 'error',
       'no-duplicate-imports': 'error',
       'no-unused-expressions': 'error',

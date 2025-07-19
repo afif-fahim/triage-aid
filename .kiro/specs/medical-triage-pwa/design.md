@@ -451,7 +451,6 @@ interface SecurityService {
   generatePatientId(): string;
   encryptPatientData(data: PatientData): Promise<string>;
   decryptPatientData(encryptedData: string): Promise<PatientData>;
-  secureDelete(patientId: string): Promise<void>;
   validateInput(input: any, schema: ValidationSchema): ValidationResult;
 }
 

@@ -1,40 +1,46 @@
-export interface PatientData {
-  id: string;
-  ageGroup: 'child' | 'adult';
-  vitals: {
-    pulse: number | null;
-    breathing: 'normal' | 'labored' | 'absent';
-    circulation: 'normal' | 'bleeding' | 'shock';
-    consciousness: 'alert' | 'verbal' | 'pain' | 'unresponsive';
-  };
-  injuries: string[];
-  timestamp: Date;
-  lastUpdated: Date;
-  priority?: TriagePriority;
-  status: 'active' | 'treated' | 'transferred' | 'discharged';
-  notes?: string;
-}
+/**
+ * Main Types Export File
+ * Centralized exports for all TypeScript interfaces and types
+ */
 
-export interface TriagePriority {
-  level: 'red' | 'yellow' | 'green' | 'black';
-  description: string;
-  urgency: number;
-  color: string;
-  icon: string;
-}
+// Patient Data Types
+export type {
+  PatientData,
+  PatientDataInput,
+  PatientDataUpdate,
+} from './PatientData';
 
-export interface AppState {
-  currentView: 'dashboard' | 'intake' | 'patient-detail';
-  selectedPatientId: string | null;
-  language: 'en' | 'ar';
-  theme: 'light' | 'dark';
-  dashboardFilter: {
-    priority: TriagePriority['level'] | 'all';
-    status: PatientData['status'] | 'all';
-    sortBy: 'priority' | 'timestamp';
-    sortOrder: 'asc' | 'desc';
-  };
-  isOnline: boolean;
-  lastSync: Date | null;
-  version: string;
-}
+// Triage Priority Types
+export type { TriagePriority, TriagePriorityLevel } from './TriagePriority';
+
+export {
+  TRIAGE_PRIORITIES,
+  getTriagePriority,
+  getAllTriagePriorities,
+  compareTriagePriorities,
+} from './TriagePriority';
+
+// Application State Types
+export type {
+  AppState,
+  AppError,
+  AppAction,
+  AppView,
+  SupportedLanguage,
+  AppTheme,
+} from './AppState';
+
+export { INITIAL_APP_STATE } from './AppState';
+
+// Validation Types
+export type {
+  ValidationResult,
+  ValidationError,
+  ValidationRule,
+} from './ValidationSchemas';
+
+export {
+  PATIENT_DATA_VALIDATION_SCHEMA,
+  PatientDataValidator,
+  VALIDATION_MESSAGES,
+} from './ValidationSchemas';
