@@ -96,5 +96,42 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // RTL support plugin
+    function({ addUtilities }) {
+      const newUtilities = {
+        '.rtl': {
+          direction: 'rtl',
+        },
+        '.ltr': {
+          direction: 'ltr',
+        },
+        '.rtl .rtl\\:text-right': {
+          'text-align': 'right',
+        },
+        '.rtl .rtl\\:text-left': {
+          'text-align': 'left',
+        },
+        '.rtl .rtl\\:ml-auto': {
+          'margin-left': 'auto',
+        },
+        '.rtl .rtl\\:mr-auto': {
+          'margin-right': 'auto',
+        },
+        '.rtl .rtl\\:pl-4': {
+          'padding-left': '1rem',
+        },
+        '.rtl .rtl\\:pr-4': {
+          'padding-right': '1rem',
+        },
+        '.rtl .rtl\\:flex-row-reverse': {
+          'flex-direction': 'row-reverse',
+        },
+        '.rtl .rtl\\:space-x-reverse > :not([hidden]) ~ :not([hidden])': {
+          '--tw-space-x-reverse': '1',
+        },
+      }
+      addUtilities(newUtilities)
+    }
+  ],
 }

@@ -10,6 +10,7 @@ import type { TriagePriority } from '../types/TriagePriority';
 import { triageEngine } from '../services/TriageEngine';
 import { dataService } from '../services/DataService';
 import { Card, Button, ResponsiveGrid } from './ui/';
+import { useTranslation } from '../hooks';
 
 interface PatientIntakeFormProps {
   onSubmit?: (patientId: string) => void;
@@ -64,6 +65,7 @@ export function PatientIntakeForm({
   existingPatient,
   isEditing = false,
 }: PatientIntakeFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -182,30 +184,30 @@ export function PatientIntakeForm({
 
     // Required fields validation
     if (!formData.ageGroup) {
-      newErrors.ageGroup = 'Age group is required';
+      newErrors.ageGroup = t('validation.required');
     }
 
     if (!formData.breathing) {
-      newErrors.breathing = 'Breathing status is required';
+      newErrors.breathing = t('validation.required');
     }
 
     if (!formData.circulation) {
-      newErrors.circulation = 'Circulation status is required';
+      newErrors.circulation = t('validation.required');
     }
 
     if (!formData.consciousness) {
-      newErrors.consciousness = 'Consciousness level is required';
+      newErrors.consciousness = t('validation.required');
     }
 
     if (!formData.mobility) {
-      newErrors.mobility = 'Mobility status is required';
+      newErrors.mobility = t('validation.required');
     }
 
     // Pulse validation
     if (formData.pulse) {
       const pulseNum = parseInt(formData.pulse);
       if (isNaN(pulseNum) || pulseNum < 20 || pulseNum > 250) {
-        newErrors.pulse = 'Pulse must be between 20-250 bpm';
+        newErrors.pulse = t('validation.invalidPulse');
       }
     }
 
@@ -213,8 +215,7 @@ export function PatientIntakeForm({
     if (formData.respiratoryRate) {
       const respRate = parseInt(formData.respiratoryRate);
       if (isNaN(respRate) || respRate < 5 || respRate > 60) {
-        newErrors.respiratoryRate =
-          'Respiratory rate must be between 5-60 breaths/min';
+        newErrors.respiratoryRate = t('validation.selectOption');
       }
     }
 
@@ -222,8 +223,7 @@ export function PatientIntakeForm({
     if (formData.capillaryRefill) {
       const capRefill = parseFloat(formData.capillaryRefill);
       if (isNaN(capRefill) || capRefill < 0 || capRefill > 10) {
-        newErrors.capillaryRefill =
-          'Capillary refill must be between 0-10 seconds';
+        newErrors.capillaryRefill = t('validation.selectOption');
       }
     }
 
@@ -283,7 +283,7 @@ export function PatientIntakeForm({
       }
     } catch (error) {
       console.error('Failed to create patient:', error);
-      setErrors({ general: 'Failed to save patient data. Please try again.' });
+      setErrors({ general: t('toast.errorOccurred') });
     } finally {
       setIsSubmitting(false);
     }
@@ -322,22 +322,20 @@ export function PatientIntakeForm({
       <Card variant="default" padding="md">
         <div class="text-center sm:text-left">
           <h2 class="text-responsive-xl font-bold text-medical-text-primary mb-2">
-            {isEditing
-              ? 'Edit Patient Assessment'
-              : 'Patient Intake Assessment'}
+            {isEditing ? t('patient.edit') : t('intake.title')}
           </h2>
           <p class="text-medical-text-secondary text-responsive-sm mb-4">
-            Complete the triage assessment using START protocol guidelines
+            {t('intake.title')}
           </p>
 
           {/* Progress Indicator */}
           <div class="mt-4">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-medium text-medical-text-primary">
-                Form Progress
+                {t('intake.title')}
               </span>
               <span class="text-sm text-medical-text-secondary">
-                {getFormProgress()}% Complete
+                {getFormProgress()}% {t('common.loading')}
               </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
@@ -415,13 +413,13 @@ export function PatientIntakeForm({
             <div class="w-6 h-6 bg-medical-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
               1
             </div>
-            Basic Information
+            {t('intake.ageGroup')}
           </h3>
 
           {/* Age Group Selection */}
           <div>
             <label class="block text-sm font-medium text-medical-text-primary mb-3">
-              Age Group <span class="text-medical-error">*</span>
+              {t('intake.ageGroup')} <span class="text-medical-error">*</span>
             </label>
             <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
               <button
@@ -437,7 +435,7 @@ export function PatientIntakeForm({
                 `}
               >
                 <div class="text-2xl mb-1">👶</div>
-                Child
+                {t('intake.ageGroup.child')}
               </button>
               <button
                 type="button"
@@ -452,7 +450,7 @@ export function PatientIntakeForm({
                 `}
               >
                 <div class="text-2xl mb-1">👤</div>
-                Adult
+                {t('intake.ageGroup.adult')}
               </button>
             </ResponsiveGrid>
             {errors.ageGroup && (
@@ -476,14 +474,14 @@ export function PatientIntakeForm({
             <div class="w-6 h-6 bg-medical-accent text-white rounded-full flex items-center justify-center text-sm font-bold">
               2
             </div>
-            Vital Signs
+            {t('intake.vitals')}
           </h3>
 
           <ResponsiveGrid cols={{ xs: 1, md: 2 }} gap="md">
             {/* Pulse */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                Pulse (bpm)
+                {t('intake.pulse')}
               </label>
               <input
                 type="number"
@@ -491,7 +489,7 @@ export function PatientIntakeForm({
                 onChange={e =>
                   handleInputChange('pulse', e.currentTarget.value)
                 }
-                placeholder="e.g., 80"
+                placeholder={t('intake.pulsePlaceholder')}
                 min="20"
                 max="250"
                 class="form-input"
@@ -513,7 +511,7 @@ export function PatientIntakeForm({
             {/* Respiratory Rate */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                Respiratory Rate (breaths/min)
+                {t('intake.pulse')} (breaths/min)
               </label>
               <input
                 type="number"
@@ -548,14 +546,15 @@ export function PatientIntakeForm({
             <div class="w-6 h-6 bg-medical-success text-white rounded-full flex items-center justify-center text-sm font-bold">
               3
             </div>
-            Clinical Assessment
+            {t('intake.vitals')}
           </h3>
 
           <div class="space-y-6">
             {/* Breathing Status */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                Breathing Status <span class="text-medical-error">*</span>
+                {t('intake.breathing')}{' '}
+                <span class="text-medical-error">*</span>
               </label>
               <select
                 value={formData.breathing}
@@ -564,10 +563,16 @@ export function PatientIntakeForm({
                 }
                 class="form-select"
               >
-                <option value="">Select breathing status</option>
-                <option value="normal">🫁 Normal</option>
-                <option value="labored">😤 Labored/Distressed</option>
-                <option value="absent">❌ Absent</option>
+                <option value="">{t('validation.selectOption')}</option>
+                <option value="normal">
+                  🫁 {t('intake.breathing.normal')}
+                </option>
+                <option value="labored">
+                  😤 {t('intake.breathing.labored')}
+                </option>
+                <option value="absent">
+                  ❌ {t('intake.breathing.absent')}
+                </option>
               </select>
               {errors.breathing && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
@@ -586,7 +591,8 @@ export function PatientIntakeForm({
             {/* Circulation Status */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                Circulation Status <span class="text-medical-error">*</span>
+                {t('intake.circulation')}{' '}
+                <span class="text-medical-error">*</span>
               </label>
               <select
                 value={formData.circulation}
@@ -595,10 +601,16 @@ export function PatientIntakeForm({
                 }
                 class="form-select"
               >
-                <option value="">Select circulation status</option>
-                <option value="normal">💓 Normal</option>
-                <option value="bleeding">🩸 Active Bleeding</option>
-                <option value="shock">⚠️ Signs of Shock</option>
+                <option value="">{t('validation.selectOption')}</option>
+                <option value="normal">
+                  💓 {t('intake.circulation.normal')}
+                </option>
+                <option value="bleeding">
+                  🩸 {t('intake.circulation.bleeding')}
+                </option>
+                <option value="shock">
+                  ⚠️ {t('intake.circulation.shock')}
+                </option>
               </select>
               {errors.circulation && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
@@ -617,7 +629,7 @@ export function PatientIntakeForm({
             {/* Consciousness Level */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                Consciousness Level (AVPU){' '}
+                {t('intake.consciousness')}{' '}
                 <span class="text-medical-error">*</span>
               </label>
               <select
@@ -627,11 +639,19 @@ export function PatientIntakeForm({
                 }
                 class="form-select"
               >
-                <option value="">Select consciousness level</option>
-                <option value="alert">😊 Alert</option>
-                <option value="verbal">🗣️ Responds to Verbal</option>
-                <option value="pain">😣 Responds to Pain</option>
-                <option value="unresponsive">😵 Unresponsive</option>
+                <option value="">{t('validation.selectOption')}</option>
+                <option value="alert">
+                  😊 {t('intake.consciousness.alert')}
+                </option>
+                <option value="verbal">
+                  🗣️ {t('intake.consciousness.verbal')}
+                </option>
+                <option value="pain">
+                  😣 {t('intake.consciousness.pain')}
+                </option>
+                <option value="unresponsive">
+                  😵 {t('intake.consciousness.unresponsive')}
+                </option>
               </select>
               {errors.consciousness && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
@@ -650,7 +670,7 @@ export function PatientIntakeForm({
             {/* Mobility Status */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-3">
-                Mobility Status <span class="text-medical-error">*</span>
+                {t('intake.mobility')} <span class="text-medical-error">*</span>
               </label>
               <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
                 <button
@@ -666,7 +686,7 @@ export function PatientIntakeForm({
                   `}
                 >
                   <div class="text-2xl mb-1">🚶</div>
-                  Can Walk
+                  {t('intake.mobility.ambulatory')}
                 </button>
                 <button
                   type="button"
@@ -683,7 +703,7 @@ export function PatientIntakeForm({
                   `}
                 >
                   <div class="text-2xl mb-1">🛏️</div>
-                  Cannot Walk
+                  {t('intake.mobility.immobile')}
                 </button>
               </ResponsiveGrid>
               {errors.mobility && (
@@ -708,7 +728,7 @@ export function PatientIntakeForm({
             <div class="w-6 h-6 bg-medical-warning text-white rounded-full flex items-center justify-center text-sm font-bold">
               4
             </div>
-            Additional Assessment
+            {t('intake.vitals')}
           </h3>
 
           <div class="space-y-6">
@@ -760,7 +780,7 @@ export function PatientIntakeForm({
                   }
                   class="form-select"
                 >
-                  <option value="">Select pulse status</option>
+                  <option value="">{t('validation.selectOption')}</option>
                   <option value="present">✅ Present</option>
                   <option value="absent">❌ Absent</option>
                 </select>
@@ -770,33 +790,33 @@ export function PatientIntakeForm({
             {/* Injuries */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                Visible Injuries
+                {t('intake.injuries')}
               </label>
               <textarea
                 value={formData.injuries}
                 onChange={e =>
                   handleInputChange('injuries', e.currentTarget.value)
                 }
-                placeholder="Describe visible injuries, separated by commas"
+                placeholder={t('intake.injuriesPlaceholder')}
                 rows={3}
                 class="form-textarea"
               />
               <p class="text-xs text-medical-text-muted mt-1">
-                Separate multiple injuries with commas
+                {t('intake.injuriesPlaceholder')}
               </p>
             </div>
 
             {/* Notes */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                Additional Notes
+                {t('intake.notes')}
               </label>
               <textarea
                 value={formData.notes}
                 onChange={e =>
                   handleInputChange('notes', e.currentTarget.value)
                 }
-                placeholder="Any additional observations or notes"
+                placeholder={t('intake.notesPlaceholder')}
                 rows={3}
                 class="form-textarea"
               />
@@ -820,7 +840,7 @@ export function PatientIntakeForm({
               loading={isSubmitting}
               className="sm:flex-1"
             >
-              {isEditing ? 'Update Patient' : 'Save Patient'}
+              {isEditing ? t('patient.save') : t('intake.submit')}
             </Button>
 
             <Button
@@ -832,13 +852,13 @@ export function PatientIntakeForm({
               disabled={isSubmitting}
               className="sm:w-auto sm:px-8"
             >
-              Cancel
+              {t('intake.cancel')}
             </Button>
           </div>
 
           {!isFormComplete() && (
             <p class="text-xs text-medical-text-muted mt-2 text-center">
-              Complete all required fields (*) to save the patient assessment
+              {t('intake.completeRequired')}
             </p>
           )}
         </Card>

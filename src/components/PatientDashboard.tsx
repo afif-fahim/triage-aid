@@ -9,6 +9,7 @@ import { PatientData, TriagePriority } from '../types';
 import { dataService } from '../services/DataService';
 import { PatientListItem } from './PatientListItem';
 import { LoadingSpinner, Card, Button, ResponsiveGrid } from './ui/';
+import { useTranslation } from '../hooks';
 
 export interface PatientDashboardProps {
   onPatientSelect?: (patientId: string) => void;
@@ -21,6 +22,7 @@ export function PatientDashboard({
   onPatientUpdate,
   className = '',
 }: PatientDashboardProps) {
+  const { t } = useTranslation();
   const [patients, setPatients] = useState<PatientData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +47,7 @@ export function PatientDashboard({
       setPatients(allPatients);
     } catch (err) {
       console.error('Failed to load patients:', err);
-      setError('Failed to load patient data. Please try again.');
+      setError(t('toast.errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,7 @@ export function PatientDashboard({
       }
     } catch (err) {
       console.error('Failed to update patient:', err);
-      setError('Failed to update patient. Please try again.');
+      setError(t('toast.errorOccurred'));
     }
   };
 
@@ -138,7 +140,7 @@ export function PatientDashboard({
   if (loading) {
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
-        <LoadingSpinner size="lg" label="Loading patients..." />
+        <LoadingSpinner size="lg" label={t('common.loading')} />
       </div>
     );
   }
@@ -162,7 +164,9 @@ export function PatientDashboard({
               </svg>
             </div>
             <div className="ml-3 flex-1">
-              <h3 className="text-sm font-medium text-medical-error">Error</h3>
+              <h3 className="text-sm font-medium text-medical-error">
+                {t('common.error')}
+              </h3>
               <p className="text-sm text-medical-text-secondary mt-1">
                 {error}
               </p>
@@ -172,7 +176,7 @@ export function PatientDashboard({
                 onClick={loadPatients}
                 className="mt-3"
               >
-                Try Again
+                {t('common.tryAgain')}
               </Button>
             </div>
           </div>
@@ -189,11 +193,10 @@ export function PatientDashboard({
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h2 className="text-responsive-xl font-bold text-medical-text-primary">
-                Patient Dashboard
+                {t('dashboard.title')}
               </h2>
               <p className="text-medical-text-secondary mt-1 text-responsive-sm">
-                {priorityCounts.total} patient
-                {priorityCounts.total !== 1 ? 's' : ''} total
+                {t('dashboard.totalPatients')}: {priorityCounts.total}
               </p>
             </div>
           </div>
@@ -202,19 +205,27 @@ export function PatientDashboard({
           <ResponsiveGrid cols={{ xs: 2, sm: 4 }} gap="sm" className="mt-4">
             <div className="flex items-center space-x-2 bg-red-50 text-red-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-red rounded-full flex-shrink-0"></div>
-              <span className="truncate">{priorityCounts.red} Red</span>
+              <span className="truncate">
+                {priorityCounts.red} {t('triage.red')}
+              </span>
             </div>
             <div className="flex items-center space-x-2 bg-yellow-50 text-yellow-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-yellow rounded-full flex-shrink-0"></div>
-              <span className="truncate">{priorityCounts.yellow} Yellow</span>
+              <span className="truncate">
+                {priorityCounts.yellow} {t('triage.yellow')}
+              </span>
             </div>
             <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-green rounded-full flex-shrink-0"></div>
-              <span className="truncate">{priorityCounts.green} Green</span>
+              <span className="truncate">
+                {priorityCounts.green} {t('triage.green')}
+              </span>
             </div>
             <div className="flex items-center space-x-2 bg-gray-50 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-black rounded-full flex-shrink-0"></div>
-              <span className="truncate">{priorityCounts.black} Black</span>
+              <span className="truncate">
+                {priorityCounts.black} {t('triage.black')}
+              </span>
             </div>
           </ResponsiveGrid>
         </div>
@@ -226,7 +237,7 @@ export function PatientDashboard({
           {/* Sort Controls */}
           <div className="flex items-center space-x-2 flex-1">
             <label className="text-sm font-medium text-medical-text-primary shrink-0">
-              Sort:
+              {t('dashboard.sortBy')}:
             </label>
             <select
               value={sortBy}
@@ -235,15 +246,15 @@ export function PatientDashboard({
               }
               className="form-select text-sm flex-1 min-w-0"
             >
-              <option value="priority">Priority Level</option>
-              <option value="timestamp">Time Added</option>
+              <option value="priority">{t('dashboard.sortByPriority')}</option>
+              <option value="timestamp">{t('dashboard.sortByTime')}</option>
             </select>
           </div>
 
           {/* Filter Controls */}
           <div className="flex items-center space-x-2 flex-1">
             <label className="text-sm font-medium text-medical-text-primary shrink-0">
-              Filter:
+              {t('dashboard.filters')}:
             </label>
             <select
               value={filterBy}
@@ -254,11 +265,11 @@ export function PatientDashboard({
               }
               className="form-select text-sm flex-1 min-w-0"
             >
-              <option value="all">All Priorities</option>
-              <option value="red">Red - Immediate</option>
-              <option value="yellow">Yellow - Urgent</option>
-              <option value="green">Green - Minor</option>
-              <option value="black">Black - Deceased</option>
+              <option value="all">{t('dashboard.all')}</option>
+              <option value="red">{t('triage.red')}</option>
+              <option value="yellow">{t('triage.yellow')}</option>
+              <option value="green">{t('triage.green')}</option>
+              <option value="black">{t('triage.black')}</option>
             </select>
           </div>
 
@@ -282,7 +293,7 @@ export function PatientDashboard({
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
-            <span className="hidden sm:inline">Refresh</span>
+            <span className="hidden sm:inline">{t('dashboard.refresh')}</span>
           </Button>
         </div>
       </Card>
@@ -307,12 +318,12 @@ export function PatientDashboard({
               </svg>
             </div>
             <h3 className="text-responsive-lg font-medium text-medical-text-primary mb-2">
-              No patients found
+              {t('dashboard.noPatients')}
             </h3>
             <p className="text-medical-text-secondary text-responsive-sm max-w-md mx-auto">
               {filterBy === 'all'
-                ? 'No patients have been assessed yet. Start by creating a new patient assessment.'
-                : `No patients with ${filterBy} priority found. Try adjusting your filter settings.`}
+                ? t('dashboard.noPatientsSub')
+                : `${t('dashboard.noPatientsFilter')} ${filterBy}`}
             </p>
           </Card>
         ) : (

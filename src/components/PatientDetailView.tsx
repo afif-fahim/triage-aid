@@ -8,6 +8,7 @@ import { useState, useEffect, useCallback } from 'preact/hooks';
 import { PatientData, PatientDataUpdate } from '../types';
 import { dataService } from '../services/DataService';
 import { ConfirmationDialog } from './ui/';
+import { useTranslation } from '../hooks';
 
 export interface PatientDetailViewProps {
   patientId: string;
@@ -24,6 +25,7 @@ export function PatientDetailView({
   onPatientDelete,
   className = '',
 }: PatientDetailViewProps) {
+  const { t } = useTranslation();
   const [patient, setPatient] = useState<PatientData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export function PatientDetailView({
       const patientData = await dataService.getPatient(patientId);
 
       if (!patientData) {
-        setError('Patient not found');
+        setError(t('dashboard.noPatients'));
         return;
       }
 
@@ -64,7 +66,7 @@ export function PatientDetailView({
       });
     } catch (err) {
       console.error('Failed to load patient:', err);
-      setError('Failed to load patient data. Please try again.');
+      setError(t('toast.errorOccurred'));
     } finally {
       setLoading(false);
     }
@@ -156,7 +158,7 @@ export function PatientDetailView({
       }
     } catch (err) {
       console.error('Failed to save patient:', err);
-      setError('Failed to save changes. Please try again.');
+      setError(t('toast.errorOccurred'));
     } finally {
       setIsSaving(false);
     }
@@ -210,7 +212,7 @@ export function PatientDetailView({
       }
     } catch (err) {
       console.error('Failed to update status:', err);
-      setError('Failed to update patient status. Please try again.');
+      setError(t('toast.errorOccurred'));
     }
 
     setShowStatusConfirm({ status: 'active', show: false });
@@ -232,7 +234,7 @@ export function PatientDetailView({
       onClose();
     } catch (err) {
       console.error('Failed to delete patient:', err);
-      setError('Failed to delete patient. Please try again.');
+      setError(t('toast.errorOccurred'));
     }
 
     setShowDeleteConfirm(false);
@@ -263,7 +265,7 @@ export function PatientDetailView({
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading patient details...</p>
+          <p className="text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     );
@@ -288,20 +290,22 @@ export function PatientDetailView({
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
+              <h3 className="text-sm font-medium text-red-800">
+                {t('common.error')}
+              </h3>
               <p className="text-sm text-red-700 mt-1">{error}</p>
               <div className="mt-2 flex space-x-2">
                 <button
                   onClick={loadPatient}
                   className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded hover:bg-red-200 transition-colors"
                 >
-                  Try Again
+                  {t('common.tryAgain')}
                 </button>
                 <button
                   onClick={onClose}
                   className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded hover:bg-gray-200 transition-colors"
                 >
-                  Close
+                  {t('common.close')}
                 </button>
               </div>
             </div>
@@ -340,7 +344,7 @@ export function PatientDetailView({
 
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Patient {formatPatientId(patient.id)}
+                {t('patient.details')} {formatPatientId(patient.id)}
               </h1>
               <p className="text-gray-600 mt-1">
                 {patient.priority.description}
@@ -354,14 +358,14 @@ export function PatientDetailView({
                 onClick={() => setIsEditing(true)}
                 className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               >
-                Edit Patient
+                {t('patient.edit')}
               </button>
             )}
             <button
               onClick={onClose}
               className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
             >
-              Close
+              {t('common.close')}
             </button>
           </div>
         </div>
@@ -379,13 +383,13 @@ export function PatientDetailView({
         {/* Basic Information */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Basic Information
+            {t('intake.basicInfo')}
           </h2>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Age Group
+                {t('intake.ageGroup')}
               </label>
               {isEditing ? (
                 <select
@@ -395,8 +399,8 @@ export function PatientDetailView({
                   }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="child">Child</option>
-                  <option value="adult">Adult</option>
+                  <option value="child">{t('intake.ageGroup.child')}</option>
+                  <option value="adult">{t('intake.ageGroup.adult')}</option>
                 </select>
               ) : (
                 <p className="text-gray-900 capitalize">{patient.ageGroup}</p>
@@ -405,7 +409,7 @@ export function PatientDetailView({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Mobility
+                {t('intake.mobility')}
               </label>
               {isEditing ? (
                 <select
@@ -418,20 +422,28 @@ export function PatientDetailView({
                   }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="">Not assessed</option>
-                  <option value="ambulatory">Ambulatory</option>
-                  <option value="non-ambulatory">Non-ambulatory</option>
+                  <option value="">{t('validation.selectOption')}</option>
+                  <option value="ambulatory">
+                    {t('intake.mobility.ambulatory')}
+                  </option>
+                  <option value="non-ambulatory">
+                    {t('intake.mobility.immobile')}
+                  </option>
                 </select>
               ) : (
                 <p className="text-gray-900 capitalize">
-                  {patient.mobility || 'Not assessed'}
+                  {patient.mobility === 'ambulatory'
+                    ? t('intake.mobility.ambulatory')
+                    : patient.mobility === 'non-ambulatory'
+                      ? t('intake.mobility.immobile')
+                      : t('validation.selectOption')}
                 </p>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Status
+                {t('patient.status')}
               </label>
               <div className="flex items-center space-x-2">
                 <span
@@ -445,8 +457,7 @@ export function PatientDetailView({
                           : 'bg-gray-100 text-gray-800'
                   }`}
                 >
-                  {patient.status.charAt(0).toUpperCase() +
-                    patient.status.slice(1)}
+                  {t(`status.${patient.status}`)}
                 </span>
 
                 {!isEditing && patient.status === 'active' && (
@@ -455,19 +466,19 @@ export function PatientDetailView({
                       onClick={() => handleStatusChange('treated')}
                       className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors"
                     >
-                      Mark Treated
+                      {t('status.treated')}
                     </button>
                     <button
                       onClick={() => handleStatusChange('transferred')}
                       className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 transition-colors"
                     >
-                      Transfer
+                      {t('status.transferred')}
                     </button>
                     <button
                       onClick={() => handleStatusChange('discharged')}
                       className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
                     >
-                      Discharge
+                      {t('status.discharged')}
                     </button>
                   </div>
                 )}
@@ -476,7 +487,7 @@ export function PatientDetailView({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Assessed
+                {t('patient.assessedAt')}
               </label>
               <p className="text-gray-900">
                 {formatTimestamp(patient.timestamp)}
@@ -486,7 +497,7 @@ export function PatientDetailView({
             {patient.lastUpdated.getTime() !== patient.timestamp.getTime() && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Last Updated
+                  {t('patient.lastUpdated')}
                 </label>
                 <p className="text-gray-900">
                   {formatTimestamp(patient.lastUpdated)}
@@ -499,13 +510,13 @@ export function PatientDetailView({
         {/* Vital Signs */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Vital Signs
+            {t('intake.vitals')}
           </h2>
 
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Pulse (BPM)
+                {t('intake.pulse')}
               </label>
               {isEditing ? (
                 <input
@@ -522,18 +533,18 @@ export function PatientDetailView({
                     )
                   }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter pulse rate"
+                  placeholder={t('intake.pulsePlaceholder')}
                 />
               ) : (
                 <p className="text-gray-900">
-                  {patient.vitals.pulse || 'Not recorded'}
+                  {patient.vitals.pulse || t('validation.notRecorded')}
                 </p>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Breathing
+                {t('intake.breathing')}
               </label>
               {isEditing ? (
                 <select
@@ -543,20 +554,22 @@ export function PatientDetailView({
                   }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="normal">Normal</option>
-                  <option value="labored">Labored</option>
-                  <option value="absent">Absent</option>
+                  <option value="normal">{t('intake.breathing.normal')}</option>
+                  <option value="labored">
+                    {t('intake.breathing.labored')}
+                  </option>
+                  <option value="absent">{t('intake.breathing.absent')}</option>
                 </select>
               ) : (
                 <p className="text-gray-900 capitalize">
-                  {patient.vitals.breathing}
+                  {t(`intake.breathing.${patient.vitals.breathing}`)}
                 </p>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Circulation
+                {t('intake.circulation')}
               </label>
               {isEditing ? (
                 <select
@@ -571,20 +584,24 @@ export function PatientDetailView({
                   }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="normal">Normal</option>
-                  <option value="bleeding">Bleeding</option>
-                  <option value="shock">Shock</option>
+                  <option value="normal">
+                    {t('intake.circulation.normal')}
+                  </option>
+                  <option value="bleeding">
+                    {t('intake.circulation.bleeding')}
+                  </option>
+                  <option value="shock">{t('intake.circulation.shock')}</option>
                 </select>
               ) : (
                 <p className="text-gray-900 capitalize">
-                  {patient.vitals.circulation}
+                  {t(`intake.circulation.${patient.vitals.circulation}`)}
                 </p>
               )}
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Consciousness (AVPU)
+                {t('intake.consciousness')}
               </label>
               {isEditing ? (
                 <select
@@ -600,20 +617,20 @@ export function PatientDetailView({
                   }
                   className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="alert">Alert</option>
-                  <option value="verbal">Responds to Verbal</option>
-                  <option value="pain">Responds to Pain</option>
-                  <option value="unresponsive">Unresponsive</option>
+                  <option value="alert">
+                    {t('intake.consciousness.alert')}
+                  </option>
+                  <option value="verbal">
+                    {t('intake.consciousness.verbal')}
+                  </option>
+                  <option value="pain">{t('intake.consciousness.pain')}</option>
+                  <option value="unresponsive">
+                    {t('intake.consciousness.unresponsive')}
+                  </option>
                 </select>
               ) : (
                 <p className="text-gray-900 capitalize">
-                  {patient.vitals.consciousness === 'alert'
-                    ? 'Alert'
-                    : patient.vitals.consciousness === 'verbal'
-                      ? 'Responds to Verbal'
-                      : patient.vitals.consciousness === 'pain'
-                        ? 'Responds to Pain'
-                        : 'Unresponsive'}
+                  {t(`intake.consciousness.${patient.vitals.consciousness}`)}
                 </p>
               )}
             </div>
@@ -622,7 +639,7 @@ export function PatientDetailView({
             {(patient.vitals.respiratoryRate || isEditing) && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Respiratory Rate (BPM)
+                  {t('intake.respiratoryRate')}
                 </label>
                 {isEditing ? (
                   <input
@@ -639,11 +656,12 @@ export function PatientDetailView({
                       )
                     }
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter respiratory rate"
+                    placeholder={t('intake.respiratoryPlaceholder')}
                   />
                 ) : (
                   <p className="text-gray-900">
-                    {patient.vitals.respiratoryRate || 'Not recorded'}
+                    {patient.vitals.respiratoryRate ||
+                      t('validation.notRecorded')}
                   </p>
                 )}
               </div>
@@ -654,7 +672,9 @@ export function PatientDetailView({
 
       {/* Injuries */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Injuries</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          {t('intake.injuries')}
+        </h2>
 
         {isEditing ? (
           <div className="space-y-3">
@@ -667,12 +687,12 @@ export function PatientDetailView({
                     handleInjuryChange(index, e.currentTarget.value)
                   }
                   className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Describe injury"
+                  placeholder={t('intake.injuriesPlaceholder')}
                 />
                 <button
                   onClick={() => removeInjury(index)}
                   className="text-red-600 hover:text-red-700 p-1"
-                  title="Remove injury"
+                  title={t('common.delete')}
                 >
                   <svg
                     className="w-5 h-5"
@@ -708,7 +728,7 @@ export function PatientDetailView({
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              <span>Add Injury</span>
+              <span>Add</span>
             </button>
           </div>
         ) : (
@@ -723,7 +743,9 @@ export function PatientDetailView({
                 ))}
               </ul>
             ) : (
-              <p className="text-gray-500 italic">No injuries recorded</p>
+              <p className="text-gray-500 italic">
+                {t('validation.notRecorded')}
+              </p>
             )}
           </div>
         )}
@@ -731,7 +753,9 @@ export function PatientDetailView({
 
       {/* Notes */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Notes</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          {t('intake.notes')}
+        </h2>
 
         {isEditing ? (
           <textarea
@@ -739,7 +763,7 @@ export function PatientDetailView({
             onChange={e => handleFieldChange('notes', e.currentTarget.value)}
             rows={4}
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Add any additional notes about the patient..."
+            placeholder={t('intake.notesPlaceholder')}
           />
         ) : (
           <div>
@@ -748,7 +772,9 @@ export function PatientDetailView({
                 {patient.notes}
               </p>
             ) : (
-              <p className="text-gray-500 italic">No notes recorded</p>
+              <p className="text-gray-500 italic">
+                {t('validation.notRecorded')}
+              </p>
             )}
           </div>
         )}
@@ -761,7 +787,7 @@ export function PatientDetailView({
             onClick={() => setShowDeleteConfirm(true)}
             className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
           >
-            Delete Patient
+            {t('patient.delete')}
           </button>
 
           <div className="flex space-x-3">
@@ -770,7 +796,7 @@ export function PatientDetailView({
               disabled={isSaving}
               className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors disabled:opacity-50"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleSave}
@@ -780,7 +806,7 @@ export function PatientDetailView({
               {isSaving && (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
               )}
-              <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
+              <span>{isSaving ? t('common.updating') : t('patient.save')}</span>
             </button>
           </div>
         </div>
@@ -789,14 +815,14 @@ export function PatientDetailView({
       {/* Status Change Confirmation Modal */}
       <ConfirmationDialog
         isOpen={showStatusConfirm.show}
-        title="Confirm Status Change"
-        message={`Are you sure you want to change the patient status to ${showStatusConfirm.status}?`}
+        title={t('patient.confirmStatusChange')}
+        message={`${t('patient.confirmStatusChangeMsg')} ${t(`status.${showStatusConfirm.status}`)}?`}
         onConfirm={() => updateStatus(showStatusConfirm.status)}
         onCancel={() => setShowStatusConfirm({ status: 'active', show: false })}
       >
         {showStatusConfirm.status === 'discharged' && (
           <div className="mt-2 text-sm text-amber-600">
-            This action will mark the patient as discharged from care.
+            {t('patient.dischargeMsg')}
           </div>
         )}
       </ConfirmationDialog>
@@ -804,15 +830,15 @@ export function PatientDetailView({
       {/* Delete Confirmation Modal */}
       <ConfirmationDialog
         isOpen={showDeleteConfirm}
-        title="Delete Patient Record"
-        message="Are you sure you want to permanently delete this patient record?"
-        confirmText="Delete"
+        title={t('patient.confirmDelete')}
+        message={t('patient.confirmDeleteMsg')}
+        confirmText={t('common.delete')}
         confirmButtonClass="bg-red-600 hover:bg-red-700"
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       >
         <div className="font-medium text-red-600">
-          This action cannot be undone.
+          {t('patient.actionCanNotBeUndone')}
         </div>
       </ConfirmationDialog>
     </div>
