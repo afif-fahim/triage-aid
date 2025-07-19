@@ -3,9 +3,9 @@
  * Implements comprehensive patient assessment form with START triage integration
  */
 
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useCallback } from 'preact/hooks';
 import type { JSX } from 'preact';
-import type { PatientDataInput } from '../types/PatientData';
+import type { PatientDataInput, PatientData } from '../types/PatientData';
 import type { TriagePriority } from '../types/TriagePriority';
 import { triageEngine } from '../services/TriageEngine';
 import { dataService } from '../services/DataService';
@@ -92,6 +92,60 @@ export function PatientIntakeForm({
     }
   }, [existingPatient]);
 
+  // Check if form has required fields completed
+  const isFormComplete = useCallback((): boolean => {
+    return Boolean(
+      formData.ageGroup &&
+        formData.breathing &&
+        formData.circulation &&
+        formData.consciousness &&
+        formData.mobility
+    );
+  }, [formData]);
+
+  // Convert form data to patient data for triage calculation
+  const convertFormToPatientData = useCallback((): PatientData => {
+    return {
+      id: 'temp-id', // Temporary ID for preview
+      ageGroup: formData.ageGroup as 'child' | 'adult',
+      vitals: {
+        pulse: formData.pulse ? parseInt(formData.pulse) : null,
+        breathing: formData.breathing as 'normal' | 'labored' | 'absent',
+        circulation: formData.circulation as 'normal' | 'bleeding' | 'shock',
+        consciousness: formData.consciousness as
+          | 'alert'
+          | 'verbal'
+          | 'pain'
+          | 'unresponsive',
+        respiratoryRate: formData.respiratoryRate
+          ? parseInt(formData.respiratoryRate)
+          : null,
+        capillaryRefill: formData.capillaryRefill
+          ? parseFloat(formData.capillaryRefill)
+          : null,
+        radialPulse: formData.radialPulse as 'present' | 'absent' | undefined,
+      },
+      mobility: formData.mobility as 'ambulatory' | 'non-ambulatory',
+      injuries: formData.injuries
+        ? formData.injuries
+            .split(',')
+            .map(i => i.trim())
+            .filter(i => i)
+        : [],
+      notes: formData.notes || undefined,
+      timestamp: new Date(),
+      lastUpdated: new Date(),
+      priority: {
+        level: 'green',
+        description: '',
+        urgency: 3,
+        color: '',
+        icon: '',
+      }, // Temporary
+      status: 'active' as const,
+    };
+  }, [formData]);
+
   // Real-time triage preview calculation
   useEffect(() => {
     const calculatePreview = () => {
@@ -111,7 +165,7 @@ export function PatientIntakeForm({
     };
 
     calculatePreview();
-  }, [formData]);
+  }, [formData, isFormComplete, convertFormToPatientData]);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -176,54 +230,6 @@ export function PatientIntakeForm({
     return Object.keys(newErrors).length === 0;
   };
 
-  const isFormComplete = (): boolean => {
-    return Boolean(
-      formData.ageGroup &&
-        formData.breathing &&
-        formData.circulation &&
-        formData.consciousness &&
-        formData.mobility
-    );
-  };
-
-  const convertFormToPatientData = () => {
-    return {
-      id: 'temp-id', // Temporary ID for preview
-      ageGroup: formData.ageGroup,
-      vitals: {
-        pulse: formData.pulse ? parseInt(formData.pulse) : null,
-        breathing: formData.breathing,
-        circulation: formData.circulation,
-        consciousness: formData.consciousness,
-        respiratoryRate: formData.respiratoryRate
-          ? parseInt(formData.respiratoryRate)
-          : null,
-        capillaryRefill: formData.capillaryRefill
-          ? parseFloat(formData.capillaryRefill)
-          : null,
-        radialPulse: formData.radialPulse || undefined,
-      },
-      mobility: formData.mobility,
-      injuries: formData.injuries
-        ? formData.injuries
-            .split(',')
-            .map(i => i.trim())
-            .filter(i => i)
-        : [],
-      notes: formData.notes || undefined,
-      timestamp: new Date(),
-      lastUpdated: new Date(),
-      priority: {
-        level: 'green',
-        description: '',
-        urgency: 3,
-        color: '',
-        icon: '',
-      }, // Temporary
-      status: 'active' as const,
-    };
-  };
-
   const handleSubmit = async (e: JSX.TargetedEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -264,7 +270,7 @@ export function PatientIntakeForm({
         notes: formData.notes || undefined,
       };
 
-      const patientId = await dataService.createPatient(patientInput);
+      const newPatientId = await dataService.createPatient(patientInput);
 
       // Reset form
       setFormData(initialFormData);
@@ -272,7 +278,7 @@ export function PatientIntakeForm({
       setShowPreview(false);
 
       if (onSubmit) {
-        onSubmit(patientId);
+        onSubmit(newPatientId);
       }
     } catch (error) {
       console.error('Failed to create patient:', error);
@@ -433,10 +439,7 @@ export function PatientIntakeForm({
               <select
                 value={formData.breathing}
                 onChange={e =>
-                  handleInputChange(
-                    'breathing',
-                    (e.target as HTMLSelectElement).value
-                  )
+                  handleInputChange('breathing', e.currentTarget.value)
                 }
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -458,10 +461,7 @@ export function PatientIntakeForm({
               <select
                 value={formData.circulation}
                 onChange={e =>
-                  handleInputChange(
-                    'circulation',
-                    (e.target as HTMLSelectElement).value
-                  )
+                  handleInputChange('circulation', e.currentTarget.value)
                 }
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -483,10 +483,7 @@ export function PatientIntakeForm({
               <select
                 value={formData.consciousness}
                 onChange={e =>
-                  handleInputChange(
-                    'consciousness',
-                    (e.target as HTMLSelectElement).value
-                  )
+                  handleInputChange('consciousness', e.currentTarget.value)
                 }
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -556,10 +553,7 @@ export function PatientIntakeForm({
                 step="0.1"
                 value={formData.capillaryRefill}
                 onChange={e =>
-                  handleInputChange(
-                    'capillaryRefill',
-                    (e.target as HTMLInputElement).value
-                  )
+                  handleInputChange('capillaryRefill', e.currentTarget.value)
                 }
                 placeholder="e.g., 2.0"
                 min="0"
@@ -576,10 +570,7 @@ export function PatientIntakeForm({
               <select
                 value={formData.radialPulse}
                 onChange={e =>
-                  handleInputChange(
-                    'radialPulse',
-                    (e.target as HTMLSelectElement).value
-                  )
+                  handleInputChange('radialPulse', e.currentTarget.value)
                 }
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
@@ -598,10 +589,7 @@ export function PatientIntakeForm({
             <textarea
               value={formData.injuries}
               onChange={e =>
-                handleInputChange(
-                  'injuries',
-                  (e.target as HTMLTextAreaElement).value
-                )
+                handleInputChange('injuries', e.currentTarget.value)
               }
               placeholder="Describe visible injuries, separated by commas"
               rows={3}
@@ -616,12 +604,7 @@ export function PatientIntakeForm({
             </label>
             <textarea
               value={formData.notes}
-              onChange={e =>
-                handleInputChange(
-                  'notes',
-                  (e.target as HTMLTextAreaElement).value
-                )
-              }
+              onChange={e => handleInputChange('notes', e.currentTarget.value)}
               placeholder="Any additional observations or notes"
               rows={3}
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

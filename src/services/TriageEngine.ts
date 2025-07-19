@@ -5,8 +5,7 @@
  */
 
 import type { PatientData } from '../types/PatientData';
-import type { TriagePriority } from '../types/TriagePriority';
-import { getTriagePriority } from '../types/TriagePriority';
+import { TriagePriority, getTriagePriority } from '../types/TriagePriority';
 
 /**
  * Triage assessment result interface

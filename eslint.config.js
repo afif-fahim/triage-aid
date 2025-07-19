@@ -21,6 +21,19 @@ export default [
         document: 'readonly',
         console: 'readonly',
         navigator: 'readonly',
+        HTMLFormElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLSelectElement: 'readonly',
+        HTMLTextAreaElement: 'readonly',
+        Event: 'readonly',
+        SubmitEvent: 'readonly',
+        crypto: 'readonly',
+        localStorage: 'readonly',
+        CryptoKey: 'readonly',
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
       },
     },
     plugins: {
@@ -28,8 +41,14 @@ export default [
       'react-hooks': reactHooks,
     },
     rules: {
-      // TypeScript specific rules
-      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      // Disable base rule and use TypeScript version
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { 
+        argsIgnorePattern: '^_', 
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        ignoreRestSiblings: true
+      }],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-non-null-assertion': 'warn',
       
