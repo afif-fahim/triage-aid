@@ -1,0 +1,14 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="#1E40AF"/>
+  
+  <!-- Medical cross -->
+  <rect x="216" y="136" width="80" height="240" rx="8" fill="white"/>
+  <rect x="136" y="216" width="240" height="80" rx="8" fill="white"/>
+  
+  <!-- Triage priority indicators -->
+  <circle cx="180" cy="180" r="16" fill="#DC2626"/>
+  <circle cx="332" cy="180" r="16" fill="#D97706"/>
+  <circle cx="180" cy="332" r="16" fill="#059669"/>
+  <circle cx="332" cy="332" r="16" fill="#374151"/>
+</svg>
