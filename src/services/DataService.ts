@@ -8,10 +8,11 @@ import {
   PatientDataInput,
   PatientDataUpdate,
   TriagePriority,
-  TRIAGE_PRIORITIES,
+  getTriagePriority,
 } from '../types';
 import { triageDB, type EncryptedPatientRecord } from './DatabaseService';
 import { securityService } from './SecurityService';
+import { triageEngine } from './TriageEngine';
 
 /**
  * Data service interface
@@ -26,9 +27,7 @@ export interface IDataService {
 
   // Bulk operations
   getPatientsByStatus(status: PatientData['status']): Promise<PatientData[]>;
-  getPatientsByPriority(
-    priority: TriagePriority['level']
-  ): Promise<PatientData[]>;
+  getPatientsByPriority(): Promise<PatientData[]>;
 
   // Data management
   clearAllData(): Promise<void>;
@@ -89,9 +88,13 @@ export class DataService implements IDataService {
         ...patientData,
         timestamp: new Date(),
         lastUpdated: new Date(),
-        priority: TRIAGE_PRIORITIES.green!, // Default priority, will be calculated by triage engine
+        priority: getTriagePriority('green'), // Temporary default, will be calculated next
         status: 'active',
       };
+
+      // Calculate triage priority using START algorithm
+      const triageAssessment = triageEngine.assessPatient(completePatientData);
+      completePatientData.priority = triageAssessment.priority;
 
       // Encrypt patient data
       const encryptedData =
@@ -170,8 +173,11 @@ export class DataService implements IDataService {
         timestamp: existingPatient.timestamp,
       };
 
-      // If vitals were updated, priority might need recalculation
-      // This will be handled by the triage engine in a separate service
+      // Recalculate triage priority if vitals were updated
+      if (updates.vitals || updates.mobility) {
+        const newPriority = triageEngine.recalculatePriority(updatedPatient);
+        updatedPatient.priority = newPriority;
+      }
 
       // Encrypt updated data
       const encryptedData =
@@ -287,10 +293,7 @@ export class DataService implements IDataService {
     await this.ensureInitialized();
 
     try {
-      const priorityData = TRIAGE_PRIORITIES[priority];
-      if (!priorityData) {
-        throw new Error(`Invalid priority level: ${priority}`);
-      }
+      const priorityData = getTriagePriority(priority);
       const priorityUrgency = priorityData.urgency;
 
       const encryptedRecords = await triageDB.patients
