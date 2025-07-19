@@ -25,6 +25,7 @@ export default [
         HTMLInputElement: 'readonly',
         HTMLSelectElement: 'readonly',
         HTMLTextAreaElement: 'readonly',
+        HTMLButtonElement: 'readonly',
         Event: 'readonly',
         SubmitEvent: 'readonly',
         crypto: 'readonly',

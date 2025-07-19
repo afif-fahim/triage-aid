@@ -9,6 +9,7 @@ import type { PatientDataInput, PatientData } from '../types/PatientData';
 import type { TriagePriority } from '../types/TriagePriority';
 import { triageEngine } from '../services/TriageEngine';
 import { dataService } from '../services/DataService';
+import { Card, Button, ResponsiveGrid } from './ui/';
 
 interface PatientIntakeFormProps {
   onSubmit?: (patientId: string) => void;
@@ -299,38 +300,83 @@ export function PatientIntakeForm({
     }
   };
 
+  // Calculate form completion progress
+  const getFormProgress = () => {
+    const requiredFields = [
+      'ageGroup',
+      'breathing',
+      'circulation',
+      'consciousness',
+      'mobility',
+    ];
+    const completedFields = requiredFields.filter(field => {
+      const value = formData[field as keyof FormData];
+      return value && value !== '';
+    });
+    return Math.round((completedFields.length / requiredFields.length) * 100);
+  };
+
   return (
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
-      <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">
-          {isEditing ? 'Edit Patient Assessment' : 'Patient Intake Assessment'}
-        </h2>
-        <p class="text-gray-600">
-          Complete the triage assessment using START protocol guidelines
-        </p>
-      </div>
+    <div class="max-w-4xl mx-auto space-y-6">
+      {/* Header Card */}
+      <Card variant="default" padding="md">
+        <div class="text-center sm:text-left">
+          <h2 class="text-responsive-xl font-bold text-medical-text-primary mb-2">
+            {isEditing
+              ? 'Edit Patient Assessment'
+              : 'Patient Intake Assessment'}
+          </h2>
+          <p class="text-medical-text-secondary text-responsive-sm mb-4">
+            Complete the triage assessment using START protocol guidelines
+          </p>
+
+          {/* Progress Indicator */}
+          <div class="mt-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-medium text-medical-text-primary">
+                Form Progress
+              </span>
+              <span class="text-sm text-medical-text-secondary">
+                {getFormProgress()}% Complete
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div
+                class="bg-medical-primary h-2 rounded-full transition-all duration-300"
+                style={{ width: `${getFormProgress()}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Triage Priority Preview */}
       {showPreview && previewPriority && (
         <div
-          class="mb-6 p-4 rounded-lg border-2 border-dashed"
+          className="animate-slide-up medical-card border-2 border-dashed"
           style={{
             borderColor: previewPriority.color,
-            backgroundColor: `${previewPriority.color}10`,
+            backgroundColor: `${previewPriority.color}08`,
           }}
         >
           <div class="flex items-center gap-3">
             <div
-              class="w-4 h-4 rounded-full"
+              class="w-5 h-5 rounded-full flex-shrink-0"
               style={{ backgroundColor: previewPriority.color }}
-            ></div>
-            <div>
-              <h3 class="font-semibold text-gray-900">
+            />
+            <div class="flex-1">
+              <h3 class="font-semibold text-medical-text-primary text-responsive-sm">
                 Predicted Triage Priority
               </h3>
-              <p class="text-sm" style={{ color: previewPriority.color }}>
+              <p
+                class="text-sm font-medium"
+                style={{ color: previewPriority.color }}
+              >
                 {previewPriority.description}
               </p>
+            </div>
+            <div class="text-xs bg-white bg-opacity-50 px-2 py-1 rounded-md">
+              Preview
             </div>
           </div>
         </div>
@@ -339,53 +385,104 @@ export function PatientIntakeForm({
       <form onSubmit={handleSubmit} class="space-y-6">
         {/* General Error */}
         {errors.general && (
-          <div class="bg-red-50 border border-red-200 rounded-md p-4">
-            <p class="text-red-800 text-sm">{errors.general}</p>
-          </div>
+          <Card
+            variant="outlined"
+            padding="sm"
+            className="border-medical-error bg-red-50"
+          >
+            <div class="flex items-center gap-2">
+              <svg
+                class="w-5 h-5 text-medical-error flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p class="text-medical-error text-sm font-medium">
+                {errors.general}
+              </p>
+            </div>
+          </Card>
         )}
 
-        {/* Age Group Selection */}
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Age Group <span class="text-red-500">*</span>
-          </label>
-          <div class="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleInputChange('ageGroup', 'child')}
-              class={`p-3 border rounded-lg text-center transition-colors ${
-                formData.ageGroup === 'child'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              Child
-            </button>
-            <button
-              type="button"
-              onClick={() => handleInputChange('ageGroup', 'adult')}
-              class={`p-3 border rounded-lg text-center transition-colors ${
-                formData.ageGroup === 'adult'
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              Adult
-            </button>
+        {/* Basic Information Section */}
+        <Card variant="default" padding="md">
+          <h3 class="text-responsive-lg font-semibold text-medical-text-primary mb-4 flex items-center gap-2">
+            <div class="w-6 h-6 bg-medical-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+              1
+            </div>
+            Basic Information
+          </h3>
+
+          {/* Age Group Selection */}
+          <div>
+            <label class="block text-sm font-medium text-medical-text-primary mb-3">
+              Age Group <span class="text-medical-error">*</span>
+            </label>
+            <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
+              <button
+                type="button"
+                onClick={() => handleInputChange('ageGroup', 'child')}
+                class={`
+                  touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                  ${
+                    formData.ageGroup === 'child'
+                      ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                  }
+                `}
+              >
+                <div class="text-2xl mb-1">👶</div>
+                Child
+              </button>
+              <button
+                type="button"
+                onClick={() => handleInputChange('ageGroup', 'adult')}
+                class={`
+                  touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                  ${
+                    formData.ageGroup === 'adult'
+                      ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                  }
+                `}
+              >
+                <div class="text-2xl mb-1">👤</div>
+                Adult
+              </button>
+            </ResponsiveGrid>
+            {errors.ageGroup && (
+              <p class="text-medical-error text-sm mt-2 flex items-center gap-1">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {errors.ageGroup}
+              </p>
+            )}
           </div>
-          {errors.ageGroup && (
-            <p class="text-red-600 text-sm mt-1">{errors.ageGroup}</p>
-          )}
-        </div>
+        </Card>
 
         {/* Vital Signs Section */}
-        <div class="border-t pt-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Vital Signs</h3>
+        <Card variant="default" padding="md">
+          <h3 class="text-responsive-lg font-semibold text-medical-text-primary mb-4 flex items-center gap-2">
+            <div class="w-6 h-6 bg-medical-accent text-white rounded-full flex items-center justify-center text-sm font-bold">
+              2
+            </div>
+            Vital Signs
+          </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ResponsiveGrid cols={{ xs: 1, md: 2 }} gap="md">
             {/* Pulse */}
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 Pulse (bpm)
               </label>
               <input
@@ -397,16 +494,25 @@ export function PatientIntakeForm({
                 placeholder="e.g., 80"
                 min="20"
                 max="250"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="form-input"
               />
               {errors.pulse && (
-                <p class="text-red-600 text-sm mt-1">{errors.pulse}</p>
+                <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.pulse}
+                </p>
               )}
             </div>
 
             {/* Respiratory Rate */}
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
+              <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 Respiratory Rate (breaths/min)
               </label>
               <input
@@ -418,101 +524,148 @@ export function PatientIntakeForm({
                 placeholder="e.g., 16"
                 min="5"
                 max="60"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="form-input"
               />
+              {errors.respiratoryRate && (
+                <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.respiratoryRate}
+                </p>
+              )}
             </div>
-          </div>
-        </div>
+          </ResponsiveGrid>
+        </Card>
 
-        {/* Assessment Section */}
-        <div class="border-t pt-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        {/* Clinical Assessment Section */}
+        <Card variant="default" padding="md">
+          <h3 class="text-responsive-lg font-semibold text-medical-text-primary mb-4 flex items-center gap-2">
+            <div class="w-6 h-6 bg-medical-success text-white rounded-full flex items-center justify-center text-sm font-bold">
+              3
+            </div>
             Clinical Assessment
           </h3>
 
-          <div class="space-y-4">
+          <div class="space-y-6">
             {/* Breathing Status */}
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Breathing Status <span class="text-red-500">*</span>
+              <label class="block text-sm font-medium text-medical-text-primary mb-2">
+                Breathing Status <span class="text-medical-error">*</span>
               </label>
               <select
                 value={formData.breathing}
                 onChange={e =>
                   handleInputChange('breathing', e.currentTarget.value)
                 }
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="form-select"
               >
                 <option value="">Select breathing status</option>
-                <option value="normal">Normal</option>
-                <option value="labored">Labored/Distressed</option>
-                <option value="absent">Absent</option>
+                <option value="normal">🫁 Normal</option>
+                <option value="labored">😤 Labored/Distressed</option>
+                <option value="absent">❌ Absent</option>
               </select>
               {errors.breathing && (
-                <p class="text-red-600 text-sm mt-1">{errors.breathing}</p>
+                <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.breathing}
+                </p>
               )}
             </div>
 
             {/* Circulation Status */}
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Circulation Status <span class="text-red-500">*</span>
+              <label class="block text-sm font-medium text-medical-text-primary mb-2">
+                Circulation Status <span class="text-medical-error">*</span>
               </label>
               <select
                 value={formData.circulation}
                 onChange={e =>
                   handleInputChange('circulation', e.currentTarget.value)
                 }
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="form-select"
               >
                 <option value="">Select circulation status</option>
-                <option value="normal">Normal</option>
-                <option value="bleeding">Active Bleeding</option>
-                <option value="shock">Signs of Shock</option>
+                <option value="normal">💓 Normal</option>
+                <option value="bleeding">🩸 Active Bleeding</option>
+                <option value="shock">⚠️ Signs of Shock</option>
               </select>
               {errors.circulation && (
-                <p class="text-red-600 text-sm mt-1">{errors.circulation}</p>
+                <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.circulation}
+                </p>
               )}
             </div>
 
             {/* Consciousness Level */}
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Consciousness Level (AVPU) <span class="text-red-500">*</span>
+              <label class="block text-sm font-medium text-medical-text-primary mb-2">
+                Consciousness Level (AVPU){' '}
+                <span class="text-medical-error">*</span>
               </label>
               <select
                 value={formData.consciousness}
                 onChange={e =>
                   handleInputChange('consciousness', e.currentTarget.value)
                 }
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="form-select"
               >
                 <option value="">Select consciousness level</option>
-                <option value="alert">Alert</option>
-                <option value="verbal">Responds to Verbal</option>
-                <option value="pain">Responds to Pain</option>
-                <option value="unresponsive">Unresponsive</option>
+                <option value="alert">😊 Alert</option>
+                <option value="verbal">🗣️ Responds to Verbal</option>
+                <option value="pain">😣 Responds to Pain</option>
+                <option value="unresponsive">😵 Unresponsive</option>
               </select>
               {errors.consciousness && (
-                <p class="text-red-600 text-sm mt-1">{errors.consciousness}</p>
+                <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.consciousness}
+                </p>
               )}
             </div>
 
             {/* Mobility Status */}
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Mobility Status <span class="text-red-500">*</span>
+              <label class="block text-sm font-medium text-medical-text-primary mb-3">
+                Mobility Status <span class="text-medical-error">*</span>
               </label>
-              <div class="grid grid-cols-2 gap-3">
+              <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
                 <button
                   type="button"
                   onClick={() => handleInputChange('mobility', 'ambulatory')}
-                  class={`p-3 border rounded-lg text-center transition-colors ${
-                    formData.mobility === 'ambulatory'
-                      ? 'border-green-500 bg-green-50 text-green-700'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
+                  class={`
+                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                    ${
+                      formData.mobility === 'ambulatory'
+                        ? 'border-medical-success bg-green-50 text-green-700 shadow-sm'
+                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                    }
+                  `}
                 >
+                  <div class="text-2xl mb-1">🚶</div>
                   Can Walk
                 </button>
                 <button
@@ -520,121 +673,175 @@ export function PatientIntakeForm({
                   onClick={() =>
                     handleInputChange('mobility', 'non-ambulatory')
                   }
-                  class={`p-3 border rounded-lg text-center transition-colors ${
-                    formData.mobility === 'non-ambulatory'
-                      ? 'border-orange-500 bg-orange-50 text-orange-700'
-                      : 'border-gray-300 hover:border-gray-400'
-                  }`}
+                  class={`
+                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                    ${
+                      formData.mobility === 'non-ambulatory'
+                        ? 'border-medical-warning bg-orange-50 text-orange-700 shadow-sm'
+                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                    }
+                  `}
                 >
+                  <div class="text-2xl mb-1">🛏️</div>
                   Cannot Walk
                 </button>
-              </div>
+              </ResponsiveGrid>
               {errors.mobility && (
-                <p class="text-red-600 text-sm mt-1">{errors.mobility}</p>
+                <p class="text-medical-error text-sm mt-2 flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  {errors.mobility}
+                </p>
               )}
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Additional Assessment */}
-        <div class="border-t pt-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">
+        <Card variant="default" padding="md">
+          <h3 class="text-responsive-lg font-semibold text-medical-text-primary mb-4 flex items-center gap-2">
+            <div class="w-6 h-6 bg-medical-warning text-white rounded-full flex items-center justify-center text-sm font-bold">
+              4
+            </div>
             Additional Assessment
           </h3>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Capillary Refill */}
+          <div class="space-y-6">
+            <ResponsiveGrid cols={{ xs: 1, md: 2 }} gap="md">
+              {/* Capillary Refill */}
+              <div>
+                <label class="block text-sm font-medium text-medical-text-primary mb-2">
+                  Capillary Refill (seconds)
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.capillaryRefill}
+                  onChange={e =>
+                    handleInputChange('capillaryRefill', e.currentTarget.value)
+                  }
+                  placeholder="e.g., 2.0"
+                  min="0"
+                  max="10"
+                  class="form-input"
+                />
+                {errors.capillaryRefill && (
+                  <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    {errors.capillaryRefill}
+                  </p>
+                )}
+              </div>
+
+              {/* Radial Pulse */}
+              <div>
+                <label class="block text-sm font-medium text-medical-text-primary mb-2">
+                  Radial Pulse
+                </label>
+                <select
+                  value={formData.radialPulse}
+                  onChange={e =>
+                    handleInputChange('radialPulse', e.currentTarget.value)
+                  }
+                  class="form-select"
+                >
+                  <option value="">Select pulse status</option>
+                  <option value="present">✅ Present</option>
+                  <option value="absent">❌ Absent</option>
+                </select>
+              </div>
+            </ResponsiveGrid>
+
+            {/* Injuries */}
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Capillary Refill (seconds)
+              <label class="block text-sm font-medium text-medical-text-primary mb-2">
+                Visible Injuries
               </label>
-              <input
-                type="number"
-                step="0.1"
-                value={formData.capillaryRefill}
+              <textarea
+                value={formData.injuries}
                 onChange={e =>
-                  handleInputChange('capillaryRefill', e.currentTarget.value)
+                  handleInputChange('injuries', e.currentTarget.value)
                 }
-                placeholder="e.g., 2.0"
-                min="0"
-                max="10"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Describe visible injuries, separated by commas"
+                rows={3}
+                class="form-textarea"
+              />
+              <p class="text-xs text-medical-text-muted mt-1">
+                Separate multiple injuries with commas
+              </p>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <label class="block text-sm font-medium text-medical-text-primary mb-2">
+                Additional Notes
+              </label>
+              <textarea
+                value={formData.notes}
+                onChange={e =>
+                  handleInputChange('notes', e.currentTarget.value)
+                }
+                placeholder="Any additional observations or notes"
+                rows={3}
+                class="form-textarea"
               />
             </div>
-
-            {/* Radial Pulse */}
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Radial Pulse
-              </label>
-              <select
-                value={formData.radialPulse}
-                onChange={e =>
-                  handleInputChange('radialPulse', e.currentTarget.value)
-                }
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select pulse status</option>
-                <option value="present">Present</option>
-                <option value="absent">Absent</option>
-              </select>
-            </div>
           </div>
-
-          {/* Injuries */}
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Visible Injuries
-            </label>
-            <textarea
-              value={formData.injuries}
-              onChange={e =>
-                handleInputChange('injuries', e.currentTarget.value)
-              }
-              placeholder="Describe visible injuries, separated by commas"
-              rows={3}
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Additional Notes
-            </label>
-            <textarea
-              value={formData.notes}
-              onChange={e => handleInputChange('notes', e.currentTarget.value)}
-              placeholder="Any additional observations or notes"
-              rows={3}
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
+        </Card>
 
         {/* Form Actions */}
-        <div class="flex gap-4 pt-6 border-t">
-          <button
-            type="submit"
-            disabled={isSubmitting || !isFormComplete()}
-            class="flex-1 bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-          >
-            {isSubmitting
-              ? 'Saving...'
-              : isEditing
-                ? 'Update Patient'
-                : 'Save Patient'}
-          </button>
+        <Card
+          variant="default"
+          padding="md"
+          className="sticky bottom-4 safe-bottom"
+        >
+          <div class="flex flex-col sm:flex-row gap-3">
+            <Button
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              disabled={isSubmitting || !isFormComplete()}
+              loading={isSubmitting}
+              className="sm:flex-1"
+            >
+              {isEditing ? 'Update Patient' : 'Save Patient'}
+            </Button>
 
-          <button
-            type="button"
-            onClick={handleCancel}
-            disabled={isSubmitting}
-            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              fullWidth
+              onClick={handleCancel}
+              disabled={isSubmitting}
+              className="sm:w-auto sm:px-8"
+            >
+              Cancel
+            </Button>
+          </div>
+
+          {!isFormComplete() && (
+            <p class="text-xs text-medical-text-muted mt-2 text-center">
+              Complete all required fields (*) to save the patient assessment
+            </p>
+          )}
+        </Card>
       </form>
     </div>
   );

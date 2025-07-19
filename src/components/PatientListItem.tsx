@@ -144,75 +144,100 @@ export function PatientListItem({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-sm border-l-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer ${className}`}
+      className={`
+        bg-medical-surface rounded-xl shadow-sm border-l-4 border border-gray-200 
+        hover:shadow-md hover:border-gray-300 
+        transition-all duration-200 cursor-pointer 
+        touch-target active:scale-[0.98]
+        ${className}
+      `}
       style={{ borderLeftColor: patient.priority.color }}
       onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
     >
-      <div className="p-4">
-        <div className="flex items-start justify-between">
+      <div className="p-4 sm:p-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
           {/* Left side - Patient info */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-3 mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-3">
               {/* Priority indicator */}
               <div
-                className="flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium"
+                className="priority-badge inline-flex w-fit"
                 style={{
                   backgroundColor: `${patient.priority.color}15`,
                   color: patient.priority.color,
                 }}
               >
-                {getPriorityIcon(patient.priority.level)}
-                <span className="font-semibold">
+                <span className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0">
+                  {getPriorityIcon(patient.priority.level)}
+                </span>
+                <span className="font-semibold text-xs sm:text-sm">
                   {patient.priority.level.toUpperCase()}
                 </span>
               </div>
 
-              {/* Patient ID */}
-              <span className="text-lg font-mono font-semibold text-gray-900">
-                {formatPatientId(patient.id)}
-              </span>
-
-              {/* Age group */}
-              <span className="text-sm text-gray-500 capitalize">
-                {patient.ageGroup}
-              </span>
+              {/* Patient ID and Age */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-base sm:text-lg font-mono font-semibold text-medical-text-primary">
+                  {formatPatientId(patient.id)}
+                </span>
+                <span className="text-xs sm:text-sm text-medical-text-secondary capitalize bg-gray-100 px-2 py-1 rounded-md">
+                  {patient.ageGroup}
+                </span>
+              </div>
             </div>
 
             {/* Priority description */}
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="text-sm sm:text-base text-medical-text-secondary mb-2 font-medium">
               {patient.priority.description}
             </p>
 
             {/* Vitals summary */}
-            <p className="text-sm text-gray-500 mb-3">{getVitalsSummary()}</p>
+            <p className="text-xs sm:text-sm text-medical-text-muted mb-3 line-clamp-2">
+              {getVitalsSummary()}
+            </p>
 
             {/* Injuries (if any) */}
             {patient.injuries.length > 0 && (
               <div className="mb-3">
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Injuries:</span>{' '}
-                  {patient.injuries.slice(0, 2).join(', ')}
-                  {patient.injuries.length > 2 &&
-                    ` +${patient.injuries.length - 2} more`}
+                <p className="text-xs sm:text-sm text-medical-text-secondary">
+                  <span className="font-medium text-medical-text-primary">
+                    Injuries:
+                  </span>{' '}
+                  <span className="line-clamp-1">
+                    {patient.injuries.slice(0, 2).join(', ')}
+                    {patient.injuries.length > 2 &&
+                      ` +${patient.injuries.length - 2} more`}
+                  </span>
                 </p>
               </div>
             )}
 
             {/* Timestamp */}
-            <p className="text-xs text-gray-400">
-              Assessed: {formatTimestamp(patient.timestamp)}
+            <div className="text-xs text-medical-text-muted space-y-1 sm:space-y-0 sm:space-x-3 sm:flex">
+              <span>Assessed: {formatTimestamp(patient.timestamp)}</span>
               {patient.lastUpdated.getTime() !==
                 patient.timestamp.getTime() && (
-                <span> • Updated: {formatTimestamp(patient.lastUpdated)}</span>
+                <span className="block sm:inline">
+                  <span className="hidden sm:inline">•</span> Updated:{' '}
+                  {formatTimestamp(patient.lastUpdated)}
+                </span>
               )}
-            </p>
+            </div>
           </div>
 
           {/* Right side - Status and actions */}
-          <div className="flex flex-col items-end space-y-2 ml-4">
+          <div className="flex flex-col sm:items-end space-y-2 sm:ml-4 shrink-0">
             {/* Status badge */}
             <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(
+              className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium w-fit ${getStatusBadgeClass(
                 patient.status
               )}`}
             >
@@ -221,17 +246,17 @@ export function PatientListItem({
 
             {/* Quick status actions */}
             {patient.status === 'active' && onStatusUpdate && (
-              <div className="flex space-x-1">
+              <div className="flex flex-wrap gap-1 sm:gap-2">
                 <button
                   onClick={e => handleStatusChange(e, 'treated')}
-                  className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors"
+                  className="touch-target text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md hover:bg-green-200 active:bg-green-300 transition-colors font-medium"
                   title="Mark as treated"
                 >
                   Treated
                 </button>
                 <button
                   onClick={e => handleStatusChange(e, 'transferred')}
-                  className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 transition-colors"
+                  className="touch-target text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-md hover:bg-purple-200 active:bg-purple-300 transition-colors font-medium"
                   title="Mark as transferred"
                 >
                   Transfer
@@ -240,9 +265,9 @@ export function PatientListItem({
             )}
 
             {/* Click indicator */}
-            <div className="text-gray-400">
+            <div className="text-medical-text-muted self-end">
               <svg
-                className="w-4 h-4"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"

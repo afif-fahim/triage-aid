@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { PatientData, PatientDataUpdate } from '../types';
 import { dataService } from '../services/DataService';
-import { ConfirmationDialog } from './ConfirmationDialog';
+import { ConfirmationDialog } from './ui/';
 
 export interface PatientDetailViewProps {
   patientId: string;
