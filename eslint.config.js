@@ -35,6 +35,9 @@ export default [
         TextDecoder: 'readonly',
         btoa: 'readonly',
         atob: 'readonly',
+        ServiceWorkerRegistration: 'readonly',
+        MessageChannel: 'readonly',
+        caches: 'readonly',
       },
     },
     plugins: {
@@ -80,8 +83,33 @@ export default [
     },
   },
   {
+    files: ['public/sw.js', '**/sw.js'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        clients: 'readonly',
+        console: 'readonly',
+        fetch: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        URL: 'readonly',
+        Promise: 'readonly',
+        Date: 'readonly',
+        JSON: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off', // Allow console in service worker
+      'no-restricted-globals': 'off',
+    },
+  },
+  {
     ignores: [
       'dist/**',
+      'dev-dist/**',
       'node_modules/**',
       '*.config.js',
       'vite.config.ts',
