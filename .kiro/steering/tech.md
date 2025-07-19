@@ -23,7 +23,6 @@
 ### Development
 ```bash
 npm run dev          # Start development server
-npm run type-check   # Run TypeScript type checking
 npm run lint         # Run ESLint
 npm run lint:fix     # Fix ESLint issues automatically
 npm run format       # Format code with Prettier
