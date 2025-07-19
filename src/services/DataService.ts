@@ -27,7 +27,9 @@ export interface IDataService {
 
   // Bulk operations
   getPatientsByStatus(status: PatientData['status']): Promise<PatientData[]>;
-  getPatientsByPriority(): Promise<PatientData[]>;
+  getPatientsByPriority(
+    priority: TriagePriority['level']
+  ): Promise<PatientData[]>;
 
   // Data management
   clearAllData(): Promise<void>;
