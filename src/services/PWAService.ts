@@ -49,19 +49,24 @@ export class PWAService {
   private async registerServiceWorker(): Promise<void> {
     try {
       this.registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/'
+        scope: '/',
       });
 
-      console.info('PWA Service: Service worker registered', this.registration.scope);
+      console.info(
+        'PWA Service: Service worker registered',
+        this.registration.scope
+      );
 
       // Check for updates immediately
       await this.checkForUpdates();
 
       // Set up update checking interval (every 30 minutes)
-      window.setInterval(() => {
-        this.checkForUpdates();
-      }, 30 * 60 * 1000);
-
+      window.setInterval(
+        () => {
+          this.checkForUpdates();
+        },
+        30 * 60 * 1000
+      );
     } catch (error) {
       console.error('PWA Service: Service worker registration failed', error);
       throw error;
@@ -79,7 +84,10 @@ export class PWAService {
       const newWorker = this.registration?.installing;
       if (newWorker) {
         newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          if (
+            newWorker.state === 'installed' &&
+            navigator.serviceWorker.controller
+          ) {
             // New service worker is available
             this.notifyUpdateCallbacks({ available: true, waiting: true });
           }
@@ -88,7 +96,7 @@ export class PWAService {
     });
 
     // Listen for messages from service worker
-    navigator.serviceWorker.addEventListener('message', (event) => {
+    navigator.serviceWorker.addEventListener('message', event => {
       this.handleServiceWorkerMessage(event.data);
     });
 
@@ -105,11 +113,16 @@ export class PWAService {
   private handleServiceWorkerMessage(data: any): void {
     switch (data.type) {
       case 'BACK_ONLINE':
-        console.info('PWA Service: Back online notification from service worker');
+        console.info(
+          'PWA Service: Back online notification from service worker'
+        );
         this.handleOnlineStatusChange(true);
         break;
       case 'VERSION':
-        console.info('PWA Service: Version info from service worker', data.version);
+        console.info(
+          'PWA Service: Version info from service worker',
+          data.version
+        );
         break;
       default:
         console.info('PWA Service: Unknown message from service worker', data);
@@ -163,15 +176,24 @@ export class PWAService {
     this.isOnline = isOnline;
 
     if (wasOnline !== isOnline) {
-      console.info(`PWA Service: Status changed to ${isOnline ? 'online' : 'offline'}`);
+      console.info(
+        `PWA Service: Status changed to ${isOnline ? 'online' : 'offline'}`
+      );
       this.notifyStatusCallbacks();
 
       // Register background sync when coming back online
-      if (isOnline && this.registration && 'sync' in window.ServiceWorkerRegistration.prototype) {
+      if (
+        isOnline &&
+        this.registration &&
+        'sync' in window.ServiceWorkerRegistration.prototype
+      ) {
         try {
           (this.registration as any).sync.register('background-sync');
         } catch (error) {
-          console.error('PWA Service: Background sync registration failed', error);
+          console.error(
+            'PWA Service: Background sync registration failed',
+            error
+          );
         }
       }
     }
@@ -185,7 +207,7 @@ export class PWAService {
       isOnline: this.isOnline,
       isInstalled: this.isInstalled(),
       updateAvailable: this.isUpdateAvailable(),
-      registration: this.registration
+      registration: this.registration,
     };
   }
 
@@ -193,8 +215,10 @@ export class PWAService {
    * Check if app is installed (running in standalone mode)
    */
   isInstalled(): boolean {
-    return window.matchMedia('(display-mode: standalone)').matches ||
-           (window.navigator as any).standalone === true;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as any).standalone === true
+    );
   }
 
   /**
@@ -209,7 +233,7 @@ export class PWAService {
    */
   onUpdate(callback: (info: PWAUpdateInfo) => void): () => void {
     this.updateCallbacks.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.updateCallbacks.indexOf(callback);
@@ -224,7 +248,7 @@ export class PWAService {
    */
   onStatusChange(callback: (status: PWAStatus) => void): () => void {
     this.statusCallbacks.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.statusCallbacks.indexOf(callback);
@@ -266,7 +290,7 @@ export class PWAService {
    */
   async showInstallPrompt(): Promise<boolean> {
     const deferredPrompt = (window as any).deferredPrompt;
-    
+
     if (!deferredPrompt) {
       console.info('PWA Service: Install prompt not available');
       return false;
@@ -275,12 +299,12 @@ export class PWAService {
     try {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      
+
       console.info(`PWA Service: Install prompt ${outcome}`);
-      
+
       // Clear the deferred prompt
       (window as any).deferredPrompt = null;
-      
+
       return outcome === 'accepted';
     } catch (error) {
       console.error('PWA Service: Install prompt error', error);
@@ -296,10 +320,10 @@ export class PWAService {
       return 'unknown';
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const messageChannel = new MessageChannel();
-      
-      messageChannel.port1.onmessage = (event) => {
+
+      messageChannel.port1.onmessage = event => {
         if (event.data.type === 'VERSION') {
           resolve(event.data.version);
         } else {
@@ -309,10 +333,9 @@ export class PWAService {
 
       const activeWorker = this.registration?.active;
       if (activeWorker) {
-        activeWorker.postMessage(
-          { type: 'GET_VERSION' },
-          [messageChannel.port2]
-        );
+        activeWorker.postMessage({ type: 'GET_VERSION' }, [
+          messageChannel.port2,
+        ]);
       } else {
         resolve('no-active-worker');
       }
@@ -328,10 +351,7 @@ export class PWAService {
   async clearCaches(): Promise<void> {
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames.map(cacheName => caches.delete(cacheName))
-      );
-      
+      await Promise.all(cacheNames.map(cacheName => caches.delete(cacheName)));
     }
   }
 }

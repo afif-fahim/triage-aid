@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'preact/hooks';
-import { pwaService, PWAStatus as PWAStatusType, PWAUpdateInfo } from '../services/PWAService';
+import {
+  pwaService,
+  PWAStatus as PWAStatusType,
+  PWAUpdateInfo,
+} from '../services/PWAService';
 
 interface PWAStatusProps {
   className?: string;
@@ -7,7 +11,10 @@ interface PWAStatusProps {
 
 export function PWAStatus({ className = '' }: PWAStatusProps) {
   const [status, setStatus] = useState<PWAStatusType>(pwaService.getStatus());
-  const [updateInfo, setUpdateInfo] = useState<PWAUpdateInfo>({ available: false, waiting: false });
+  const [updateInfo, setUpdateInfo] = useState<PWAUpdateInfo>({
+    available: false,
+    waiting: false,
+  });
   const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -15,7 +22,7 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
   useEffect(() => {
     // Subscribe to status changes
     const unsubscribeStatus = pwaService.onStatusChange(setStatus);
-    const unsubscribeUpdate = pwaService.onUpdate((info) => {
+    const unsubscribeUpdate = pwaService.onUpdate(info => {
       setUpdateInfo(info);
       if (info.available) {
         setShowUpdatePrompt(true);
@@ -34,7 +41,10 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
     return () => {
       unsubscribeStatus();
       unsubscribeUpdate();
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        'beforeinstallprompt',
+        handleBeforeInstallPrompt
+      );
     };
   }, []);
 
@@ -69,7 +79,9 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
   return (
     <div className={`pwa-status ${className}`}>
       {/* Online/Offline Status */}
-      <div className={`status-indicator ${status.isOnline ? 'online' : 'offline'}`}>
+      <div
+        className={`status-indicator ${status.isOnline ? 'online' : 'offline'}`}
+      >
         <div className="status-dot"></div>
         <span className="status-text">
           {status.isOnline ? 'Online' : 'Offline'}
@@ -111,7 +123,9 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
             <div className="install-icon">📱</div>
             <div className="install-text">
               <h3>Install TriageAid</h3>
-              <p>Install the app for quick access and better offline experience.</p>
+              <p>
+                Install the app for quick access and better offline experience.
+              </p>
             </div>
             <div className="install-actions">
               <button
@@ -175,8 +189,13 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
         }
 
         @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
         }
 
         .update-prompt,

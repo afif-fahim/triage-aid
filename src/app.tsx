@@ -28,7 +28,6 @@ export function App() {
       try {
         await pwaService.initialize();
         setPwaInitialized(true);
-        
       } catch (error) {
         console.error('Failed to initialize PWA service:', error);
         // App still works without PWA features
