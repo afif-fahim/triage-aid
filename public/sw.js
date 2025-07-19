@@ -12,8 +12,8 @@ const STATIC_CACHE_URLS = [
   '/offline.html',
   '/manifest.json',
   // Icons
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
+  '/icons/manifest-icon-192.maskable.png',
+  '/icons/manifest-icon-512.maskable.png',
   // Add other critical assets as needed
 ];
 
