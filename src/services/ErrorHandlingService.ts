@@ -166,6 +166,26 @@ export class ErrorHandlingService {
   }
 
   /**
+   * Show toast notification (generic method)
+   */
+  showToast(
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info' = 'info',
+    duration?: number,
+    actions?: ErrorRecoveryAction[]
+  ): void {
+    if (this.toastCallback) {
+      this.toastCallback({
+        message,
+        type,
+        duration:
+          duration ?? (type === 'error' ? 0 : type === 'success' ? 3000 : 5000),
+        actions,
+      });
+    }
+  }
+
+  /**
    * Create standardized error objects
    */
   createError(
@@ -361,7 +381,7 @@ export class ErrorHandlingService {
               ),
               action: () => {
                 // This would be implemented by the DataService
-                console.log('Cleanup old data requested');
+                console.info('Cleanup old data requested');
               },
             },
           ]
@@ -409,7 +429,7 @@ export class ErrorHandlingService {
               ),
               action: () => {
                 // This would be implemented by the sync service
-                console.log('Retry sync requested');
+                console.info('Retry sync requested');
               },
             },
           ]

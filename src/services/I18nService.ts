@@ -136,6 +136,25 @@ export interface TranslationKeys {
   'dashboard.treated': string;
   'dashboard.transferred': string;
   'dashboard.discharged': string;
+  'dashboard.dataManagement': string;
+
+  // Data Management
+  'dataManagement.title': string;
+  'dataManagement.storageStats': string;
+  'dataManagement.totalPatients': string;
+  'dataManagement.storageUsed': string;
+  'dataManagement.activePatients': string;
+  'dataManagement.treatedPatients': string;
+  'dataManagement.backupRestore': string;
+  'dataManagement.exportAll': string;
+  'dataManagement.importData': string;
+  'dataManagement.backupNote': string;
+  'dataManagement.bulkOperations': string;
+  'dataManagement.selectAll': string;
+  'dataManagement.selected': string;
+  'dataManagement.updateStatus': string;
+  'dataManagement.exportSelected': string;
+  'dataManagement.deleteSelected': string;
 
   // Patient Details
   'patient.intake.title': string;

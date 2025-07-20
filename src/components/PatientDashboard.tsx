@@ -8,6 +8,7 @@ import { useState, useEffect } from 'preact/hooks';
 import { PatientData, TriagePriority } from '../types';
 import { dataService } from '../services/DataService';
 import { PatientListItem } from './PatientListItem';
+import { DataManagement } from './DataManagement';
 import { LoadingSpinner, Card, Button, ResponsiveGrid } from './ui/';
 import { useTranslation } from '../hooks';
 
@@ -30,6 +31,7 @@ export function PatientDashboard({
   const [filterBy, setFilterBy] = useState<TriagePriority['level'] | 'all'>(
     'all'
   );
+  const [showDataManagement, setShowDataManagement] = useState(false);
 
   // Load patients on component mount
   useEffect(() => {
@@ -199,6 +201,29 @@ export function PatientDashboard({
                 {t('dashboard.totalPatients')}: {priorityCounts.total}
               </p>
             </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDataManagement(true)}
+                className="shrink-0"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 7v10c0 2.21 3.79 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.79 4 8 4s8-1.79 8-4M4 7c0-2.21 3.79-4 8-4s8 1.79 8 4"
+                  />
+                </svg>
+                {t('dashboard.dataManagement')}
+              </Button>
+            </div>
           </div>
 
           {/* Priority Count Badges */}
@@ -342,6 +367,13 @@ export function PatientDashboard({
           </div>
         )}
       </div>
+
+      {/* Data Management Modal */}
+      <DataManagement
+        isOpen={showDataManagement}
+        onClose={() => setShowDataManagement(false)}
+        onDataChanged={loadPatients}
+      />
     </div>
   );
 }

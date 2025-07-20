@@ -34,12 +34,25 @@ export interface IDataService {
   // Data management
   clearAllData(): Promise<void>;
   exportData(): Promise<string>;
+  importData(
+    encryptedData: string
+  ): Promise<{ imported: number; errors: string[] }>;
   getStorageStats(): Promise<{
     totalPatients: number;
     storageUsed: number;
     patientsByStatus: Record<string, number>;
     patientsByPriority: Record<string, number>;
   }>;
+
+  // Bulk operations
+  bulkUpdatePatientStatus(
+    patientIds: string[],
+    status: PatientData['status']
+  ): Promise<{ updated: number; errors: string[] }>;
+  bulkDeletePatients(
+    patientIds: string[]
+  ): Promise<{ deleted: number; errors: string[] }>;
+  bulkExportPatients(patientIds: string[]): Promise<string>;
 }
 
 /**
@@ -364,6 +377,83 @@ export class DataService implements IDataService {
   }
 
   /**
+   * Import patient data from encrypted backup
+   */
+  async importData(
+    encryptedData: string
+  ): Promise<{ imported: number; errors: string[] }> {
+    await this.ensureInitialized();
+
+    const errors: string[] = [];
+    let imported = 0;
+
+    try {
+      const importData = JSON.parse(encryptedData);
+
+      // Validate import data structure
+      if (
+        !importData.version ||
+        !importData.patients ||
+        !Array.isArray(importData.patients)
+      ) {
+        throw new Error('Invalid import data format');
+      }
+
+      // Check version compatibility
+      if (importData.version !== '1.0') {
+        errors.push(`Unsupported data version: ${importData.version}`);
+      }
+
+      // Import each patient record
+      for (const record of importData.patients) {
+        try {
+          // Validate record structure
+          if (!record.id || !record.encryptedData) {
+            errors.push(`Invalid patient record: missing required fields`);
+            continue;
+          }
+
+          // Check if patient already exists
+          const existingPatient = await triageDB.patients.get(record.id);
+          if (existingPatient) {
+            errors.push(`Patient ${record.id} already exists - skipped`);
+            continue;
+          }
+
+          // Validate encrypted data by attempting to decrypt
+          try {
+            await securityService.decryptPatientData(record.encryptedData);
+          } catch {
+            errors.push(`Failed to decrypt patient ${record.id}: invalid data`);
+            continue;
+          }
+
+          // Import the record
+          await triageDB.patients.add({
+            id: record.id,
+            encryptedData: record.encryptedData,
+            timestamp: new Date(record.timestamp),
+            lastUpdated: new Date(record.lastUpdated),
+            priority: record.priority,
+            status: record.status,
+          });
+
+          imported++;
+        } catch (error) {
+          errors.push(
+            `Failed to import patient ${record.id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
+        }
+      }
+
+      return { imported, errors };
+    } catch (error) {
+      console.error('Failed to import data:', error);
+      throw new Error('Failed to import patient data');
+    }
+  }
+
+  /**
    * Get storage statistics
    */
   async getStorageStats(): Promise<{
@@ -392,6 +482,82 @@ export class DataService implements IDataService {
     } catch (error) {
       console.error('Failed to get storage stats:', error);
       throw new Error('Failed to retrieve storage statistics');
+    }
+  }
+
+  /**
+   * Bulk update patient status
+   */
+  async bulkUpdatePatientStatus(
+    patientIds: string[],
+    status: PatientData['status']
+  ): Promise<{ updated: number; errors: string[] }> {
+    await this.ensureInitialized();
+
+    const errors: string[] = [];
+    let updated = 0;
+
+    for (const patientId of patientIds) {
+      try {
+        await this.updatePatient(patientId, { status });
+        updated++;
+      } catch (error) {
+        errors.push(
+          `Failed to update patient ${patientId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
+    }
+
+    return { updated, errors };
+  }
+
+  /**
+   * Bulk delete patients
+   */
+  async bulkDeletePatients(
+    patientIds: string[]
+  ): Promise<{ deleted: number; errors: string[] }> {
+    await this.ensureInitialized();
+
+    const errors: string[] = [];
+    let deleted = 0;
+
+    for (const patientId of patientIds) {
+      try {
+        await this.deletePatient(patientId);
+        deleted++;
+      } catch (error) {
+        errors.push(
+          `Failed to delete patient ${patientId}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+      }
+    }
+
+    return { deleted, errors };
+  }
+
+  /**
+   * Bulk export specific patients (encrypted)
+   */
+  async bulkExportPatients(patientIds: string[]): Promise<string> {
+    await this.ensureInitialized();
+
+    try {
+      const encryptedRecords = await triageDB.patients
+        .where('id')
+        .anyOf(patientIds)
+        .toArray();
+
+      const exportData = {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+        patients: encryptedRecords,
+      };
+
+      return JSON.stringify(exportData, null, 2);
+    } catch (error) {
+      console.error('Failed to bulk export patients:', error);
+      throw new Error('Failed to export selected patients');
     }
   }
 }
