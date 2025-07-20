@@ -140,5 +140,26 @@
   "toast.patientCreated": "Patient successfully created!",
   "toast.patientUpdated": "Patient successfully updated!",
   "toast.patientDeleted": "Patient successfully deleted!",
-  "toast.errorOccurred": "An error occurred. Please try again."
+  "toast.errorOccurred": "An error occurred. Please try again.",
+
+  "error.dataError": "A data storage error occurred. Your information may not have been saved.",
+  "error.validationError": "Please check your input and try again.",
+  "error.networkError": "Network connection issue. The app will continue working offline.",
+  "error.systemError": "A system error occurred. Please restart the app if the problem persists.",
+  "error.unknownError": "An unexpected error occurred. Please try again.",
+  "error.storageQuotaExceeded": "Storage space is running low. Consider cleaning up old patient records.",
+  "error.encryptionFailed": "Failed to encrypt patient data. Please try again.",
+  "error.workingOffline": "You are currently working offline. Data will sync when connection is restored.",
+  "error.syncFailed": "Failed to sync data. You can continue working offline.",
+  "error.cleanupOldData": "Clean up old data",
+  "error.retrySync": "Retry sync",
+  "error.patientNotFound": "Patient record not found. It may have been deleted.",
+  "error.invalidPatientData": "Invalid patient data. Please check all required fields.",
+  "error.triageCalculationFailed": "Failed to calculate triage priority. Please review patient data.",
+  "error.databaseConnectionFailed": "Failed to connect to local database. Please restart the app.",
+
+  "validation.required_field": "This field is required",
+  "validation.invalid_range": "Value is outside the valid range",
+  "validation.invalid_pattern": "Value does not match the required format",
+  "validation.invalid_type": "Invalid data type provided"
 }
