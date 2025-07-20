@@ -1,13 +1,13 @@
-# Project Structure & Organization
+# Project Structure
 
-## Root Directory Structure
+## Root Directory
 ```
 ├── src/                    # Source code
 ├── public/                 # Static assets and PWA files
-├── dist/                   # Production build output
 ├── .kiro/                  # Kiro configuration and specs
-├── .vscode/                # VS Code settings
-└── node_modules/           # Dependencies
+├── dist/                   # Production build output
+├── node_modules/           # Dependencies
+└── config files            # Vite, TypeScript, Tailwind, etc.
 ```
 
 ## Source Code Organization (`src/`)
@@ -15,73 +15,65 @@
 src/
 ├── components/             # React/Preact components
 │   ├── ui/                # Reusable UI components
-│   ├── index.ts           # Component exports
-│   ├── PatientIntakeForm.tsx
 │   ├── PatientDashboard.tsx
-│   ├── PatientDetailView.tsx
-│   ├── PatientListItem.tsx
-│   ├── LanguageSwitcher.tsx
-│   └── PWAStatus.tsx
+│   ├── PatientIntakeForm.tsx
+│   └── ...
 ├── services/              # Business logic and data services
-│   ├── DatabaseService.ts
-│   ├── DataService.ts
-│   ├── ErrorHandlingService.ts
-│   ├── I18nService.ts
-│   ├── PWAService.ts
-│   ├── SecurityService.ts
-│   ├── TriageEngine.ts
-│   └── index.ts
-├── hooks/                 # Custom React hooks
-│   ├── useTranslation.ts
-│   ├── useErrorHandler.ts
-│   └── index.ts
+│   ├── DataService.ts     # Database operations
+│   ├── SecurityService.ts # Encryption/decryption
+│   ├── TriageEngine.ts    # START algorithm implementation
+│   └── i18nService.ts     # Internationalization
 ├── types/                 # TypeScript type definitions
-│   ├── AppState.ts
-│   ├── PatientData.ts
-│   ├── TriagePriority.ts
-│   ├── ValidationSchemas.ts
-│   └── index.ts
+│   ├── PatientData.ts     # Patient and triage interfaces
+│   └── AppState.ts        # Application state types
 ├── utils/                 # Utility functions
-│   ├── rtl.ts
-│   └── index.ts
-├── locales/               # Internationalization files
-│   ├── en.json
-│   └── ar.json
-├── assets/                # Static assets
+│   ├── performance.ts     # Performance optimization helpers
+│   └── validation.ts      # Form validation utilities
+├── hooks/                 # Custom React/Preact hooks
+├── locales/               # Translation files (en, ar)
+├── assets/                # Images, icons, fonts
 ├── app.tsx                # Main application component
 ├── main.tsx               # Application entry point
-├── app.css                # Global styles
-└── index.css              # Base styles
+└── *.css                  # Global styles
 ```
 
-## Naming Conventions
-- **Components**: PascalCase (e.g., `PatientIntakeForm.tsx`)
-- **Services**: PascalCase with "Service" suffix (e.g., `DatabaseService.ts`)
-- **Hooks**: camelCase with "use" prefix (e.g., `useTranslation.ts`)
-- **Types**: PascalCase (e.g., `PatientData.ts`)
-- **Utils**: camelCase (e.g., `rtl.ts`)
-- **Files**: Use descriptive names that clearly indicate purpose
+## Public Assets (`public/`)
+```
+public/
+├── icons/                 # PWA icons (various sizes)
+├── manifest.json          # Web App Manifest
+├── sw.js                  # Service Worker
+├── offline.html           # Offline fallback page
+└── browserconfig.xml      # Windows tile configuration
+```
 
-## Import/Export Patterns
-- Each directory has an `index.ts` file for clean imports
-- Use named exports for components and services
-- Import from directory index files: `import { Component } from './components'`
-- Absolute imports configured for `src/` directory
+## Component Architecture
+- **Page Components** - Top-level route components (Dashboard, Intake, Detail)
+- **Feature Components** - Business logic components (PatientForm, TriageCard)
+- **UI Components** - Reusable interface elements (Button, Input, Modal)
+- **Layout Components** - Structure and navigation components
 
-## Component Organization
-- **UI Components**: Generic, reusable components in `components/ui/`
-- **Feature Components**: Domain-specific components in `components/`
-- **Component Structure**: Each component file contains only one main component
-- **Props Interface**: Define props interface above component definition
+## Service Layer Pattern
+- **DataService** - Handles all database operations with Dexie
+- **SecurityService** - Manages encryption/decryption using Web Crypto API
+- **TriageEngine** - Implements START algorithm logic
+- **i18nService** - Handles translations and RTL layout
 
-## Service Layer Architecture
-- **Single Responsibility**: Each service handles one domain area
-- **Dependency Injection**: Services can depend on other services
-- **Error Handling**: All services use centralized error handling
-- **Async/Await**: Consistent async patterns throughout
+## File Naming Conventions
+- **Components** - PascalCase (e.g., `PatientDashboard.tsx`)
+- **Services** - PascalCase with Service suffix (e.g., `DataService.ts`)
+- **Types** - PascalCase (e.g., `PatientData.ts`)
+- **Utilities** - camelCase (e.g., `performance.ts`)
+- **Hooks** - camelCase with use prefix (e.g., `usePatientData.ts`)
 
-## File Organization Rules
-- Keep related files together (component + styles + tests)
-- Use descriptive file names that indicate functionality
-- Separate concerns: UI, business logic, data, utilities
-- Group by feature when appropriate, by type when not
+## Import Organization
+1. External libraries (preact, dexie)
+2. Internal services and utilities
+3. Component imports
+4. Type imports (with `type` keyword)
+5. Relative imports last
+
+## State Management
+- **Local component state** - useState for component-specific data
+- **Service layer** - Centralized business logic and data persistence
+- **Context API** - Global app state (language, theme, user preferences)

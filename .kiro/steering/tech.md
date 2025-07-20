@@ -1,54 +1,51 @@
-# Technology Stack & Build System
+# Technology Stack
 
-## Core Technologies
-- **Framework**: Preact (React-compatible, lightweight alternative)
-- **Language**: TypeScript with strict configuration
-- **Build Tool**: Vite with PWA plugin
-- **Styling**: Tailwind CSS with custom medical theme
-- **Database**: Dexie (IndexedDB wrapper) for offline storage
-- **PWA**: Workbox for service worker and caching strategies
+## Core Framework
+- **Preact** - Lightweight React alternative for better performance on low-power devices
+- **TypeScript** - Strict typing with comprehensive linting rules
+- **Vite** - Fast build tool with optimized bundling for PWA
 
-## Development Tools
-- **Linting**: ESLint with TypeScript and React Hooks plugins
-- **Formatting**: Prettier with consistent configuration
-- **Type Checking**: Strict TypeScript with comprehensive compiler options
+## Styling & UI
+- **Tailwind CSS v4** - Utility-first CSS with medical-themed color palette
+- **Custom medical color scheme** - Triage priority colors (red, yellow, green, black)
+- **Responsive design** - Mobile-first approach with touch-friendly interfaces
+- **RTL support** - Built-in right-to-left layout for Arabic language
 
-## Key Dependencies
-- `preact`: Lightweight React alternative for better performance
-- `dexie`: Client-side database for offline data persistence
-- `vite-plugin-pwa`: PWA capabilities with automatic service worker generation
-- `workbox-window`: Service worker management and updates
+## Data & Storage
+- **Dexie.js** - IndexedDB wrapper for local data persistence
+- **Web Crypto API** - Client-side encryption for patient data security
+- **Anonymous UUIDs** - Patient identification without PII exposure
 
-## Build Commands
+## PWA Features
+- **Vite PWA Plugin** - Service worker generation and caching strategies
+- **Workbox** - Advanced caching with runtime strategies
+- **Web App Manifest** - Native app-like installation and shortcuts
+
+## Code Quality
+- **ESLint** - Strict linting with TypeScript and React hooks rules
+- **Prettier** - Consistent code formatting
+- **Strict TypeScript** - No implicit any, unused parameters/locals checks
+
+## Common Commands
+
 ```bash
-# Development server
-npm run dev
+# Development
+npm run dev              # Start development server
+npm run build           # Build for production
+npm run preview         # Preview production build
 
-# Production build
-npm run build
+# Code Quality
+npm run lint            # Run ESLint
+npm run lint:fix        # Fix ESLint issues automatically
+npm run format          # Format code with Prettier
+npm run format:check    # Check code formatting
 
-# Preview production build
-npm run preview
-
-# Linting
-npm run lint
-npm run lint:fix
-
-# Code formatting
-npm run format
-npm run format:check
+# TypeScript
+tsc -b                  # Type check without emitting files
 ```
 
-## Architecture Patterns
-- **Service-based architecture**: Separate services for data, PWA, i18n, security, and error handling
-- **Component composition**: Reusable UI components with consistent API
-- **Hook-based state management**: Custom hooks for translation, error handling
-- **Error boundaries**: Comprehensive error handling with fallback UI
-- **Offline-first design**: All features work without network connectivity
-
-## Configuration Notes
-- Uses Preact with React compatibility layer (`react` and `react-dom` aliased to `preact/compat`)
-- Strict TypeScript configuration with comprehensive linting rules
-- Custom Tailwind theme with medical-specific color palette
-- PWA configuration optimized for offline medical use
-- Service worker caches all assets and implements runtime caching strategies
+## Build Configuration
+- **Code splitting** - Vendor, UI, services, and locale chunks
+- **Terser minification** - Console removal in production
+- **Bundle size limit** - 500KB warning threshold for mobile optimization
+- **Dependency optimization** - Pre-bundled Preact and Dexie
