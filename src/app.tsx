@@ -6,10 +6,22 @@ import {
   PatientDetailView,
   LanguageSwitcher,
 } from './components';
-import { ResponsiveContainer, Toast, Button, Card } from './components/ui';
+import {
+  ResponsiveContainer,
+  Toast,
+  Button,
+  Card,
+  ToastContainer,
+  ErrorBoundary,
+  FallbackErrorState,
+} from './components/ui';
 import { PWAStatus } from './components/PWAStatus';
 import { pwaService } from './services/PWAService';
 import { i18nService } from './services/I18nService';
+import {
+  errorHandlingService,
+  ToastNotification,
+} from './services/ErrorHandlingService';
 import { useTranslation } from './hooks';
 
 type AppView = 'home' | 'dashboard' | 'intake' | 'patient-detail';
@@ -20,10 +32,7 @@ export function App() {
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
     null
   );
-  const [toast, setToast] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-  } | null>(null);
+  const [toast, setToast] = useState<ToastNotification | null>(null);
   const [pwaInitialized, setPwaInitialized] = useState(false);
   const [i18nInitialized, setI18nInitialized] = useState(false);
 
@@ -38,11 +47,29 @@ export function App() {
         // Initialize PWA service
         await pwaService.initialize();
         setPwaInitialized(true);
+
+        // Initialize toast container for error handling service
+        const toastCallback = (notification: ToastNotification) => {
+          setToast(notification);
+        };
+        errorHandlingService.setToastCallback(toastCallback);
       } catch (error) {
         console.error('Failed to initialize services:', error);
         // App still works without some features
         setI18nInitialized(true);
         setPwaInitialized(true);
+
+        // Show error notification
+        if (error instanceof Error) {
+          errorHandlingService.handleError({
+            type: 'system',
+            code: 'INITIALIZATION_FAILED',
+            message: error.message,
+            details: error,
+            timestamp: new Date(),
+            recoverable: true,
+          });
+        }
       }
     };
 
@@ -171,9 +198,14 @@ export function App() {
           <Toast
             message={toast.message}
             type={toast.type}
+            duration={toast.duration}
+            actions={toast.actions}
             onClose={() => setToast(null)}
           />
         )}
+
+        {/* Global Toast Container for Error Handling Service */}
+        <ToastContainer position="top-right" maxToasts={3} />
 
         {/* Home View */}
         {currentView === 'home' && (
@@ -306,29 +338,62 @@ export function App() {
         {/* Dashboard View */}
         {currentView === 'dashboard' && (
           <div class="animate-fade-in">
-            <PatientDashboard onPatientSelect={handlePatientSelect} />
+            <ErrorBoundary
+              fallback={
+                <FallbackErrorState
+                  title={t('error.dashboardError')}
+                  message={t('error.dashboardErrorDesc')}
+                  onRetry={handleViewDashboard}
+                  onReset={handleBackToHome}
+                />
+              }
+            >
+              <PatientDashboard onPatientSelect={handlePatientSelect} />
+            </ErrorBoundary>
           </div>
         )}
 
         {/* Intake Form View */}
         {currentView === 'intake' && (
           <div class="animate-fade-in">
-            <PatientIntakeForm
-              onSubmit={handlePatientSubmit}
-              onCancel={handleCancelAssessment}
-            />
+            <ErrorBoundary
+              fallback={
+                <FallbackErrorState
+                  title={t('error.intakeError')}
+                  message={t('error.intakeErrorDesc')}
+                  onRetry={handleStartAssessment}
+                  onReset={handleCancelAssessment}
+                />
+              }
+            >
+              <PatientIntakeForm
+                onSubmit={handlePatientSubmit}
+                onCancel={handleCancelAssessment}
+              />
+            </ErrorBoundary>
           </div>
         )}
 
         {/* Patient Detail View */}
         {currentView === 'patient-detail' && selectedPatientId && (
           <div class="animate-fade-in">
-            <PatientDetailView
-              patientId={selectedPatientId}
-              onClose={handleClosePatientDetail}
-              onPatientUpdate={handlePatientUpdate}
-              onPatientDelete={handlePatientDelete}
-            />
+            <ErrorBoundary
+              fallback={
+                <FallbackErrorState
+                  title={t('error.patientDetailError')}
+                  message={t('error.patientDetailErrorDesc')}
+                  onRetry={() => handlePatientSelect(selectedPatientId)}
+                  onReset={handleClosePatientDetail}
+                />
+              }
+            >
+              <PatientDetailView
+                patientId={selectedPatientId}
+                onClose={handleClosePatientDetail}
+                onPatientUpdate={handlePatientUpdate}
+                onPatientDelete={handlePatientDelete}
+              />
+            </ErrorBoundary>
           </div>
         )}
       </ResponsiveContainer>

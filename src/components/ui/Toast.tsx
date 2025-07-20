@@ -5,11 +5,17 @@
 
 import { useEffect } from 'preact/hooks';
 
+interface ToastAction {
+  label: string;
+  action: () => void | Promise<void>;
+}
+
 interface ToastProps {
   message: string;
   type?: 'success' | 'error' | 'warning' | 'info';
   duration?: number;
   onClose: () => void;
+  actions?: ToastAction[];
   className?: string;
 }
 
@@ -18,6 +24,7 @@ export function Toast({
   type = 'info',
   duration = 5000,
   onClose,
+  actions = [],
   className = '',
 }: ToastProps) {
   useEffect(() => {
@@ -85,6 +92,14 @@ export function Toast({
 
   const style = typeStyles[type];
 
+  const handleActionClick = async (action: ToastAction) => {
+    try {
+      await action.action();
+    } catch (error) {
+      console.error('Toast action failed:', error);
+    }
+  };
+
   return (
     <div
       className={`
@@ -101,6 +116,27 @@ export function Toast({
           <div className={`flex-shrink-0 ${style.text}`}>{style.icon}</div>
           <div className="ml-3 flex-1">
             <p className={`text-sm font-medium ${style.text}`}>{message}</p>
+
+            {/* Action buttons */}
+            {actions.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {actions.map((action, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleActionClick(action)}
+                    className={`
+                      text-xs font-medium px-3 py-1 rounded-md
+                      ${style.text} bg-white bg-opacity-20
+                      hover:bg-opacity-30 focus:bg-opacity-30
+                      focus:outline-none focus:ring-2 focus:ring-offset-1
+                      transition-colors
+                    `}
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div className="ml-4 flex-shrink-0">
             <button

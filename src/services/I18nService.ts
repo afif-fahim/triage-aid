@@ -16,6 +16,41 @@ export interface TranslationKeys {
   'nav.newAssessment': string;
   'nav.new': string;
 
+  // Error Messages
+  'error.dataError': string;
+  'error.validationError': string;
+  'error.networkError': string;
+  'error.systemError': string;
+  'error.unknownError': string;
+  'error.storageQuotaExceeded': string;
+  'error.encryptionFailed': string;
+  'error.workingOffline': string;
+  'error.syncFailed': string;
+  'error.cleanupOldData': string;
+  'error.retrySync': string;
+  'error.patientNotFound': string;
+  'error.invalidPatientData': string;
+  'error.triageCalculationFailed': string;
+  'error.databaseConnectionFailed': string;
+  'error.dashboardError': string;
+  'error.dashboardErrorDesc': string;
+  'error.intakeError': string;
+  'error.intakeErrorDesc': string;
+  'error.patientDetailError': string;
+  'error.patientDetailErrorDesc': string;
+  'error.formValidationFailed': string;
+  'error.requiredFieldsMissing': string;
+  'error.invalidDataFormat': string;
+  'error.connectionLost': string;
+  'error.sessionExpired': string;
+  'error.permissionDenied': string;
+  'error.deviceStorageFull': string;
+  'error.browserNotSupported': string;
+  'error.initialization_failed': string;
+  'error.component_error': string;
+  'error.recoveryAction': string;
+  'error.refreshApp': string;
+
   // Home Screen
   'home.title': string;
   'home.subtitle': string;
@@ -145,6 +180,8 @@ export interface TranslationKeys {
   'common.warning': string;
   'common.tryAgain': string;
   'common.markAs': string;
+  'common.info': string;
+  'common.additionalInfo': string;
 
   // Validation Messages
   'validation.required': string;
@@ -153,12 +190,24 @@ export interface TranslationKeys {
   'validation.invalidCapillary': string;
   'validation.selectOption': string;
   'validation.notRecorded': string;
+  'validation.errorFound': string;
+  'validation.errorsFound': string;
+  'validation.required_field': string;
+  'validation.invalid_range': string;
+  'validation.invalid_pattern': string;
+  'validation.invalid_type': string;
 
   // Toast Messages
   'toast.patientCreated': string;
   'toast.patientUpdated': string;
   'toast.patientDeleted': string;
   'toast.errorOccurred': string;
+  'toast.formSubmitSuccess': string;
+  'toast.formSubmitError': string;
+  'toast.dataLoadError': string;
+  'toast.dataSaveError': string;
+  'toast.operationSuccess': string;
+  'toast.operationFailed': string;
 }
 
 export type TranslationKey = keyof TranslationKeys;
