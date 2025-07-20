@@ -215,7 +215,7 @@ export function PatientIntakeForm({
     if (formData.respiratoryRate) {
       const respRate = parseInt(formData.respiratoryRate);
       if (isNaN(respRate) || respRate < 5 || respRate > 60) {
-        newErrors.respiratoryRate = t('validation.selectOption');
+        newErrors.respiratoryRate = t('validation.invalidRespiratory');
       }
     }
 
@@ -223,7 +223,7 @@ export function PatientIntakeForm({
     if (formData.capillaryRefill) {
       const capRefill = parseFloat(formData.capillaryRefill);
       if (isNaN(capRefill) || capRefill < 0 || capRefill > 10) {
-        newErrors.capillaryRefill = t('validation.selectOption');
+        newErrors.capillaryRefill = t('validation.invalidCapillary');
       }
     }
 
@@ -322,20 +322,20 @@ export function PatientIntakeForm({
       <Card variant="default" padding="md">
         <div class="text-center sm:text-left">
           <h2 class="text-responsive-xl font-bold text-medical-text-primary mb-2">
-            {isEditing ? t('patient.edit') : t('intake.title')}
+            {isEditing ? t('patient.edit.title') : t('patient.intake.title')}
           </h2>
           <p class="text-medical-text-secondary text-responsive-sm mb-4">
-            {t('intake.title')}
+            {t('assessment.start.sub')}
           </p>
 
           {/* Progress Indicator */}
           <div class="mt-4">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-medium text-medical-text-primary">
-                {t('intake.title')}
+                {t('intake.progress')}
               </span>
               <span class="text-sm text-medical-text-secondary">
-                {getFormProgress()}% {t('common.loading')}
+                {getFormProgress()}% {t('common.complete')}
               </span>
             </div>
             <div class="w-full bg-gray-200 rounded-full h-2">
@@ -413,7 +413,7 @@ export function PatientIntakeForm({
             <div class="w-6 h-6 bg-medical-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
               1
             </div>
-            {t('intake.ageGroup')}
+            {t('intake.basicInfo')}
           </h3>
 
           {/* Age Group Selection */}
@@ -511,7 +511,7 @@ export function PatientIntakeForm({
             {/* Respiratory Rate */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                {t('intake.pulse')} (breaths/min)
+                {t('intake.respiratoryRate')}
               </label>
               <input
                 type="number"
@@ -519,7 +519,7 @@ export function PatientIntakeForm({
                 onChange={e =>
                   handleInputChange('respiratoryRate', e.currentTarget.value)
                 }
-                placeholder="e.g., 16"
+                placeholder={t('intake.respiratoryPlaceholder')}
                 min="5"
                 max="60"
                 class="form-input"
@@ -546,7 +546,7 @@ export function PatientIntakeForm({
             <div class="w-6 h-6 bg-medical-success text-white rounded-full flex items-center justify-center text-sm font-bold">
               3
             </div>
-            {t('intake.vitals')}
+            {t('intake.clinicalAssessment')}
           </h3>
 
           <div class="space-y-6">
@@ -728,7 +728,7 @@ export function PatientIntakeForm({
             <div class="w-6 h-6 bg-medical-warning text-white rounded-full flex items-center justify-center text-sm font-bold">
               4
             </div>
-            {t('intake.vitals')}
+            {t('intake.additional')}
           </h3>
 
           <div class="space-y-6">
@@ -736,7 +736,7 @@ export function PatientIntakeForm({
               {/* Capillary Refill */}
               <div>
                 <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                  Capillary Refill (seconds)
+                  {t('intake.capillaryRefill')}
                 </label>
                 <input
                   type="number"
@@ -745,7 +745,7 @@ export function PatientIntakeForm({
                   onChange={e =>
                     handleInputChange('capillaryRefill', e.currentTarget.value)
                   }
-                  placeholder="e.g., 2.0"
+                  placeholder={t('intake.capillaryPlaceholder')}
                   min="0"
                   max="10"
                   class="form-input"
@@ -771,7 +771,7 @@ export function PatientIntakeForm({
               {/* Radial Pulse */}
               <div>
                 <label class="block text-sm font-medium text-medical-text-primary mb-2">
-                  Radial Pulse
+                  {t('intake.radialPulse')}
                 </label>
                 <select
                   value={formData.radialPulse}
@@ -781,13 +781,18 @@ export function PatientIntakeForm({
                   class="form-select"
                 >
                   <option value="">{t('validation.selectOption')}</option>
-                  <option value="present">✅ Present</option>
-                  <option value="absent">❌ Absent</option>
+                  <option value="present">
+                    ✅ {t('intake.radialPulse.present')}
+                  </option>
+                  <option value="absent">
+                    ❌ {t('intake.radialPulse.absent')}
+                  </option>
                 </select>
               </div>
             </ResponsiveGrid>
 
             {/* Injuries */}
+            {/* TODO: Use the edit form here too */}
             <div>
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 {t('intake.injuries')}
@@ -840,7 +845,7 @@ export function PatientIntakeForm({
               loading={isSubmitting}
               className="sm:flex-1"
             >
-              {isEditing ? t('patient.save') : t('intake.submit')}
+              {isEditing ? t('common.update') : t('common.save')}
             </Button>
 
             <Button
@@ -852,7 +857,7 @@ export function PatientIntakeForm({
               disabled={isSubmitting}
               className="sm:w-auto sm:px-8"
             >
-              {t('intake.cancel')}
+              {t('common.cancel')}
             </Button>
           </div>
 

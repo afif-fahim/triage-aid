@@ -29,17 +29,19 @@ export interface TranslationKeys {
   'home.features.secureDesc': string;
 
   // Patient Intake Form
-  'intake.title': string;
+  'intake.progress': string;
   'intake.patientId': string;
   'intake.basicInfo': string;
   'intake.ageGroup': string;
   'intake.ageGroup.child': string;
   'intake.ageGroup.adult': string;
   'intake.vitals': string;
+  'intake.normalVitals': string;
   'intake.pulse': string;
   'intake.pulsePlaceholder': string;
   'intake.respiratoryRate': string;
   'intake.respiratoryPlaceholder': string;
+  'intake.clinicalAssessment': string;
   'intake.breathing': string;
   'intake.breathing.normal': string;
   'intake.breathing.labored': string;
@@ -55,8 +57,13 @@ export interface TranslationKeys {
   'intake.consciousness.unresponsive': string;
   'intake.mobility': string;
   'intake.mobility.ambulatory': string;
-  'intake.mobility.assisted': string;
   'intake.mobility.immobile': string;
+  'intake.additional': string;
+  'intake.capillaryRefill': string;
+  'intake.capillaryPlaceholder': string;
+  'intake.radialPulse': string;
+  'intake.radialPulse.present': string;
+  'intake.radialPulse.absent': string;
   'intake.injuries': string;
   'intake.injuriesPlaceholder': string;
   'intake.notes': string;
@@ -96,6 +103,8 @@ export interface TranslationKeys {
   'dashboard.discharged': string;
 
   // Patient Details
+  'patient.intake.title': string;
+  'patient.edit.title': string;
   'patient.details': string;
   'patient.edit': string;
   'patient.save': string;
@@ -111,6 +120,9 @@ export interface TranslationKeys {
   'patient.actionCanNotBeUndone': string;
   'patient.dischargeMsg': string;
 
+  // Assessment details
+  'assessment.start.sub': string;
+
   // Status Labels
   'status.active': string;
   'status.treated': string;
@@ -122,18 +134,23 @@ export interface TranslationKeys {
   'common.cancel': string;
   'common.delete': string;
   'common.edit': string;
+  'common.update': string;
   'common.close': string;
   'common.confirm': string;
   'common.loading': string;
   'common.updating': string;
+  'common.complete': string;
   'common.error': string;
   'common.success': string;
   'common.warning': string;
   'common.tryAgain': string;
+  'common.markAs': string;
 
   // Validation Messages
   'validation.required': string;
   'validation.invalidPulse': string;
+  'validation.invalidRespiratory': string;
+  'validation.invalidCapillary': string;
   'validation.selectOption': string;
   'validation.notRecorded': string;
 

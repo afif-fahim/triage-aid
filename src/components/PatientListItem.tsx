@@ -111,24 +111,26 @@ export function PatientListItem({
     const summaryParts: string[] = [];
 
     if (vitals.pulse) {
-      summaryParts.push(`HR: ${vitals.pulse}`);
+      summaryParts.push(`${t('intake.pulse')}: ${vitals.pulse}`);
     }
 
     if (vitals.breathing !== 'normal') {
-      summaryParts.push(`Breathing: ${vitals.breathing}`);
+      summaryParts.push(`${t('intake.breathing')}: ${vitals.breathing}`);
     }
 
     if (vitals.circulation !== 'normal') {
-      summaryParts.push(`Circulation: ${vitals.circulation}`);
+      summaryParts.push(`${t('intake.circulation')}: ${vitals.circulation}`);
     }
 
     if (vitals.consciousness !== 'alert') {
-      summaryParts.push(`Consciousness: ${vitals.consciousness}`);
+      summaryParts.push(
+        `${t('intake.consciousness')}: ${vitals.consciousness}`
+      );
     }
 
     return summaryParts.length > 0
       ? summaryParts.join(' • ')
-      : t('intake.breathing.normal');
+      : t('intake.normalVitals');
   };
 
   /**
@@ -252,14 +254,14 @@ export function PatientListItem({
                 <button
                   onClick={e => handleStatusChange(e, 'treated')}
                   className="touch-target text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md hover:bg-green-200 active:bg-green-300 transition-colors font-medium"
-                  title={t('status.treated')}
+                  title={`${t('common.markAs')} ${t('status.treated')}`}
                 >
                   {t('status.treated')}
                 </button>
                 <button
                   onClick={e => handleStatusChange(e, 'transferred')}
                   className="touch-target text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-md hover:bg-purple-200 active:bg-purple-300 transition-colors font-medium"
-                  title={t('status.transferred')}
+                  title={`${t('common.markAs')} ${t('status.transferred')}`}
                 >
                   {t('status.transferred')}
                 </button>

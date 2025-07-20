@@ -84,9 +84,8 @@
   - _Requirements: 4.5, 5.4, 8.4_
 
 - [ ] 12. Add data management and cleanup features
-  - Implement secure patient data deletion functionality
   - Add bulk operations for managing multiple patients
-  - Create data export functionality for backup purposes (encrypted)
+  - Create data export and import functionality for backup purposes (encrypted)
   - Implement data retention policies with automatic cleanup options
   - Add storage usage monitoring and cleanup recommendations
   - _Requirements: 5.1, 5.4, 6.5, 8.5_
