@@ -1,7 +1,10 @@
-export * from './PatientIntakeForm';
-export * from './PatientDashboard';
-export * from './PatientListItem';
-export * from './PatientDetailView';
+// Eagerly loaded components (small, frequently used)
 export * from './LanguageSwitcher';
-export * from './DataManagement';
 export * from './BreadcrumbNavigation';
+export * from './PatientListItem';
+
+// Heavy components are lazy loaded in app.tsx
+// export * from './PatientIntakeForm';
+// export * from './PatientDashboard';
+// export * from './PatientDetailView';
+// export * from './DataManagement';

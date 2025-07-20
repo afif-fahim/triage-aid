@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
+import { lazy, Suspense } from 'preact/compat';
 import './app.css';
-import {
-  PatientIntakeForm,
-  PatientDashboard,
-  PatientDetailView,
-  LanguageSwitcher,
-  BreadcrumbNavigation,
-} from './components';
+import { LanguageSwitcher, BreadcrumbNavigation } from './components';
 import {
   ResponsiveContainer,
   Toast,
@@ -15,8 +10,26 @@ import {
   ToastContainer,
   ErrorBoundary,
   FallbackErrorState,
+  LoadingSpinner,
 } from './components/ui';
 import { PWAStatus } from './components/PWAStatus';
+
+// Lazy load heavy components
+const PatientIntakeForm = lazy(() =>
+  import('./components/PatientIntakeForm').then(m => ({
+    default: m.PatientIntakeForm,
+  }))
+);
+const PatientDashboard = lazy(() =>
+  import('./components/PatientDashboard').then(m => ({
+    default: m.PatientDashboard,
+  }))
+);
+const PatientDetailView = lazy(() =>
+  import('./components/PatientDetailView').then(m => ({
+    default: m.PatientDetailView,
+  }))
+);
 import { pwaService } from './services/PWAService';
 import { i18nService } from './services/I18nService';
 import {
@@ -348,7 +361,9 @@ export function App() {
                 />
               }
             >
-              <PatientDashboard onPatientSelect={handlePatientSelect} />
+              <Suspense fallback={<LoadingSpinner size="lg" />}>
+                <PatientDashboard onPatientSelect={handlePatientSelect} />
+              </Suspense>
             </ErrorBoundary>
           </div>
         )}
@@ -366,10 +381,12 @@ export function App() {
                 />
               }
             >
-              <PatientIntakeForm
-                onSubmit={handlePatientSubmit}
-                onCancel={handleCancelAssessment}
-              />
+              <Suspense fallback={<LoadingSpinner size="lg" />}>
+                <PatientIntakeForm
+                  onSubmit={handlePatientSubmit}
+                  onCancel={handleCancelAssessment}
+                />
+              </Suspense>
             </ErrorBoundary>
           </div>
         )}
@@ -387,12 +404,14 @@ export function App() {
                 />
               }
             >
-              <PatientDetailView
-                patientId={selectedPatientId}
-                onClose={handleClosePatientDetail}
-                onPatientUpdate={handlePatientUpdate}
-                onPatientDelete={handlePatientDelete}
-              />
+              <Suspense fallback={<LoadingSpinner size="lg" />}>
+                <PatientDetailView
+                  patientId={selectedPatientId}
+                  onClose={handleClosePatientDetail}
+                  onPatientUpdate={handlePatientUpdate}
+                  onPatientDelete={handlePatientDelete}
+                />
+              </Suspense>
             </ErrorBoundary>
           </div>
         )}

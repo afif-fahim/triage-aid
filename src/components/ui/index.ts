@@ -18,3 +18,4 @@ export * from './Select';
 export * from './FileInput';
 export * from './ProgressBar';
 export * from './Alert';
+export * from './VirtualizedList';

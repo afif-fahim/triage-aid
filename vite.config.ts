@@ -81,4 +81,55 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Vendor chunk for external dependencies
+          if (id.includes('node_modules')) {
+            if (id.includes('preact')) {
+              return 'vendor';
+            }
+            if (id.includes('dexie')) {
+              return 'database';
+            }
+            return 'vendor';
+          }
+          
+          // UI components chunk
+          if (id.includes('/components/ui/')) {
+            return 'ui';
+          }
+          
+          // Services chunk
+          if (id.includes('/services/')) {
+            return 'services';
+          }
+          
+          // Locale files
+          if (id.includes('/locales/')) {
+            return 'locales';
+          }
+          
+          // Default chunk
+          return undefined;
+        }
+      }
+    },
+    // Optimize chunk size for low-power devices
+    chunkSizeWarningLimit: 500,
+    // Enable minification for smaller bundles
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug']
+      }
+    }
+  },
+  // Optimize dependencies for faster loading
+  optimizeDeps: {
+    include: ['preact', 'preact/hooks', 'dexie']
+  }
 })

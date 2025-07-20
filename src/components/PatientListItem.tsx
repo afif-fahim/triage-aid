@@ -4,6 +4,7 @@
  * Shows ID, priority with color coding, and status summary
  */
 
+import { memo } from 'preact/compat';
 import { PatientData } from '../types';
 import { useTranslation } from '../hooks';
 
@@ -14,12 +15,12 @@ export interface PatientListItemProps {
   className?: string;
 }
 
-export function PatientListItem({
+const PatientListItemComponent = ({
   patient,
   onClick,
   onStatusUpdate,
   className = '',
-}: PatientListItemProps) {
+}: PatientListItemProps) => {
   const { t, formatDate } = useTranslation();
   /**
    * Format patient ID for display (show first 8 characters)
@@ -289,4 +290,20 @@ export function PatientListItem({
       </div>
     </div>
   );
-}
+};
+
+// Memoize the component to prevent unnecessary re-renders
+export const PatientListItem = memo(
+  PatientListItemComponent,
+  (prevProps, nextProps) => {
+    // Custom comparison function for better performance
+    return (
+      prevProps.patient.id === nextProps.patient.id &&
+      prevProps.patient.status === nextProps.patient.status &&
+      prevProps.patient.priority.level === nextProps.patient.priority.level &&
+      prevProps.patient.lastUpdated.getTime() ===
+        nextProps.patient.lastUpdated.getTime() &&
+      prevProps.className === nextProps.className
+    );
+  }
+);
