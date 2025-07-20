@@ -10,7 +10,7 @@ import type { TriagePriority } from '../types/TriagePriority';
 import { triageEngine } from '../services/TriageEngine';
 import { dataService } from '../services/DataService';
 import { Card, Button, ResponsiveGrid } from './ui/';
-import { useTranslation } from '../hooks';
+import { useTranslation, useFormNavigationGuard } from '../hooks';
 
 interface PatientIntakeFormProps {
   onSubmit?: (patientId: string) => void;
@@ -94,6 +94,21 @@ export function PatientIntakeForm({
       });
     }
   }, [existingPatient]);
+
+  // Check if form is dirty (has unsaved changes)
+  const isFormDirty = useCallback((): boolean => {
+    // Compare current form data with initial state
+    const hasChanges = Object.keys(formData).some(key => {
+      const currentValue = formData[key as keyof FormData];
+      const initialValue = initialFormData[key as keyof FormData];
+      return currentValue !== initialValue;
+    });
+
+    return hasChanges && !isSubmitting;
+  }, [formData, isSubmitting]);
+
+  // Navigation guard for unsaved form changes
+  useFormNavigationGuard(isFormDirty(), 'intake');
 
   // Check if form has required fields completed
   const isFormComplete = useCallback((): boolean => {

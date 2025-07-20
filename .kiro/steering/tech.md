@@ -1,49 +1,54 @@
-# Technology Stack
+# Technology Stack & Build System
 
-## Core Framework & Build System
-- **Frontend Framework**: Preact (React-compatible, lightweight alternative)
-- **Build Tool**: Vite with TypeScript support
+## Core Technologies
+- **Framework**: Preact (React-compatible, lightweight alternative)
 - **Language**: TypeScript with strict configuration
-- **Styling**: Tailwind CSS v4 with custom medical color palette
-- **PWA**: Service Worker with Workbox for offline functionality
+- **Build Tool**: Vite with PWA plugin
+- **Styling**: Tailwind CSS with custom medical theme
+- **Database**: Dexie (IndexedDB wrapper) for offline storage
+- **PWA**: Workbox for service worker and caching strategies
 
 ## Development Tools
 - **Linting**: ESLint with TypeScript and React Hooks plugins
-- **Formatting**: Prettier with consistent code style
-- **Type Checking**: TypeScript with strict mode enabled
-- **Package Manager**: npm with package-lock.json
+- **Formatting**: Prettier with consistent configuration
+- **Type Checking**: Strict TypeScript with comprehensive compiler options
 
 ## Key Dependencies
-- **Preact**: Lightweight React alternative for better performance
-- **Tailwind CSS**: Utility-first CSS framework with medical-specific color system
-- **TypeScript**: Static typing for better code quality and medical app reliability
+- `preact`: Lightweight React alternative for better performance
+- `dexie`: Client-side database for offline data persistence
+- `vite-plugin-pwa`: PWA capabilities with automatic service worker generation
+- `workbox-window`: Service worker management and updates
 
-## Common Commands
-
-### Development
+## Build Commands
 ```bash
-npm run dev          # Start development server
-npm run lint         # Run ESLint
-npm run lint:fix     # Fix ESLint issues automatically
-npm run format       # Format code with Prettier
-npm run format:check # Check code formatting
+# Development server
+npm run dev
+
+# Production build
+npm run build
+
+# Preview production build
+npm run preview
+
+# Linting
+npm run lint
+npm run lint:fix
+
+# Code formatting
+npm run format
+npm run format:check
 ```
 
-### Build & Deploy
-```bash
-npm run build        # Build for production (TypeScript compile + Vite build)
-npm run preview      # Preview production build locally
-```
+## Architecture Patterns
+- **Service-based architecture**: Separate services for data, PWA, i18n, security, and error handling
+- **Component composition**: Reusable UI components with consistent API
+- **Hook-based state management**: Custom hooks for translation, error handling
+- **Error boundaries**: Comprehensive error handling with fallback UI
+- **Offline-first design**: All features work without network connectivity
 
-## Configuration Files
-- **TypeScript**: Composite project setup with separate app and node configs
-- **ESLint**: Flat config with medical app-specific rules (strict equality, error handling)
-- **Prettier**: Consistent formatting with single quotes and trailing commas
-- **Tailwind**: Custom medical color palette with triage priority colors
-- **Vite**: Preact preset with standard configuration
-
-## Code Quality Standards
-- Strict TypeScript configuration with no implicit any
-- ESLint rules enforcing medical app reliability (no console logs, strict equality)
-- Prettier formatting for consistent code style
-- React Hooks rules for proper component lifecycle management
+## Configuration Notes
+- Uses Preact with React compatibility layer (`react` and `react-dom` aliased to `preact/compat`)
+- Strict TypeScript configuration with comprehensive linting rules
+- Custom Tailwind theme with medical-specific color palette
+- PWA configuration optimized for offline medical use
+- Service worker caches all assets and implements runtime caching strategies

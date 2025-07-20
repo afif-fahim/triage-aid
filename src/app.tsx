@@ -1,31 +1,57 @@
 import { useState, useEffect } from 'preact/hooks';
+import { lazy, Suspense } from 'preact/compat';
 import './app.css';
 import {
-  PatientIntakeForm,
-  PatientDashboard,
-  PatientDetailView,
   LanguageSwitcher,
+  BreadcrumbNavigation,
+  PWAInstallBanner,
+  AppUpdateNotification,
 } from './components';
-import { ResponsiveContainer, Toast, Button, Card } from './components/ui';
+import {
+  ResponsiveContainer,
+  Toast,
+  Button,
+  Card,
+  ToastContainer,
+  ErrorBoundary,
+  FallbackErrorState,
+  LoadingSpinner,
+} from './components/ui';
 import { PWAStatus } from './components/PWAStatus';
+
+// Lazy load heavy components
+const PatientIntakeForm = lazy(() =>
+  import('./components/PatientIntakeForm').then(m => ({
+    default: m.PatientIntakeForm,
+  }))
+);
+const PatientDashboard = lazy(() =>
+  import('./components/PatientDashboard').then(m => ({
+    default: m.PatientDashboard,
+  }))
+);
+const PatientDetailView = lazy(() =>
+  import('./components/PatientDetailView').then(m => ({
+    default: m.PatientDetailView,
+  }))
+);
 import { pwaService } from './services/PWAService';
 import { i18nService } from './services/I18nService';
-import { useTranslation } from './hooks';
-
-type AppView = 'home' | 'dashboard' | 'intake' | 'patient-detail';
+import {
+  errorHandlingService,
+  ToastNotification,
+} from './services/ErrorHandlingService';
+import { useTranslation, useRouter } from './hooks';
 
 export function App() {
   const { t, isRTL, direction } = useTranslation();
-  const [currentView, setCurrentView] = useState<AppView>('home');
-  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
-    null
-  );
-  const [toast, setToast] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-  } | null>(null);
+  const { currentView, params, navigate, navigateToView } = useRouter();
+  const [toast, setToast] = useState<ToastNotification | null>(null);
   const [pwaInitialized, setPwaInitialized] = useState(false);
   const [i18nInitialized, setI18nInitialized] = useState(false);
+
+  // Get patient ID from route params
+  const selectedPatientId = params.id || null;
 
   // Initialize services
   useEffect(() => {
@@ -38,11 +64,29 @@ export function App() {
         // Initialize PWA service
         await pwaService.initialize();
         setPwaInitialized(true);
+
+        // Initialize toast container for error handling service
+        const toastCallback = (notification: ToastNotification) => {
+          setToast(notification);
+        };
+        errorHandlingService.setToastCallback(toastCallback);
       } catch (error) {
         console.error('Failed to initialize services:', error);
         // App still works without some features
         setI18nInitialized(true);
         setPwaInitialized(true);
+
+        // Show error notification
+        if (error instanceof Error) {
+          errorHandlingService.handleError({
+            type: 'system',
+            code: 'INITIALIZATION_FAILED',
+            message: error.message,
+            details: error,
+            timestamp: new Date(),
+            recoverable: true,
+          });
+        }
       }
     };
 
@@ -54,32 +98,30 @@ export function App() {
       message: t('toast.patientCreated'),
       type: 'success',
     });
-    setCurrentView('dashboard');
+    navigateToView('dashboard');
   };
 
   const handleStartAssessment = () => {
-    setCurrentView('intake');
+    navigateToView('intake');
     setToast(null);
   };
 
   const handleViewDashboard = () => {
-    setCurrentView('dashboard');
+    navigateToView('dashboard');
     setToast(null);
   };
 
   const handleCancelAssessment = () => {
-    setCurrentView('dashboard');
+    navigateToView('dashboard');
   };
 
   const handlePatientSelect = (patientId: string) => {
-    setSelectedPatientId(patientId);
-    setCurrentView('patient-detail');
+    navigateToView('patient-detail', { id: patientId });
     setToast(null);
   };
 
   const handleBackToHome = () => {
-    setCurrentView('home');
-    setSelectedPatientId(null);
+    navigate('/');
     setToast(null);
   };
 
@@ -95,13 +137,11 @@ export function App() {
       message: t('toast.patientDeleted'),
       type: 'success',
     });
-    setCurrentView('dashboard');
-    setSelectedPatientId(null);
+    navigateToView('dashboard');
   };
 
   const handleClosePatientDetail = () => {
-    setCurrentView('dashboard');
-    setSelectedPatientId(null);
+    navigateToView('dashboard');
   };
 
   // Don't render until i18n is initialized
@@ -127,7 +167,7 @@ export function App() {
       </div>
 
       {/* Navigation Header */}
-      {currentView !== 'home' && (
+      {currentView && currentView !== 'home' && (
         <nav class="bg-medical-surface shadow-sm border-b border-gray-200 safe-top">
           <ResponsiveContainer maxWidth="full" padding="sm">
             <div class="flex items-center justify-between">
@@ -141,12 +181,17 @@ export function App() {
                   {isRTL ? 'مساعد الفرز ←' : '← TriageAid'}
                 </Button>
                 <span class="text-gray-300 hidden sm:inline">|</span>
-                <span class="text-medical-text-primary font-medium text-sm sm:text-base truncate">
-                  {currentView === 'dashboard' && t('nav.dashboard')}
-                  {currentView === 'intake' && t('nav.assessment')}
-                  {currentView === 'patient-detail' &&
-                    `${t('nav.patientDetails')}${selectedPatientId ? ` - #${selectedPatientId.slice(0, 8).toUpperCase()}` : ''}`}
-                </span>
+
+                {/* Breadcrumb Navigation */}
+                <div class="min-w-0 flex-1">
+                  <BreadcrumbNavigation className="hidden sm:block" />
+                  <span class="text-medical-text-primary font-medium text-sm sm:hidden truncate">
+                    {currentView === 'dashboard' && t('nav.dashboard')}
+                    {currentView === 'intake' && t('nav.assessment')}
+                    {currentView === 'patient-detail' &&
+                      `${t('nav.patientDetails')}${selectedPatientId ? ` - #${selectedPatientId.slice(0, 8).toUpperCase()}` : ''}`}
+                  </span>
+                </div>
               </div>
 
               {currentView === 'dashboard' && (
@@ -166,17 +211,30 @@ export function App() {
       )}
 
       <ResponsiveContainer maxWidth="3xl" padding="md" className="safe-bottom">
+        {/* PWA Components */}
+        {pwaInitialized && (
+          <>
+            <AppUpdateNotification />
+            <PWAInstallBanner />
+          </>
+        )}
+
         {/* Toast Notifications */}
         {toast && (
           <Toast
             message={toast.message}
             type={toast.type}
+            duration={toast.duration}
+            actions={toast.actions}
             onClose={() => setToast(null)}
           />
         )}
 
+        {/* Global Toast Container for Error Handling Service */}
+        <ToastContainer position="top-right" maxToasts={3} />
+
         {/* Home View */}
-        {currentView === 'home' && (
+        {(!currentView || currentView === 'home') && (
           <div class="text-center animate-fade-in">
             <Card variant="elevated" padding="lg" className="max-w-2xl mx-auto">
               <div class="mb-8">
@@ -306,29 +364,68 @@ export function App() {
         {/* Dashboard View */}
         {currentView === 'dashboard' && (
           <div class="animate-fade-in">
-            <PatientDashboard onPatientSelect={handlePatientSelect} />
+            <ErrorBoundary
+              fallback={
+                <FallbackErrorState
+                  title={t('error.dashboardError')}
+                  message={t('error.dashboardErrorDesc')}
+                  onRetry={handleViewDashboard}
+                  onReset={handleBackToHome}
+                />
+              }
+            >
+              <Suspense fallback={<LoadingSpinner size="lg" />}>
+                <PatientDashboard onPatientSelect={handlePatientSelect} />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         )}
 
         {/* Intake Form View */}
         {currentView === 'intake' && (
           <div class="animate-fade-in">
-            <PatientIntakeForm
-              onSubmit={handlePatientSubmit}
-              onCancel={handleCancelAssessment}
-            />
+            <ErrorBoundary
+              fallback={
+                <FallbackErrorState
+                  title={t('error.intakeError')}
+                  message={t('error.intakeErrorDesc')}
+                  onRetry={handleStartAssessment}
+                  onReset={handleCancelAssessment}
+                />
+              }
+            >
+              <Suspense fallback={<LoadingSpinner size="lg" />}>
+                <PatientIntakeForm
+                  onSubmit={handlePatientSubmit}
+                  onCancel={handleCancelAssessment}
+                />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         )}
 
         {/* Patient Detail View */}
         {currentView === 'patient-detail' && selectedPatientId && (
           <div class="animate-fade-in">
-            <PatientDetailView
-              patientId={selectedPatientId}
-              onClose={handleClosePatientDetail}
-              onPatientUpdate={handlePatientUpdate}
-              onPatientDelete={handlePatientDelete}
-            />
+            <ErrorBoundary
+              fallback={
+                <FallbackErrorState
+                  title={t('error.patientDetailError')}
+                  message={t('error.patientDetailErrorDesc')}
+                  onRetry={() => handlePatientSelect(selectedPatientId)}
+                  onReset={handleClosePatientDetail}
+                />
+              }
+            >
+              <Suspense fallback={<LoadingSpinner size="lg" />}>
+                <PatientDetailView
+                  patientId={selectedPatientId}
+                  onClose={handleClosePatientDetail}
+                  onPatientUpdate={handlePatientUpdate}
+                  onPatientDelete={handlePatientDelete}
+                />
+              </Suspense>
+            </ErrorBoundary>
           </div>
         )}
       </ResponsiveContainer>

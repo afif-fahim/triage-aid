@@ -1,62 +1,87 @@
-# Project Structure
+# Project Structure & Organization
 
-## Root Directory
+## Root Directory Structure
 ```
 ├── src/                    # Source code
-├── public/                 # Static assets and PWA manifest
-├── dist/                   # Build output
+├── public/                 # Static assets and PWA files
+├── dist/                   # Production build output
 ├── .kiro/                  # Kiro configuration and specs
-├── node_modules/           # Dependencies
-└── [config files]          # Various configuration files
+├── .vscode/                # VS Code settings
+└── node_modules/           # Dependencies
 ```
 
 ## Source Code Organization (`src/`)
 ```
 src/
-├── components/             # Reusable UI components
+├── components/             # React/Preact components
+│   ├── ui/                # Reusable UI components
+│   ├── index.ts           # Component exports
+│   ├── PatientIntakeForm.tsx
+│   ├── PatientDashboard.tsx
+│   ├── PatientDetailView.tsx
+│   ├── PatientListItem.tsx
+│   ├── LanguageSwitcher.tsx
+│   └── PWAStatus.tsx
 ├── services/              # Business logic and data services
+│   ├── DatabaseService.ts
+│   ├── DataService.ts
+│   ├── ErrorHandlingService.ts
+│   ├── I18nService.ts
+│   ├── PWAService.ts
+│   ├── SecurityService.ts
+│   ├── TriageEngine.ts
+│   └── index.ts
+├── hooks/                 # Custom React hooks
+│   ├── useTranslation.ts
+│   ├── useErrorHandler.ts
+│   └── index.ts
 ├── types/                 # TypeScript type definitions
-├── assets/                # Images, icons, and other assets
+│   ├── AppState.ts
+│   ├── PatientData.ts
+│   ├── TriagePriority.ts
+│   ├── ValidationSchemas.ts
+│   └── index.ts
+├── utils/                 # Utility functions
+│   ├── rtl.ts
+│   └── index.ts
+├── locales/               # Internationalization files
+│   ├── en.json
+│   └── ar.json
+├── assets/                # Static assets
+├── app.tsx                # Main application component
 ├── main.tsx               # Application entry point
-├── app.tsx                # Root application component
-├── app.css                # Component-specific styles
-├── index.css              # Global styles with Tailwind imports
-└── vite-env.d.ts          # Vite environment types
+├── app.css                # Global styles
+└── index.css              # Base styles
 ```
 
-## Component Architecture
-- **Functional Components**: Use Preact functional components with hooks
-- **Component Naming**: PascalCase for components (e.g., `PatientIntakeForm`)
-- **File Extensions**: `.tsx` for components, `.ts` for utilities/services
-- **Component Structure**: One component per file, named exports preferred
-
-## Service Layer (`src/services/`)
-Expected services based on project requirements:
-- **DataService**: Local storage and encryption operations
-- **TriageEngine**: START algorithm implementation
-- **SecurityService**: Client-side encryption using Web Crypto API
-- **i18nService**: Internationalization support
-
-## Type Definitions (`src/types/`)
-Expected interfaces:
-- **PatientData**: Complete patient information structure
-- **TriagePriority**: Priority levels and constants
-- **AppState**: Application state management types
-
-## Styling Conventions
-- **Tailwind Classes**: Use utility classes with medical color palette
-- **Custom Colors**: Defined in `tailwind.config.js` under `triage` and `medical` namespaces
-- **Component Styles**: Minimal custom CSS, prefer Tailwind utilities
-- **Responsive Design**: Mobile-first approach with tablet/desktop breakpoints
-
-## File Naming Conventions
-- **Components**: PascalCase (e.g., `PatientDashboard.tsx`)
-- **Services**: PascalCase with Service suffix (e.g., `DataService.ts`)
+## Naming Conventions
+- **Components**: PascalCase (e.g., `PatientIntakeForm.tsx`)
+- **Services**: PascalCase with "Service" suffix (e.g., `DatabaseService.ts`)
+- **Hooks**: camelCase with "use" prefix (e.g., `useTranslation.ts`)
 - **Types**: PascalCase (e.g., `PatientData.ts`)
-- **Utilities**: camelCase (e.g., `formatDate.ts`)
+- **Utils**: camelCase (e.g., `rtl.ts`)
+- **Files**: Use descriptive names that clearly indicate purpose
 
 ## Import/Export Patterns
-- **Named Exports**: Preferred for components and services
-- **Barrel Exports**: Use index files for clean imports from directories
-- **Relative Imports**: Use relative paths for local files
-- **Preact Imports**: Use `preact` instead of `react` (configured via path mapping)
+- Each directory has an `index.ts` file for clean imports
+- Use named exports for components and services
+- Import from directory index files: `import { Component } from './components'`
+- Absolute imports configured for `src/` directory
+
+## Component Organization
+- **UI Components**: Generic, reusable components in `components/ui/`
+- **Feature Components**: Domain-specific components in `components/`
+- **Component Structure**: Each component file contains only one main component
+- **Props Interface**: Define props interface above component definition
+
+## Service Layer Architecture
+- **Single Responsibility**: Each service handles one domain area
+- **Dependency Injection**: Services can depend on other services
+- **Error Handling**: All services use centralized error handling
+- **Async/Await**: Consistent async patterns throughout
+
+## File Organization Rules
+- Keep related files together (component + styles + tests)
+- Use descriptive file names that indicate functionality
+- Separate concerns: UI, business logic, data, utilities
+- Group by feature when appropriate, by type when not

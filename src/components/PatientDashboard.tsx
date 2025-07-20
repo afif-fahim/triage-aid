@@ -4,12 +4,20 @@
  * Implements sorting by priority and click-to-view functionality
  */
 
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useMemo, useCallback } from 'preact/hooks';
 import { PatientData, TriagePriority } from '../types';
 import { dataService } from '../services/DataService';
 import { PatientListItem } from './PatientListItem';
-import { LoadingSpinner, Card, Button, ResponsiveGrid } from './ui/';
+import { DataManagement } from './DataManagement';
+import {
+  LoadingSpinner,
+  Card,
+  Button,
+  ResponsiveGrid,
+  VirtualizedList,
+} from './ui/';
 import { useTranslation } from '../hooks';
+import { getOptimalChunkSize } from '../utils/performance';
 
 export interface PatientDashboardProps {
   onPatientSelect?: (patientId: string) => void;
@@ -30,6 +38,7 @@ export function PatientDashboard({
   const [filterBy, setFilterBy] = useState<TriagePriority['level'] | 'all'>(
     'all'
   );
+  const [showDataManagement, setShowDataManagement] = useState(false);
 
   // Load patients on component mount
   useEffect(() => {
@@ -37,7 +46,7 @@ export function PatientDashboard({
   }, []);
 
   /**
-   * Load all patients from data service
+   * Load all patients from data service - memoized to prevent unnecessary re-renders
    */
   const loadPatients = async () => {
     try {
@@ -54,57 +63,60 @@ export function PatientDashboard({
   };
 
   /**
-   * Handle patient selection
+   * Handle patient selection - memoized to prevent unnecessary re-renders
    */
-  const handlePatientSelect = (patientId: string) => {
-    if (onPatientSelect) {
-      onPatientSelect(patientId);
-    }
-  };
-
-  /**
-   * Handle patient status update
-   */
-  const handlePatientUpdate = async (
-    patientId: string,
-    updates: Partial<PatientData>
-  ) => {
-    try {
-      await dataService.updatePatient(patientId, updates);
-
-      // Update local state
-      setPatients(prevPatients =>
-        prevPatients.map(patient =>
-          patient.id === patientId
-            ? { ...patient, ...updates, lastUpdated: new Date() }
-            : patient
-        )
-      );
-
-      if (onPatientUpdate) {
-        onPatientUpdate(patientId, updates);
+  const handlePatientSelect = useCallback(
+    (patientId: string) => {
+      if (onPatientSelect) {
+        onPatientSelect(patientId);
       }
-    } catch (err) {
-      console.error('Failed to update patient:', err);
-      setError(t('toast.errorOccurred'));
-    }
-  };
+    },
+    [onPatientSelect]
+  );
 
   /**
-   * Filter and sort patients based on current settings
+   * Handle patient status update - memoized to prevent unnecessary re-renders
    */
-  const getFilteredAndSortedPatients = (): PatientData[] => {
-    let filteredPatients = patients;
+  const handlePatientUpdate = useCallback(
+    async (patientId: string, updates: Partial<PatientData>) => {
+      try {
+        await dataService.updatePatient(patientId, updates);
+
+        // Update local state
+        setPatients(prevPatients =>
+          prevPatients.map(patient =>
+            patient.id === patientId
+              ? { ...patient, ...updates, lastUpdated: new Date() }
+              : patient
+          )
+        );
+
+        if (onPatientUpdate) {
+          onPatientUpdate(patientId, updates);
+        }
+      } catch (err) {
+        console.error('Failed to update patient:', err);
+        setError(t('toast.errorOccurred'));
+      }
+    },
+    [onPatientUpdate, t]
+  );
+
+  /**
+   * Filter and sort patients based on current settings - memoized for performance
+   */
+  const filteredPatients = useMemo((): PatientData[] => {
+    let filtered = patients;
 
     // Apply priority filter
     if (filterBy !== 'all') {
-      filteredPatients = patients.filter(
+      filtered = patients.filter(
         patient => patient.priority.level === filterBy
       );
     }
 
     // Apply sorting
-    return filteredPatients.sort((a, b) => {
+    return filtered.sort((a, b) => {
       if (sortBy === 'priority') {
         // Sort by priority urgency (1 = highest priority)
         return a.priority.urgency - b.priority.urgency;
@@ -113,12 +125,12 @@ export function PatientDashboard({
         return b.timestamp.getTime() - a.timestamp.getTime();
       }
     });
-  };
+  }, [patients, filterBy, sortBy]);
 
   /**
-   * Get priority counts for filter badges
+   * Get priority counts for filter badges - memoized for performance
    */
-  const getPriorityCounts = () => {
+  const priorityCounts = useMemo(() => {
     const counts = {
       red: 0,
       yellow: 0,
@@ -132,10 +144,7 @@ export function PatientDashboard({
     });
 
     return counts;
-  };
-
-  const filteredPatients = getFilteredAndSortedPatients();
-  const priorityCounts = getPriorityCounts();
+  }, [patients]);
 
   if (loading) {
     return (
@@ -198,6 +207,29 @@ export function PatientDashboard({
               <p className="text-medical-text-secondary mt-1 text-responsive-sm">
                 {t('dashboard.totalPatients')}: {priorityCounts.total}
               </p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDataManagement(true)}
+                className="shrink-0"
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 7v10c0 2.21 3.79 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.79 4 8 4s8-1.79 8-4M4 7c0-2.21 3.79-4 8-4s8 1.79 8 4"
+                  />
+                </svg>
+                {t('dashboard.dataManagement')}
+              </Button>
             </div>
           </div>
 
@@ -299,7 +331,7 @@ export function PatientDashboard({
       </Card>
 
       {/* Patient List */}
-      <div className="space-y-3">
+      <div>
         {filteredPatients.length === 0 ? (
           <Card variant="default" padding="lg" className="text-center">
             <div className="text-medical-text-muted mb-4">
@@ -326,7 +358,27 @@ export function PatientDashboard({
                 : `${t('dashboard.noPatientsFilter')} ${filterBy}`}
             </p>
           </Card>
+        ) : filteredPatients.length > getOptimalChunkSize() ? (
+          // Use virtualization for large lists to improve performance on low-power devices
+          <VirtualizedList
+            items={filteredPatients}
+            itemHeight={180} // Approximate height of PatientListItem
+            containerHeight={600} // Max height for virtualized container
+            renderItem={patient => (
+              <div key={patient.id} className="mb-3">
+                <PatientListItem
+                  patient={patient}
+                  onClick={() => handlePatientSelect(patient.id)}
+                  onStatusUpdate={status =>
+                    handlePatientUpdate(patient.id, { status })
+                  }
+                />
+              </div>
+            )}
+            className="rounded-lg"
+          />
         ) : (
+          // Regular rendering for smaller lists
           <div className="space-y-3">
             {filteredPatients.map(patient => (
               <div key={patient.id} className="animate-slide-up">
@@ -342,6 +394,13 @@ export function PatientDashboard({
           </div>
         )}
       </div>
+
+      {/* Data Management Modal */}
+      <DataManagement
+        isOpen={showDataManagement}
+        onClose={() => setShowDataManagement(false)}
+        onDataChanged={loadPatients}
+      />
     </div>
   );
 }

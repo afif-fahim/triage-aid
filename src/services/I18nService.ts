@@ -15,6 +15,44 @@ export interface TranslationKeys {
   'nav.patientDetails': string;
   'nav.newAssessment': string;
   'nav.new': string;
+  'nav.breadcrumb': string;
+  'nav.unsavedChanges': string;
+  'nav.unsavedFormChanges': string;
+
+  // Error Messages
+  'error.dataError': string;
+  'error.validationError': string;
+  'error.networkError': string;
+  'error.systemError': string;
+  'error.unknownError': string;
+  'error.storageQuotaExceeded': string;
+  'error.encryptionFailed': string;
+  'error.workingOffline': string;
+  'error.syncFailed': string;
+  'error.cleanupOldData': string;
+  'error.retrySync': string;
+  'error.patientNotFound': string;
+  'error.invalidPatientData': string;
+  'error.triageCalculationFailed': string;
+  'error.databaseConnectionFailed': string;
+  'error.dashboardError': string;
+  'error.dashboardErrorDesc': string;
+  'error.intakeError': string;
+  'error.intakeErrorDesc': string;
+  'error.patientDetailError': string;
+  'error.patientDetailErrorDesc': string;
+  'error.formValidationFailed': string;
+  'error.requiredFieldsMissing': string;
+  'error.invalidDataFormat': string;
+  'error.connectionLost': string;
+  'error.sessionExpired': string;
+  'error.permissionDenied': string;
+  'error.deviceStorageFull': string;
+  'error.browserNotSupported': string;
+  'error.initialization_failed': string;
+  'error.component_error': string;
+  'error.recoveryAction': string;
+  'error.refreshApp': string;
 
   // Home Screen
   'home.title': string;
@@ -101,6 +139,25 @@ export interface TranslationKeys {
   'dashboard.treated': string;
   'dashboard.transferred': string;
   'dashboard.discharged': string;
+  'dashboard.dataManagement': string;
+
+  // Data Management
+  'dataManagement.title': string;
+  'dataManagement.storageStats': string;
+  'dataManagement.totalPatients': string;
+  'dataManagement.storageUsed': string;
+  'dataManagement.activePatients': string;
+  'dataManagement.treatedPatients': string;
+  'dataManagement.backupRestore': string;
+  'dataManagement.exportAll': string;
+  'dataManagement.importData': string;
+  'dataManagement.backupNote': string;
+  'dataManagement.bulkOperations': string;
+  'dataManagement.selectAll': string;
+  'dataManagement.selected': string;
+  'dataManagement.updateStatus': string;
+  'dataManagement.exportSelected': string;
+  'dataManagement.deleteSelected': string;
 
   // Patient Details
   'patient.intake.title': string;
@@ -145,6 +202,8 @@ export interface TranslationKeys {
   'common.warning': string;
   'common.tryAgain': string;
   'common.markAs': string;
+  'common.info': string;
+  'common.additionalInfo': string;
 
   // Validation Messages
   'validation.required': string;
@@ -153,12 +212,42 @@ export interface TranslationKeys {
   'validation.invalidCapillary': string;
   'validation.selectOption': string;
   'validation.notRecorded': string;
+  'validation.errorFound': string;
+  'validation.errorsFound': string;
+  'validation.required_field': string;
+  'validation.invalid_range': string;
+  'validation.invalid_pattern': string;
+  'validation.invalid_type': string;
 
   // Toast Messages
   'toast.patientCreated': string;
   'toast.patientUpdated': string;
   'toast.patientDeleted': string;
   'toast.errorOccurred': string;
+  'toast.formSubmitSuccess': string;
+  'toast.formSubmitError': string;
+  'toast.dataLoadError': string;
+  'toast.dataSaveError': string;
+  'toast.operationSuccess': string;
+  'toast.operationFailed': string;
+
+  // PWA Messages
+  'pwa.installTitle': string;
+  'pwa.installDescription': string;
+  'pwa.install': string;
+  'pwa.installing': string;
+  'pwa.notNow': string;
+  'pwa.updateAvailable': string;
+  'pwa.updateDescription': string;
+  'pwa.updateNow': string;
+  'pwa.updating': string;
+  'pwa.refresh': string;
+  'pwa.later': string;
+  'pwa.currentVersion': string;
+  'pwa.offline': string;
+  'pwa.online': string;
+  'pwa.workingOffline': string;
+  'pwa.backOnline': string;
 }
 
 export type TranslationKey = keyof TranslationKeys;

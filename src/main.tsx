@@ -9,19 +9,10 @@ async function initializeApp() {
     // Initialize i18n service first
     await i18nService.initialize();
 
-    // Register service worker for PWA functionality
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then(registration => {
-            console.info('SW registered: ', registration);
-          })
-          .catch(registrationError => {
-            console.info('SW registration failed: ', registrationError);
-          });
-      });
-    }
+    // Router service initializes automatically when imported in App component
+
+    // Service worker is automatically registered by Vite PWA plugin
+    // Additional PWA setup is handled in PWAService
 
     // Render the app
     const appElement = document.getElementById('app');
