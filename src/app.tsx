@@ -4,14 +4,18 @@ import {
   PatientIntakeForm,
   PatientDashboard,
   PatientDetailView,
+  LanguageSwitcher,
 } from './components';
 import { ResponsiveContainer, Toast, Button, Card } from './components/ui';
 import { PWAStatus } from './components/PWAStatus';
 import { pwaService } from './services/PWAService';
+import { i18nService } from './services/I18nService';
+import { useTranslation } from './hooks';
 
 type AppView = 'home' | 'dashboard' | 'intake' | 'patient-detail';
 
 export function App() {
+  const { t, isRTL, direction } = useTranslation();
   const [currentView, setCurrentView] = useState<AppView>('home');
   const [selectedPatientId, setSelectedPatientId] = useState<string | null>(
     null
@@ -21,26 +25,33 @@ export function App() {
     type: 'success' | 'error' | 'warning' | 'info';
   } | null>(null);
   const [pwaInitialized, setPwaInitialized] = useState(false);
+  const [i18nInitialized, setI18nInitialized] = useState(false);
 
-  // Initialize PWA service
+  // Initialize services
   useEffect(() => {
-    const initializePWA = async () => {
+    const initializeServices = async () => {
       try {
+        // Initialize i18n service first
+        await i18nService.initialize();
+        setI18nInitialized(true);
+
+        // Initialize PWA service
         await pwaService.initialize();
         setPwaInitialized(true);
       } catch (error) {
-        console.error('Failed to initialize PWA service:', error);
-        // App still works without PWA features
+        console.error('Failed to initialize services:', error);
+        // App still works without some features
+        setI18nInitialized(true);
         setPwaInitialized(true);
       }
     };
 
-    initializePWA();
+    initializeServices();
   }, []);
 
-  const handlePatientSubmit = (patientId: string) => {
+  const handlePatientSubmit = (_patientId: string) => {
     setToast({
-      message: `Patient ${patientId.slice(0, 8)}... successfully created!`,
+      message: t('toast.patientCreated'),
       type: 'success',
     });
     setCurrentView('dashboard');
@@ -72,16 +83,16 @@ export function App() {
     setToast(null);
   };
 
-  const handlePatientUpdate = (patientId: string, _updates: unknown) => {
+  const handlePatientUpdate = (_patientId: string, _updates: unknown) => {
     setToast({
-      message: `Patient ${patientId.slice(0, 8)}... successfully updated!`,
+      message: t('toast.patientUpdated'),
       type: 'success',
     });
   };
 
-  const handlePatientDelete = (patientId: string) => {
+  const handlePatientDelete = (_patientId: string) => {
     setToast({
-      message: `Patient ${patientId.slice(0, 8)}... successfully deleted!`,
+      message: t('toast.patientDeleted'),
       type: 'success',
     });
     setCurrentView('dashboard');
@@ -93,14 +104,27 @@ export function App() {
     setSelectedPatientId(null);
   };
 
+  // Don't render until i18n is initialized
+  if (!i18nInitialized) {
+    return (
+      <div class="min-h-screen bg-medical-background flex items-center justify-center">
+        <div class="text-medical-text-secondary">Loading...</div>
+      </div>
+    );
+  }
+
   return (
-    <div class="min-h-screen bg-medical-background">
-      {/* PWA Status Component */}
-      {pwaInitialized && (
-        <div class="fixed top-4 right-4 z-50">
-          <PWAStatus />
-        </div>
-      )}
+    <div
+      class={`min-h-screen bg-medical-background ${isRTL ? 'rtl' : 'ltr'}`}
+      dir={direction}
+    >
+      {/* PWA Status and Language Switcher */}
+      <div
+        class={`fixed top-4 z-50 flex items-center gap-2 ${isRTL ? 'left-4' : 'right-4'}`}
+      >
+        <LanguageSwitcher variant="dropdown" />
+        {pwaInitialized && <PWAStatus />}
+      </div>
 
       {/* Navigation Header */}
       {currentView !== 'home' && (
@@ -114,14 +138,14 @@ export function App() {
                   onClick={handleBackToHome}
                   className="text-medical-primary hover:text-blue-700 font-medium shrink-0"
                 >
-                  ← TriageAid
+                  {isRTL ? 'مساعد الفرز ←' : '← TriageAid'}
                 </Button>
                 <span class="text-gray-300 hidden sm:inline">|</span>
                 <span class="text-medical-text-primary font-medium text-sm sm:text-base truncate">
-                  {currentView === 'dashboard' && 'Patient Dashboard'}
-                  {currentView === 'intake' && 'Patient Assessment'}
+                  {currentView === 'dashboard' && t('nav.dashboard')}
+                  {currentView === 'intake' && t('nav.assessment')}
                   {currentView === 'patient-detail' &&
-                    `Patient Details${selectedPatientId ? ` - #${selectedPatientId.slice(0, 8).toUpperCase()}` : ''}`}
+                    `${t('nav.patientDetails')}${selectedPatientId ? ` - #${selectedPatientId.slice(0, 8).toUpperCase()}` : ''}`}
                 </span>
               </div>
 
@@ -130,10 +154,10 @@ export function App() {
                   variant="primary"
                   size="sm"
                   onClick={handleStartAssessment}
-                  className="shrink-0 ml-2"
+                  className={`shrink-0 ${isRTL ? 'mr-2' : 'ml-2'}`}
                 >
-                  <span class="hidden sm:inline">+ New Assessment</span>
-                  <span class="sm:hidden">+ New</span>
+                  <span class="hidden sm:inline">{t('nav.newAssessment')}</span>
+                  <span class="sm:hidden">{t('nav.new')}</span>
                 </Button>
               )}
             </div>
@@ -185,10 +209,10 @@ export function App() {
                   <circle cx="332" cy="332" r="16" fill="#374151" />
                 </svg>
                 <h1 class="text-responsive-2xl font-bold text-medical-text-primary mb-3">
-                  TriageAid
+                  {t('home.title')}
                 </h1>
                 <p class="text-responsive-base text-medical-text-secondary mb-8 max-w-md mx-auto">
-                  Offline medical triage assessment tool for emergency response
+                  {t('home.subtitle')}
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
@@ -199,7 +223,7 @@ export function App() {
                     onClick={handleStartAssessment}
                     className="sm:flex-1"
                   >
-                    Start Patient Assessment
+                    {t('home.startAssessment')}
                   </Button>
                   <Button
                     variant="outline"
@@ -208,7 +232,7 @@ export function App() {
                     onClick={handleViewDashboard}
                     className="sm:flex-1"
                   >
-                    View Dashboard
+                    {t('home.viewDashboard')}
                   </Button>
                 </div>
               </div>
@@ -226,10 +250,10 @@ export function App() {
                     </svg>
                   </div>
                   <h3 class="text-sm font-medium text-medical-text-primary mb-1">
-                    START Protocol
+                    {t('home.features.startProtocol')}
                   </h3>
                   <p class="text-xs text-medical-text-secondary">
-                    Automated triage assessment
+                    {t('home.features.startProtocolDesc')}
                   </p>
                 </div>
                 <div class="text-center">
@@ -247,10 +271,10 @@ export function App() {
                     </svg>
                   </div>
                   <h3 class="text-sm font-medium text-medical-text-primary mb-1">
-                    Offline Ready
+                    {t('home.features.offlineReady')}
                   </h3>
                   <p class="text-xs text-medical-text-secondary">
-                    Works without internet
+                    {t('home.features.offlineReadyDesc')}
                   </p>
                 </div>
                 <div class="text-center">
@@ -268,10 +292,10 @@ export function App() {
                     </svg>
                   </div>
                   <h3 class="text-sm font-medium text-medical-text-primary mb-1">
-                    Secure
+                    {t('home.features.secure')}
                   </h3>
                   <p class="text-xs text-medical-text-secondary">
-                    Encrypted local storage
+                    {t('home.features.secureDesc')}
                   </p>
                 </div>
               </div>

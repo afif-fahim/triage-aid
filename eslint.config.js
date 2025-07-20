@@ -38,6 +38,7 @@ export default [
         ServiceWorkerRegistration: 'readonly',
         MessageChannel: 'readonly',
         caches: 'readonly',
+        KeyboardEvent: 'readonly',
       },
     },
     plugins: {

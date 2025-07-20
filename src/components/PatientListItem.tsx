@@ -5,6 +5,7 @@
  */
 
 import { PatientData } from '../types';
+import { useTranslation } from '../hooks';
 
 export interface PatientListItemProps {
   patient: PatientData;
@@ -19,6 +20,7 @@ export function PatientListItem({
   onStatusUpdate,
   className = '',
 }: PatientListItemProps) {
+  const { t, formatDate } = useTranslation();
   /**
    * Format patient ID for display (show first 8 characters)
    */
@@ -30,12 +32,7 @@ export function PatientListItem({
    * Format timestamp for display
    */
   const formatTimestamp = (date: Date): string => {
-    return new Intl.DateTimeFormat('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(date);
+    return formatDate(date);
   };
 
   /**
@@ -114,22 +111,26 @@ export function PatientListItem({
     const summaryParts: string[] = [];
 
     if (vitals.pulse) {
-      summaryParts.push(`HR: ${vitals.pulse}`);
+      summaryParts.push(`${t('intake.pulse')}: ${vitals.pulse}`);
     }
 
     if (vitals.breathing !== 'normal') {
-      summaryParts.push(`Breathing: ${vitals.breathing}`);
+      summaryParts.push(`${t('intake.breathing')}: ${vitals.breathing}`);
     }
 
     if (vitals.circulation !== 'normal') {
-      summaryParts.push(`Circulation: ${vitals.circulation}`);
+      summaryParts.push(`${t('intake.circulation')}: ${vitals.circulation}`);
     }
 
     if (vitals.consciousness !== 'alert') {
-      summaryParts.push(`Consciousness: ${vitals.consciousness}`);
+      summaryParts.push(
+        `${t('intake.consciousness')}: ${vitals.consciousness}`
+      );
     }
 
-    return summaryParts.length > 0 ? summaryParts.join(' • ') : 'Normal vitals';
+    return summaryParts.length > 0
+      ? summaryParts.join(' • ')
+      : t('intake.normalVitals');
   };
 
   /**
@@ -209,7 +210,7 @@ export function PatientListItem({
               <div className="mb-3">
                 <p className="text-xs sm:text-sm text-medical-text-secondary">
                   <span className="font-medium text-medical-text-primary">
-                    Injuries:
+                    {t('intake.injuries')}:
                   </span>{' '}
                   <span className="line-clamp-1">
                     {patient.injuries.slice(0, 2).join(', ')}
@@ -222,11 +223,14 @@ export function PatientListItem({
 
             {/* Timestamp */}
             <div className="text-xs text-medical-text-muted space-y-1 sm:space-y-0 sm:space-x-3 sm:flex">
-              <span>Assessed: {formatTimestamp(patient.timestamp)}</span>
+              <span>
+                {t('patient.assessedAt')}: {formatTimestamp(patient.timestamp)}
+              </span>
               {patient.lastUpdated.getTime() !==
                 patient.timestamp.getTime() && (
                 <span className="block sm:inline">
-                  <span className="hidden sm:inline">•</span> Updated:{' '}
+                  <span className="hidden sm:inline">•</span>{' '}
+                  {t('patient.lastUpdated')}:{' '}
                   {formatTimestamp(patient.lastUpdated)}
                 </span>
               )}
@@ -250,16 +254,16 @@ export function PatientListItem({
                 <button
                   onClick={e => handleStatusChange(e, 'treated')}
                   className="touch-target text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md hover:bg-green-200 active:bg-green-300 transition-colors font-medium"
-                  title="Mark as treated"
+                  title={`${t('common.markAs')} ${t('status.treated')}`}
                 >
-                  Treated
+                  {t('status.treated')}
                 </button>
                 <button
                   onClick={e => handleStatusChange(e, 'transferred')}
                   className="touch-target text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-md hover:bg-purple-200 active:bg-purple-300 transition-colors font-medium"
-                  title="Mark as transferred"
+                  title={`${t('common.markAs')} ${t('status.transferred')}`}
                 >
-                  Transfer
+                  {t('status.transferred')}
                 </button>
               </div>
             )}

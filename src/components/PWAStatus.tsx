@@ -78,16 +78,6 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
 
   return (
     <div className={`pwa-status ${className}`}>
-      {/* Online/Offline Status */}
-      <div
-        className={`status-indicator ${status.isOnline ? 'online' : 'offline'}`}
-      >
-        <div className="status-dot"></div>
-        <span className="status-text">
-          {status.isOnline ? 'Online' : 'Offline'}
-        </span>
-      </div>
-
       {/* Update Available Prompt */}
       {showUpdatePrompt && (
         <div className="update-prompt">
@@ -148,44 +138,6 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
       <style jsx>{`
         .pwa-status {
           position: relative;
-        }
-
-        .status-indicator {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.5rem 0.75rem;
-          border-radius: 6px;
-          font-size: 0.875rem;
-          font-weight: 500;
-          transition: all 0.2s ease;
-        }
-
-        .status-indicator.online {
-          background: #f0fdf4;
-          color: #16a34a;
-          border: 1px solid #bbf7d0;
-        }
-
-        .status-indicator.offline {
-          background: #fef2f2;
-          color: #dc2626;
-          border: 1px solid #fecaca;
-        }
-
-        .status-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          animation: pulse 2s infinite;
-        }
-
-        .status-indicator.online .status-dot {
-          background: #16a34a;
-        }
-
-        .status-indicator.offline .status-dot {
-          background: #dc2626;
         }
 
         @keyframes pulse {
