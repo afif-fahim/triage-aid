@@ -195,5 +195,5 @@ export default defineConfig({
   optimizeDeps: {
     include: ['preact', 'preact/hooks', 'dexie']
   },
-  base: '/triage-aid/'
+  base: '/triage-aid'
 })
