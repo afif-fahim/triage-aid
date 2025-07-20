@@ -15,6 +15,9 @@ export interface TranslationKeys {
   'nav.patientDetails': string;
   'nav.newAssessment': string;
   'nav.new': string;
+  'nav.breadcrumb': string;
+  'nav.unsavedChanges': string;
+  'nav.unsavedFormChanges': string;
 
   // Error Messages
   'error.dataError': string;

@@ -96,7 +96,18 @@
   - Implement efficient re-rendering strategies for patient lists
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
 
-- [ ] 14. Create app routing and navigation
+- [x] 14. Create app routing and navigation
+
+
+
+
+
+
+
+
+
+
+
   - Set up client-side routing between dashboard, intake, and patient detail views
   - Implement navigation state management with browser history support
   - Add navigation guards for unsaved form data
@@ -106,7 +117,7 @@
 
 - [ ] 15. Final integration and PWA optimization
   - Integrate all components into cohesive application flow
-  - Check the UI and fix if there is any issues
+  - Check the UI, css and fix if there is any issues
   - Optimize PWA manifest and service worker for installation
   - Add app update notifications and version management
   - Add app installation banner for easy access

@@ -9,6 +9,8 @@ async function initializeApp() {
     // Initialize i18n service first
     await i18nService.initialize();
 
+    // Router service initializes automatically when imported in App component
+
     // Register service worker for PWA functionality
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

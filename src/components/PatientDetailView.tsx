@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from 'preact/hooks';
 import { PatientData, PatientDataUpdate } from '../types';
 import { dataService } from '../services/DataService';
 import { ConfirmationDialog } from './ui/';
-import { useTranslation } from '../hooks';
+import { useTranslation, useFormNavigationGuard } from '../hooks';
 
 export interface PatientDetailViewProps {
   patientId: string;
@@ -76,6 +76,25 @@ export function PatientDetailView({
   useEffect(() => {
     loadPatient();
   }, [loadPatient]);
+
+  // Check if form has unsaved changes
+  const hasUnsavedChanges = useCallback((): boolean => {
+    if (!isEditing || !patient) return false;
+
+    // Compare edit form with original patient data
+    const hasChanges =
+      editForm.ageGroup !== patient.ageGroup ||
+      editForm.status !== patient.status ||
+      editForm.notes !== (patient.notes || '') ||
+      JSON.stringify(editForm.vitals) !== JSON.stringify(patient.vitals) ||
+      editForm.mobility !== patient.mobility ||
+      JSON.stringify(editForm.injuries) !== JSON.stringify(patient.injuries);
+
+    return hasChanges && !isSaving;
+  }, [isEditing, patient, editForm, isSaving]);
+
+  // Navigation guard for unsaved changes
+  useFormNavigationGuard(hasUnsavedChanges(), 'patient-detail');
 
   /**
    * Handle form field changes

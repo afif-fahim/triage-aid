@@ -8,7 +8,7 @@ import type { PatientData } from './PatientData';
 
 export interface AppState {
   // Current view/route
-  currentView: 'dashboard' | 'intake' | 'patient-detail';
+  currentView: 'home' | 'dashboard' | 'intake' | 'patient-detail';
 
   // Selected patient for editing
   selectedPatientId: string | null;
@@ -53,7 +53,7 @@ export interface AppError {
  * Initial application state
  */
 export const INITIAL_APP_STATE: AppState = {
-  currentView: 'dashboard',
+  currentView: 'home',
   selectedPatientId: null,
   language: 'en',
   theme: 'light',

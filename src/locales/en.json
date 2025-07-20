@@ -7,6 +7,9 @@
   "nav.patientDetails": "Patient Details",
   "nav.newAssessment": "+ New Assessment",
   "nav.new": "+ New",
+  "nav.breadcrumb": "Breadcrumb navigation",
+  "nav.unsavedChanges": "You have unsaved changes. Are you sure you want to leave?",
+  "nav.unsavedFormChanges": "You have unsaved form changes. Are you sure you want to leave this page?",
 
   "home.title": "TriageAid",
   "home.subtitle": "Offline medical triage assessment tool for emergency response",
