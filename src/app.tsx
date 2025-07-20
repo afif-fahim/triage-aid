@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'preact/hooks';
 import { lazy, Suspense } from 'preact/compat';
 import './app.css';
-import { LanguageSwitcher, BreadcrumbNavigation } from './components';
+import {
+  LanguageSwitcher,
+  BreadcrumbNavigation,
+  PWAInstallBanner,
+  AppUpdateNotification,
+} from './components';
 import {
   ResponsiveContainer,
   Toast,
@@ -206,6 +211,14 @@ export function App() {
       )}
 
       <ResponsiveContainer maxWidth="3xl" padding="md" className="safe-bottom">
+        {/* PWA Components */}
+        {pwaInitialized && (
+          <>
+            <AppUpdateNotification />
+            <PWAInstallBanner />
+          </>
+        )}
+
         {/* Toast Notifications */}
         {toast && (
           <Toast

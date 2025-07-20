@@ -9,7 +9,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,jpg,jpeg,webp}'],
+        maximumFileSizeToCacheInBytes: 5000000, // 5MB
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -43,41 +44,103 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
               }
             }
+          },
+          {
+            urlPattern: /\/api\/.*/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 3,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
+              }
+            }
           }
-        ]
+        ],
+        skipWaiting: true,
+        clientsClaim: true
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      includeAssets: ['favicon.ico', 'icons/apple-icon-180.png', 'icons/icon.svg'],
       manifest: {
-        name: 'TriageAid - Offline Medical Triage Tool',
+        name: 'TriageAid - Medical Triage Assistant',
         short_name: 'TriageAid',
-        description: 'Offline medical triage assessment tool for emergency situations',
+        description: 'Offline-capable medical triage assessment tool for emergency situations and clinical environments',
         theme_color: '#1E40AF',
         background_color: '#F9FAFB',
         display: 'standalone',
         orientation: 'portrait-primary',
         scope: '/',
         start_url: '/',
+        lang: 'en',
+        dir: 'ltr',
+        categories: ['medical', 'health', 'productivity', 'utilities'],
         icons: [
           {
-            src: 'public/icons/manifest-icon-192.maskable.png',
+            src: '/icons/manifest-icon-192.maskable.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any'
           },
           {
-            src: 'public/icons/manifest-icon-512.maskable.png',
-            sizes: '512x512',
-            type: 'image/png'
+            src: '/icons/manifest-icon-192.maskable.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'maskable'
           },
           {
-            src: 'public/icons/manifest-icon-512.maskable.png',
+            src: '/icons/manifest-icon-512.maskable.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
+            purpose: 'any'
+          },
+          {
+            src: '/icons/manifest-icon-512.maskable.png',
+            sizes: '512x512',
+            type: 'image/png',
+            purpose: 'maskable'
+          },
+          {
+            src: '/icons/apple-icon-180.png',
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'any'
           }
-        ]
+        ],
+        shortcuts: [
+          {
+            name: 'New Assessment',
+            short_name: 'New Patient',
+            description: 'Start a new patient triage assessment',
+            url: '/intake',
+            icons: [
+              {
+                src: '/icons/manifest-icon-192.maskable.png',
+                sizes: '192x192'
+              }
+            ]
+          },
+          {
+            name: 'Patient Dashboard',
+            short_name: 'Dashboard',
+            description: 'View all triaged patients',
+            url: '/dashboard',
+            icons: [
+              {
+                src: '/icons/manifest-icon-192.maskable.png',
+                sizes: '192x192'
+              }
+            ]
+          }
+        ],
+        prefer_related_applications: false,
+        edge_side_panel: {
+          preferred_width: 400
+        }
       },
       devOptions: {
-        enabled: true
+        enabled: true,
+        type: 'module'
       }
     })
   ],

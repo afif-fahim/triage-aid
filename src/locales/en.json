@@ -210,5 +210,22 @@
   "validation.required_field": "This field is required",
   "validation.invalid_range": "Value is outside the valid range",
   "validation.invalid_pattern": "Value does not match the required format",
-  "validation.invalid_type": "Invalid data type provided"
+  "validation.invalid_type": "Invalid data type provided",
+
+  "pwa.installTitle": "Install TriageAid",
+  "pwa.installDescription": "Get quick access and work offline by installing the app on your device.",
+  "pwa.install": "Install",
+  "pwa.installing": "Installing...",
+  "pwa.notNow": "Not now",
+  "pwa.updateAvailable": "Update Available",
+  "pwa.updateDescription": "A new version of TriageAid is ready with improvements and bug fixes.",
+  "pwa.updateNow": "Update Now",
+  "pwa.updating": "Updating...",
+  "pwa.refresh": "Refresh",
+  "pwa.later": "Later",
+  "pwa.currentVersion": "Current version",
+  "pwa.offline": "Offline",
+  "pwa.online": "Online",
+  "pwa.workingOffline": "Working offline",
+  "pwa.backOnline": "Back online"
 }

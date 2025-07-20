@@ -230,6 +230,24 @@ export interface TranslationKeys {
   'toast.dataSaveError': string;
   'toast.operationSuccess': string;
   'toast.operationFailed': string;
+
+  // PWA Messages
+  'pwa.installTitle': string;
+  'pwa.installDescription': string;
+  'pwa.install': string;
+  'pwa.installing': string;
+  'pwa.notNow': string;
+  'pwa.updateAvailable': string;
+  'pwa.updateDescription': string;
+  'pwa.updateNow': string;
+  'pwa.updating': string;
+  'pwa.refresh': string;
+  'pwa.later': string;
+  'pwa.currentVersion': string;
+  'pwa.offline': string;
+  'pwa.online': string;
+  'pwa.workingOffline': string;
+  'pwa.backOnline': string;
 }
 
 export type TranslationKey = keyof TranslationKeys;

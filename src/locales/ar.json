@@ -210,5 +210,22 @@
   "validation.required_field": "هذا الحقل مطلوب",
   "validation.invalid_range": "القيمة خارج النطاق الصالح",
   "validation.invalid_pattern": "القيمة لا تتطابق مع التنسيق المطلوب",
-  "validation.invalid_type": "نوع البيانات المقدم غير صالح"
+  "validation.invalid_type": "نوع البيانات المقدم غير صالح",
+
+  "pwa.installTitle": "تثبيت مساعد الفرز",
+  "pwa.installDescription": "احصل على وصول سريع واعمل بدون إنترنت عن طريق تثبيت التطبيق على جهازك.",
+  "pwa.install": "تثبيت",
+  "pwa.installing": "جاري التثبيت...",
+  "pwa.notNow": "ليس الآن",
+  "pwa.updateAvailable": "تحديث متاح",
+  "pwa.updateDescription": "إصدار جديد من مساعد الفرز جاهز مع تحسينات وإصلاحات للأخطاء.",
+  "pwa.updateNow": "تحديث الآن",
+  "pwa.updating": "جاري التحديث...",
+  "pwa.refresh": "تحديث",
+  "pwa.later": "لاحقاً",
+  "pwa.currentVersion": "الإصدار الحالي",
+  "pwa.offline": "بدون إنترنت",
+  "pwa.online": "متصل",
+  "pwa.workingOffline": "يعمل بدون إنترنت",
+  "pwa.backOnline": "عاد الاتصال"
 }
