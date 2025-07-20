@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
+  "homepage": "https://afif-fahim.github.io/triage-aid/",
   "dependencies": {
     "dexie": "^4.0.11",
     "preact": "^10.26.9"

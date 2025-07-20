@@ -70,8 +70,8 @@ export default defineConfig({
         background_color: '#F9FAFB',
         display: 'standalone',
         orientation: 'portrait-primary',
-        scope: '/',
-        start_url: '/',
+        scope: '/triage-aid/',
+        start_url: '/triage-aid/',
         lang: 'en',
         dir: 'ltr',
         categories: ['medical', 'health', 'productivity', 'utilities'],
@@ -112,7 +112,7 @@ export default defineConfig({
             name: 'New Assessment',
             short_name: 'New Patient',
             description: 'Start a new patient triage assessment',
-            url: '/intake',
+            url: '/triage-aid/intake',
             icons: [
               {
                 src: '/icons/manifest-icon-192.maskable.png',
@@ -124,7 +124,7 @@ export default defineConfig({
             name: 'Patient Dashboard',
             short_name: 'Dashboard',
             description: 'View all triaged patients',
-            url: '/dashboard',
+            url: '/triage-aid/dashboard',
             icons: [
               {
                 src: '/icons/manifest-icon-192.maskable.png',
@@ -194,5 +194,6 @@ export default defineConfig({
   // Optimize dependencies for faster loading
   optimizeDeps: {
     include: ['preact', 'preact/hooks', 'dexie']
-  }
+  },
+  base: '/triage-aid/'
 })
