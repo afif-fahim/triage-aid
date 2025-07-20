@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TriageAid - Offline</title>
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #f9fafb 0%, #e5e7eb 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .offline-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        padding: 3rem 2rem;
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+      }
+
+      .offline-icon {
+        font-size: 4rem;
+        margin-bottom: 1.5rem;
+        display: block;
+      }
+
+      .offline-title {
+        color: #1e40af;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .offline-subtitle {
+        color: #6b7280;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+      }
+
+      .offline-features {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: left;
+      }
+
+      .offline-features h3 {
+        color: #374151;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      .offline-features ul {
+        list-style: none;
+        color: #6b7280;
+      }
+
+      .offline-features li {
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: center;
+      }
+
+      .offline-features li::before {
+        content: '✓';
+        color: #10b981;
+        font-weight: bold;
+        margin-right: 0.75rem;
+      }
+
+      .offline-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+      }
+
+      .btn-primary {
+        background: #1e40af;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #1d4ed8;
+        transform: translateY(-1px);
+      }
+
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+      }
+
+      .btn-secondary:hover {
+        background: #e5e7eb;
+      }
+
+      .connection-status {
+        margin-top: 2rem;
+        padding: 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+      }
+
+      .status-offline {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fecaca;
+      }
+
+      .status-online {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+      }
+
+      @media (max-width: 640px) {
+        .offline-container {
+          padding: 2rem 1.5rem;
+        }
+
+        .offline-title {
+          font-size: 1.5rem;
+        }
+
+        .offline-actions {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="offline-container">
+      <span class="offline-icon">🏥</span>
+      <h1 class="offline-title">TriageAid</h1>
+      <p class="offline-subtitle">
+        You're currently offline, but TriageAid continues to work! All your
+        patient data is stored locally and secure.
+      </p>
+
+      <div class="offline-features">
+        <h3>Available Offline Features</h3>
+        <ul>
+          <li>Create new patient assessments</li>
+          <li>View and edit existing patients</li>
+          <li>Calculate triage priorities</li>
+          <li>Access patient dashboard</li>
+          <li>All data stored securely locally</li>
+        </ul>
+      </div>
+
+      <div class="offline-actions">
+        <button class="btn btn-primary" onclick="goToApp()">
+          Continue to App
+        </button>
+        <button class="btn btn-secondary" onclick="checkConnection()">
+          Check Connection
+        </button>
+      </div>
+
+      <div id="connectionStatus" class="connection-status status-offline">
+        <strong>Status:</strong> Currently offline
+      </div>
+    </div>
+
+    <script>
+      // Check online status
+      function updateConnectionStatus() {
+        const statusEl = document.getElementById('connectionStatus');
+        if (navigator.onLine) {
+          statusEl.className = 'connection-status status-online';
+          statusEl.innerHTML =
+            '<strong>Status:</strong> Back online! You can now access all features.';
+        } else {
+          statusEl.className = 'connection-status status-offline';
+          statusEl.innerHTML =
+            '<strong>Status:</strong> Currently offline - App still works normally';
+        }
+      }
+
+      function goToApp() {
+        window.location.href = '/';
+      }
+
+      function checkConnection() {
+        updateConnectionStatus();
+        if (navigator.onLine) {
+          setTimeout(() => {
+            goToApp();
+          }, 1000);
+        }
+      }
+
+      // Listen for online/offline events
+      window.addEventListener('online', updateConnectionStatus);
+      window.addEventListener('offline', updateConnectionStatus);
+
+      // Initial status check
+      updateConnectionStatus();
+
+      // Auto-redirect if back online
+      window.addEventListener('online', () => {
+        setTimeout(() => {
+          if (navigator.onLine) {
+            goToApp();
+          }
+        }, 2000);
+      });
+    </script>
+  </body>
+</html>

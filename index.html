@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/triage-aid/icons/icon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TriageAid - Offline Medical Triage Tool</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/triage-aid/manifest.json" />
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1E40AF" />
+    <meta name="description" content="Offline medical triage assessment tool" />
+
+    <!-- Apple PWA Meta Tags -->
+    <link rel="apple-touch-icon" href="/triage-aid/assets/apple-icon-180-BdMWEotx.png" />
+
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2048-2732-ByBvQcKM.jpg"
+      media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2732-2048-GCjsUsbL.jpg"
+      media="(device-width: 1024px) and (device-height: 1366px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1668-2388-BQwnIkxf.jpg"
+      media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2388-1668-BSidlFXy.jpg"
+      media="(device-width: 834px) and (device-height: 1194px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1536-2048-BXj-n2jb.jpg"
+      media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2048-1536-BtCoO76r.jpg"
+      media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1640-2360-DcGWesEZ.jpg"
+      media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2360-1640-CknwzLQM.jpg"
+      media="(device-width: 820px) and (device-height: 1180px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1668-2224-DNDX0rmo.jpg"
+      media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2224-1668--S6vuYCI.jpg"
+      media="(device-width: 834px) and (device-height: 1112px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1620-2160-CaC2eesX.jpg"
+      media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2160-1620-Bc8mycPa.jpg"
+      media="(device-width: 810px) and (device-height: 1080px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1488-2266-C_HvlDnp.jpg"
+      media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2266-1488-D16xEfNz.jpg"
+      media="(device-width: 744px) and (device-height: 1133px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1320-2868-BeZuLCh4.jpg"
+      media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2868-1320-BbSQZcTC.jpg"
+      media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1206-2622-DGIgeagY.jpg"
+      media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2622-1206-bou30aMF.jpg"
+      media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1290-2796-C-zSMjni.jpg"
+      media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2796-1290-D8le71wb.jpg"
+      media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1179-2556-18x-wY_H.jpg"
+      media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2556-1179-CgmI2vAx.jpg"
+      media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1170-2532-Dt3dRS6N.jpg"
+      media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2532-1170-BNNd-qT5.jpg"
+      media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1284-2778-R-TqzPuJ.jpg"
+      media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2778-1284-DatATuzR.jpg"
+      media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1125-2436-D_ZV5C3H.jpg"
+      media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2436-1125-DMHA-758.jpg"
+      media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1242-2688-DFQG42Mi.jpg"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2688-1242-C28CYGUh.jpg"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-828-1792-Ct3mdaa_.jpg"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1792-828-BpqFlDc4.jpg"
+      media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1242-2208-BeZmR24x.jpg"
+      media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-2208-1242-DP4yGQz1.jpg"
+      media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-750-1334-DD-kA1bX.jpg"
+      media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1334-750-BjFRtgA6.jpg"
+      media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-640-1136-BgJnK1YU.jpg"
+      media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"
+    />
+    <link
+      rel="apple-touch-startup-image"
+      href="/triage-aid/assets/apple-splash-1136-640-C0VyuCEn.jpg"
+      media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
+    />
+
+    <!-- Microsoft PWA Meta Tags -->
+    <meta name="msapplication-TileColor" content="#1E40AF" />
+    <meta name="msapplication-config" content="/triage-aid/browserconfig.xml" />
+    <script type="module" crossorigin src="/triage-aid/assets/index-DCZJuQBc.js"></script>
+    <link rel="modulepreload" crossorigin href="/triage-aid/assets/vendor-CGONjlB7.js">
+    <link rel="modulepreload" crossorigin href="/triage-aid/assets/database-DJZASbgB.js">
+    <link rel="modulepreload" crossorigin href="/triage-aid/assets/services-UXSvpwqi.js">
+    <link rel="modulepreload" crossorigin href="/triage-aid/assets/ui-DPe_PRm8.js">
+    <link rel="stylesheet" crossorigin href="/triage-aid/assets/index-BKPWPzyQ.css">
+  <link rel="manifest" href="/triage-aid/manifest.webmanifest"><script id="vite-plugin-pwa:register-sw" src="/triage-aid/registerSW.js"></script></head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
