@@ -21,6 +21,8 @@
   "home.features.offlineReadyDesc": "يعمل بدون إنترنت",
   "home.features.secure": "آمن",
   "home.features.secureDesc": "تخزين محلي مشفر",
+  "home.documentation": "التوثيق",
+  "home.githubProject": "مشروع GitHub",
 
   "intake.progress": "تقدم النموذج",
   "intake.patientId": "رقم المريض",

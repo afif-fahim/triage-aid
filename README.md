@@ -2,6 +2,11 @@
 
 A comprehensive offline-capable Progressive Web App (PWA) designed for medical triage assessment in emergency situations and clinical environments. TriageAid helps medical personnel quickly assess, prioritize, and manage patient flow using the validated START (Simple Triage and Rapid Treatment) algorithm.
 
+## 📚 Demo & Documentation
+
+- **🚀 [Live Demo](https://afif-fahim.github.io/triage-aid)** - Try the application online
+- **📖 [Complete Documentation](https://afif-fahim.notion.site/TriageAid-Offline-Medical-Triage-Assessment-Tool-2326e231ee9580959117d64a242032e9)** - Comprehensive guide and technical documentation
+
 ## 🚑 Core Functionalities
 
 ### Medical Triage Assessment

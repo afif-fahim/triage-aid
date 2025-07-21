@@ -21,6 +21,8 @@
   "home.features.offlineReadyDesc": "Works without internet",
   "home.features.secure": "Secure",
   "home.features.secureDesc": "Encrypted local storage",
+  "home.documentation": "Documentation",
+  "home.githubProject": "GitHub Project",
 
   "intake.progress": "Form Progress",
   "intake.patientId": "Patient ID",

@@ -65,6 +65,8 @@ export interface TranslationKeys {
   'home.features.offlineReadyDesc': string;
   'home.features.secure': string;
   'home.features.secureDesc': string;
+  'home.documentation': string;
+  'home.githubProject': string;
 
   // Patient Intake Form
   'intake.progress': string;
