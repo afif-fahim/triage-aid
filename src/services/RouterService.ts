@@ -15,6 +15,7 @@ export interface Route {
   params?: RouteParams;
   title?: string;
   requiresPatient?: boolean;
+  fullPath?: string; // Computed with base path
 }
 
 export interface NavigationGuard {
@@ -34,6 +35,7 @@ class RouterService {
   private routeChangeListeners: Array<(route: Route) => void> = [];
   private breadcrumbListeners: Array<(breadcrumbs: BreadcrumbItem[]) => void> =
     [];
+  private basePath: string = '/triage-aid';
 
   // Route definitions
   private routes: Route[] = [
@@ -49,7 +51,18 @@ class RouterService {
   ];
 
   constructor() {
+    this.validateBasePath();
     this.initialize();
+  }
+
+  private validateBasePath(): void {
+    // Ensure base path starts with / and doesn't end with /
+    if (!this.basePath.startsWith('/')) {
+      this.basePath = `/${this.basePath}`;
+    }
+    if (this.basePath.endsWith('/') && this.basePath.length > 1) {
+      this.basePath = this.basePath.slice(0, -1);
+    }
   }
 
   private initialize(): void {
@@ -68,24 +81,31 @@ class RouterService {
   }
 
   private handleInitialRoute(): void {
+    const fullPath = window.location.pathname;
+    const strippedPath = this.stripBasePath(fullPath);
     const route = this.parseCurrentUrl();
-    console.log('Initial route parsing:', {
-      path: window.location.pathname,
+
+    console.info('Initial route parsing:', {
+      fullPath,
+      basePath: this.basePath,
+      strippedPath,
       route,
     });
+
     if (route) {
       this.currentRoute = route;
       this.notifyRouteChange(route);
       this.updateBreadcrumbs();
     } else {
       // Default to home if no valid route
-      console.log('No valid route found, navigating to home');
+
       this.navigate('/', true);
     }
   }
 
   private parseCurrentUrl(): Route | null {
-    const path = window.location.pathname;
+    const fullPath = window.location.pathname;
+    const path = this.stripBasePath(fullPath);
     return this.matchRoute(path);
   }
 
@@ -141,6 +161,14 @@ class RouterService {
     return { params };
   }
 
+  private stripBasePath(fullPath: string): string {
+    if (fullPath.startsWith(this.basePath)) {
+      const stripped = fullPath.slice(this.basePath.length);
+      return stripped || '/';
+    }
+    return fullPath;
+  }
+
   private buildPath(routePath: string, params?: RouteParams): string {
     if (!params) return routePath;
 
@@ -149,6 +177,20 @@ class RouterService {
       path = path.replace(`:${key}`, encodeURIComponent(value));
     }
     return path;
+  }
+
+  private buildFullPath(path: string): string {
+    // Ensure path starts with /
+    if (!path.startsWith('/')) {
+      path = `/${path}`;
+    }
+
+    // If path is just root, return base path + /
+    if (path === '/') {
+      return `${this.basePath}/`;
+    }
+
+    return this.basePath + path;
   }
 
   /**
@@ -161,7 +203,22 @@ class RouterService {
       return false;
     }
 
-    return this.navigateToRoute(route, !replace);
+    const fullPath = this.buildFullPath(path);
+    return this.navigateToRoute(route, !replace, fullPath);
+  }
+
+  /**
+   * Navigate with base path support
+   */
+  async navigateWithBasePath(path: string, replace = false): Promise<boolean> {
+    const route = this.matchRoute(path);
+    if (!route) {
+      console.warn(`No route found for path: ${path}`);
+      return false;
+    }
+
+    const fullPath = this.buildFullPath(path);
+    return this.navigateToRoute(route, !replace, fullPath);
   }
 
   /**
@@ -179,12 +236,21 @@ class RouterService {
     }
 
     const path = this.buildPath(route.path, params);
-    return this.navigate(path, replace);
+    const fullPath = this.buildFullPath(path);
+
+    // Create a new route object with resolved parameters
+    const resolvedRoute: Route = {
+      ...route,
+      params: params || {},
+    };
+
+    return this.navigateToRoute(resolvedRoute, !replace, fullPath);
   }
 
   private async navigateToRoute(
     route: Route,
-    pushToHistory = true
+    pushToHistory = true,
+    fullPath?: string
   ): Promise<boolean> {
     // Check navigation guards
     if (this.currentRoute && !(await this.canLeaveCurrentRoute())) {
@@ -200,7 +266,8 @@ class RouterService {
     // Update browser history
     if (pushToHistory) {
       const path = this.buildPath(route.path, route.params);
-      window.history.pushState({ route }, route.title || '', path);
+      const urlPath = fullPath || this.buildFullPath(path);
+      window.history.pushState({ route }, route.title || '', urlPath);
     }
 
     // Update current route
@@ -390,10 +457,18 @@ class RouterService {
     const route = this.routes.find(r => r.view === view);
     if (!route) {
       console.warn(`No route found for view: ${view}`);
-      return '/dashboard';
+      return this.buildFullPath('/dashboard');
     }
 
-    return this.buildPath(route.path, params);
+    const path = this.buildPath(route.path, params);
+    return this.buildFullPath(path);
+  }
+
+  /**
+   * Get the base path for GitHub Pages deployment
+   */
+  getBasePath(): string {
+    return this.basePath;
   }
 }
 
