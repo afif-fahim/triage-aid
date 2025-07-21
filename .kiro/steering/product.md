@@ -1,27 +1,24 @@
-# Product Overview
+# TriageAid Product Overview
 
-TriageAid is an offline-capable Progressive Web App (PWA) designed for medical triage assessment in emergency situations and clinical environments. The application helps medical personnel quickly assess, prioritize, and manage patient flow using the START (Simple Triage and Rapid Treatment) algorithm.
+TriageAid is a comprehensive offline-capable Progressive Web App (PWA) designed for medical triage assessment in emergency situations and clinical environments. The application helps medical personnel quickly assess, prioritize, and manage patient flow using the validated START (Simple Triage and Rapid Treatment) algorithm.
+
+## Core Purpose
+- **Medical Triage Assessment**: Implements the standardized START protocol for rapid patient assessment
+- **Priority Classification**: Automatic assignment of triage levels (Red/Immediate, Yellow/Urgent, Green/Minor, Black/Deceased)
+- **Offline-First Design**: Complete functionality without internet connectivity after initial load
+- **Multi-Language Support**: Full internationalization with English and Arabic, including RTL layout support
 
 ## Key Features
-
-- **Offline-first medical triage system** - Works without internet connectivity
-- **START algorithm implementation** - Standardized triage assessment protocol
-- **Patient data management** - Secure, encrypted local storage of patient information
-- **Multi-language support** - English and Arabic with RTL layout support
-- **Mobile-optimized interface** - Touch-friendly design for tablets and mobile devices
-- **Priority-based patient dashboard** - Color-coded triage levels (Red, Yellow, Green, Black)
+- **Patient Dashboard**: Priority-based sorting with visual indicators and status tracking
+- **Patient Intake System**: Guided assessment following START protocol with form validation
+- **Data Security & Privacy**: Client-side encryption, no cloud dependencies, HIPAA-conscious design
+- **PWA Capabilities**: Native app experience, offline access, background updates
 
 ## Target Users
-
 - Emergency medical personnel
-- Hospital triage nurses
-- Field medics and first responders
-- Medical staff in resource-limited environments
+- Clinical staff in emergency departments and urgent care centers
+- Medical training environments
+- Disaster response teams
 
-## Critical Requirements
-
-- **Data Security**: All patient data must be encrypted using Web Crypto API
-- **Offline Functionality**: Must work completely offline after initial load
-- **Medical Accuracy**: Implements validated START triage protocol
-- **Performance**: Optimized for low-power devices and poor network conditions
-- **Accessibility**: Meets medical environment accessibility standards
+## Medical Disclaimer
+TriageAid is a clinical decision support tool that does not replace professional medical judgment and should only be used by qualified medical personnel following local protocols and medical direction.
