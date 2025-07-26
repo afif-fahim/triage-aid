@@ -298,3 +298,103 @@ textarea:focus {
     opacity: 0.5;
   }
 }
+/* Button visibility enhancements for Tailwind v4 compatibility */
+.btn,
+button[class*='bg-'],
+[role='button'] {
+  /* Ensure buttons are always visible */
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Enhanced button hover states */
+.btn:hover,
+button[class*='bg-']:hover,
+[role='button']:hover {
+  /* Maintain visibility on hover */
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(-1px);
+}
+
+/* Enhanced focus states for better accessibility */
+.btn:focus,
+button[class*='bg-']:focus,
+[role='button']:focus {
+  /* Ensure focused buttons are highly visible */
+  opacity: 1 !important;
+  visibility: visible !important;
+  outline: 2px solid #1e40af !important;
+  outline-offset: 2px !important;
+}
+
+/* Ensure medical color buttons are always visible */
+.bg-medical-primary,
+.bg-medical-secondary,
+.bg-medical-success,
+.bg-medical-error {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Enhanced contrast for better visibility */
+.bg-medical-primary {
+  background-color: #1e40af !important;
+  color: white !important;
+}
+
+.bg-medical-primary:hover {
+  background-color: #1d4ed8 !important;
+  color: white !important;
+}
+
+.bg-medical-secondary {
+  background-color: #6b7280 !important;
+  color: white !important;
+}
+
+.bg-medical-secondary:hover {
+  background-color: #4b5563 !important;
+  color: white !important;
+}
+
+.bg-medical-success {
+  background-color: #10b981 !important;
+  color: white !important;
+}
+
+.bg-medical-success:hover {
+  background-color: #059669 !important;
+  color: white !important;
+}
+
+.bg-medical-error {
+  background-color: #ef4444 !important;
+  color: white !important;
+}
+
+.bg-medical-error:hover {
+  background-color: #dc2626 !important;
+  color: white !important;
+}
+
+/* Outline button visibility */
+.border-medical-primary {
+  border-color: #1e40af !important;
+  color: #1e40af !important;
+}
+
+.border-medical-primary:hover {
+  background-color: #1e40af !important;
+  color: white !important;
+}
+
+/* Ghost button visibility */
+.text-medical-primary {
+  color: #1e40af !important;
+}
+
+.text-medical-primary:hover {
+  background-color: rgba(30, 64, 175, 0.1) !important;
+  color: #1e40af !important;
+}

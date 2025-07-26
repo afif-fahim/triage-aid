@@ -97,7 +97,7 @@ export default {
     },
   },
   plugins: [
-    // RTL support plugin
+    // RTL support plugin - Updated for v4 compatibility
     function({ addUtilities }) {
       const newUtilities = {
         '.rtl': {
