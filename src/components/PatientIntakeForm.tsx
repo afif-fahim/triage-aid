@@ -425,7 +425,7 @@ export function PatientIntakeForm({
         {/* Basic Information Section */}
         <Card variant="default" padding="md">
           <h3 class="text-responsive-lg font-semibold text-medical-text-primary mb-4 flex items-center gap-2">
-            <div class="w-6 h-6 bg-medical-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
+            <div class="w-6 h-6 bg-medical-secondary text-white rounded-full flex items-center justify-center text-sm font-bold">
               1
             </div>
             {t('intake.basicInfo')}
@@ -486,7 +486,7 @@ export function PatientIntakeForm({
         {/* Vital Signs Section */}
         <Card variant="default" padding="md">
           <h3 class="text-responsive-lg font-semibold text-medical-text-primary mb-4 flex items-center gap-2">
-            <div class="w-6 h-6 bg-medical-accent text-white rounded-full flex items-center justify-center text-sm font-bold">
+            <div class="w-6 h-6 bg-medical-primary text-white rounded-full flex items-center justify-center text-sm font-bold">
               2
             </div>
             {t('intake.vitals')}
