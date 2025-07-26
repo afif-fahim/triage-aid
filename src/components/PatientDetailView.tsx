@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { PatientData, PatientDataUpdate } from '../types';
 import { dataService } from '../services/DataService';
-import { ConfirmationDialog } from './ui/';
+import { ConfirmationDialog, Button } from './ui/';
 import { useTranslation, useFormNavigationGuard } from '../hooks';
 
 export interface PatientDetailViewProps {
@@ -314,18 +314,12 @@ export function PatientDetailView({
               </h3>
               <p className="text-sm text-red-700 mt-1">{error}</p>
               <div className="mt-2 flex space-x-2">
-                <button
-                  onClick={loadPatient}
-                  className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded hover:bg-red-200 transition-colors"
-                >
+                <Button variant="danger" size="sm" onClick={loadPatient}>
                   {t('common.tryAgain')}
-                </button>
-                <button
-                  onClick={onClose}
-                  className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded hover:bg-gray-200 transition-colors"
-                >
+                </Button>
+                <Button variant="secondary" size="sm" onClick={onClose}>
                   {t('common.close')}
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -373,19 +367,17 @@ export function PatientDetailView({
 
           <div className="flex items-center space-x-2">
             {!isEditing && (
-              <button
+              <Button
+                variant="primary"
+                size="md"
                 onClick={() => setIsEditing(true)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               >
                 {t('patient.edit')}
-              </button>
+              </Button>
             )}
-            <button
-              onClick={onClose}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors"
-            >
+            <Button variant="secondary" size="md" onClick={onClose}>
               {t('common.close')}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -481,18 +473,21 @@ export function PatientDetailView({
 
                 {!isEditing && patient.status === 'active' && (
                   <div className="flex space-x-1">
-                    <button
+                    <Button
+                      variant="success"
+                      size="sm"
                       onClick={() => handleStatusChange('treated')}
-                      className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors"
                     >
                       {t('status.treated')}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
                       onClick={() => handleStatusChange('transferred')}
-                      className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200 transition-colors"
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
                     >
                       {t('status.transferred')}
-                    </button>
+                    </Button>
                     <button
                       onClick={() => handleStatusChange('discharged')}
                       className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
@@ -802,12 +797,13 @@ export function PatientDetailView({
       {/* Action Buttons */}
       {isEditing && (
         <div className="flex justify-between items-center bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <button
+          <Button
+            variant="danger"
+            size="md"
             onClick={() => setShowDeleteConfirm(true)}
-            className="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition-colors"
           >
             {t('patient.delete')}
-          </button>
+          </Button>
 
           <div className="flex space-x-3">
             <button

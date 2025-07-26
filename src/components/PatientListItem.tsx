@@ -7,6 +7,7 @@
 import { memo } from 'preact/compat';
 import { PatientData } from '../types';
 import { useTranslation } from '../hooks';
+import { Button } from './ui';
 
 export interface PatientListItemProps {
   patient: PatientData;
@@ -252,20 +253,24 @@ const PatientListItemComponent = ({
             {/* Quick status actions */}
             {patient.status === 'active' && onStatusUpdate && (
               <div className="flex flex-wrap gap-1 sm:gap-2">
-                <button
+                <Button
+                  variant="success"
+                  size="sm"
                   onClick={e => handleStatusChange(e, 'treated')}
-                  className="touch-target text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md hover:bg-green-200 active:bg-green-300 transition-colors font-medium"
-                  title={`${t('common.markAs')} ${t('status.treated')}`}
+                  className="text-xs"
+                  aria-label={`${t('common.markAs')} ${t('status.treated')}`}
                 >
                   {t('status.treated')}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   onClick={e => handleStatusChange(e, 'transferred')}
-                  className="touch-target text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-md hover:bg-purple-200 active:bg-purple-300 transition-colors font-medium"
-                  title={`${t('common.markAs')} ${t('status.transferred')}`}
+                  className="text-xs bg-purple-600 hover:bg-purple-700 text-white"
+                  aria-label={`${t('common.markAs')} ${t('status.transferred')}`}
                 >
                   {t('status.transferred')}
-                </button>
+                </Button>
               </div>
             )}
 
