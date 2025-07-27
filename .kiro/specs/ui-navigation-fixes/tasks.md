@@ -18,7 +18,7 @@
   - Ensure Tailwind v4 classes render correctly in buttons
   - _Requirements: 2.1, 2.2_
 
-- [ ] 4. Redesign header layout to prevent element overlapping
+- [x] 4. Redesign header layout to prevent element overlapping
   - Restructure header component layout for proper spacing
   - Fix language switcher and New Assessment button positioning
   - Implement responsive header behavior for all screen sizes

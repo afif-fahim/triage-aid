@@ -4,12 +4,14 @@ import {
   PWAStatus as PWAStatusType,
   PWAUpdateInfo,
 } from '../services/PWAService';
+import { useTranslation } from '../hooks';
 
 interface PWAStatusProps {
   className?: string;
 }
 
 export function PWAStatus({ className = '' }: PWAStatusProps) {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<PWAStatusType>(pwaService.getStatus());
   const [updateInfo, setUpdateInfo] = useState<PWAUpdateInfo>({
     available: false,
@@ -18,6 +20,7 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
   const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
     // Subscribe to status changes
@@ -62,9 +65,16 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
   };
 
   const handleInstallApp = async () => {
-    const installed = await pwaService.showInstallPrompt();
-    if (installed) {
-      setShowInstallPrompt(false);
+    setIsInstalling(true);
+    try {
+      const installed = await pwaService.showInstallPrompt();
+      if (installed) {
+        setShowInstallPrompt(false);
+      }
+    } catch (error) {
+      console.error('Failed to install app:', error);
+    } finally {
+      setIsInstalling(false);
     }
   };
 
@@ -78,33 +88,15 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
 
   return (
     <div className={`pwa-status ${className}`}>
-      {/* Update Available Prompt */}
-      {showUpdatePrompt && (
-        <div className="update-prompt">
-          <div className="update-content">
-            <div className="update-icon">🔄</div>
-            <div className="update-text">
-              <h3>Update Available</h3>
-              <p>A new version of TriageAid is ready to install.</p>
-            </div>
-            <div className="update-actions">
-              <button
-                onClick={handleApplyUpdate}
-                disabled={isUpdating}
-                className="btn btn-primary btn-sm"
-              >
-                {isUpdating ? 'Updating...' : 'Update Now'}
-              </button>
-              <button
-                onClick={handleDismissUpdate}
-                className="btn btn-secondary btn-sm"
-              >
-                Later
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Connection Status Indicator */}
+      <div className="flex items-center gap-1">
+        <div
+          className={`w-2 h-2 rounded-full ${
+            status.isOnline ? 'bg-green-500' : 'bg-red-500'
+          }`}
+          title={status.isOnline ? t('pwa.online') : t('pwa.offline')}
+        />
+      </div>
 
       {/* Install App Prompt */}
       {showInstallPrompt && !status.isInstalled && (
@@ -112,23 +104,50 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
           <div className="install-content">
             <div className="install-icon">📱</div>
             <div className="install-text">
-              <h3>Install TriageAid</h3>
-              <p>
-                Install the app for quick access and better offline experience.
-              </p>
+              <h3>{t('pwa.installTitle')}</h3>
+              <p>{t('pwa.installDescription')}</p>
             </div>
             <div className="install-actions">
               <button
                 onClick={handleInstallApp}
+                disabled={isInstalling}
                 className="btn btn-primary btn-sm"
               >
-                Install
+                {isInstalling ? t('pwa.installing') : t('pwa.install')}
               </button>
               <button
                 onClick={handleDismissInstall}
                 className="btn btn-secondary btn-sm"
               >
-                Not Now
+                {t('pwa.notNow')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Update Available Prompt */}
+      {showUpdatePrompt && (
+        <div className="update-prompt">
+          <div className="update-content">
+            <div className="update-icon">🔄</div>
+            <div className="update-text">
+              <h3>{t('pwa.updateAvailable')}</h3>
+              <p>{t('pwa.updateDescription')}</p>
+            </div>
+            <div className="update-actions">
+              <button
+                onClick={handleApplyUpdate}
+                disabled={isUpdating}
+                className="btn btn-primary btn-sm"
+              >
+                {isUpdating ? t('pwa.updating') : t('pwa.updateNow')}
+              </button>
+              <button
+                onClick={handleDismissUpdate}
+                className="btn btn-secondary btn-sm"
+              >
+                {t('pwa.later')}
               </button>
             </div>
           </div>

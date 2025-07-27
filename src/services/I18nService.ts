@@ -18,6 +18,7 @@ export interface TranslationKeys {
   'nav.breadcrumb': string;
   'nav.unsavedChanges': string;
   'nav.unsavedFormChanges': string;
+  'nav.changeLanguage': string;
 
   // Error Messages
   'error.dataError': string;
@@ -55,8 +56,6 @@ export interface TranslationKeys {
   'error.refreshApp': string;
 
   // Home Screen
-  'home.title': string;
-  'home.subtitle': string;
   'home.startAssessment': string;
   'home.viewDashboard': string;
   'home.features.startProtocol': string;
