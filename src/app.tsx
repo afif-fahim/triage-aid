@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { lazy, Suspense } from 'preact/compat';
 import './app.css';
-import {
-  LanguageSwitcher,
-  BreadcrumbNavigation,
-  PWAInstallBanner,
-  AppUpdateNotification,
-} from './components';
+import { LanguageSwitcher, BreadcrumbNavigation } from './components';
 import {
   ResponsiveContainer,
   Toast,
@@ -17,7 +12,7 @@ import {
   FallbackErrorState,
   LoadingSpinner,
 } from './components/ui';
-import { PWAStatus } from './components/PWAStatus';
+import { PWAConnectionStatus, PWAPrompts } from './components/PWAStatus';
 
 // Lazy load heavy components
 const PatientIntakeForm = lazy(() =>
@@ -163,67 +158,104 @@ export function App() {
       class={`min-h-screen bg-medical-background ${isRTL ? 'rtl' : 'ltr'}`}
       dir={direction}
     >
-      {/* PWA Status and Language Switcher */}
-      <div
-        class={`fixed top-4 z-50 flex items-center gap-2 ${isRTL ? 'left-4' : 'right-4'}`}
-      >
-        <LanguageSwitcher variant="dropdown" />
-        {pwaInitialized && <PWAStatus />}
-      </div>
+      {/* Header Layout */}
+      <header class="bg-white/50 backdrop-blur-md shadow-sm border-b border-gray-200 safe-top sticky top-0 z-50">
+        <ResponsiveContainer maxWidth="full" padding="sm">
+          <div class="flex items-center justify-between min-h-[60px] gap-2">
+            {/* Left Section - Navigation */}
+            <div class="flex items-center min-w-0 flex-1">
+              {currentView && currentView !== 'home' ? (
+                <div class="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleBackToHome}
+                    className="text-medical-primary hover:text-blue-700 font-medium shrink-0"
+                  >
+                    {t('nav.back')}
+                  </Button>
+                  <span class="text-gray-300 hidden sm:inline">|</span>
 
-      {/* Navigation Header */}
-      {currentView && currentView !== 'home' && (
-        <nav class="bg-medical-surface shadow-sm border-b border-gray-200 safe-top">
-          <ResponsiveContainer maxWidth="full" padding="sm">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2 sm:space-x-4 min-w-0 flex-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleBackToHome}
-                  className="text-medical-primary hover:text-blue-700 font-medium shrink-0"
-                >
-                  {isRTL ? 'مساعد الفرز ←' : '← TriageAid'}
-                </Button>
-                <span class="text-gray-300 hidden sm:inline">|</span>
-
-                {/* Breadcrumb Navigation */}
-                <div class="min-w-0 flex-1">
-                  <BreadcrumbNavigation className="hidden sm:block" />
-                  <span class="text-medical-text-primary font-medium text-sm sm:hidden truncate">
-                    {currentView === 'dashboard' && t('nav.dashboard')}
-                    {currentView === 'intake' && t('nav.assessment')}
-                    {currentView === 'patient-detail' &&
-                      `${t('nav.patientDetails')}${selectedPatientId ? ` - #${selectedPatientId.slice(0, 8).toUpperCase()}` : ''}`}
-                  </span>
+                  {/* Breadcrumb Navigation */}
+                  <div class="min-w-0 flex-1">
+                    <BreadcrumbNavigation className="hidden sm:block" />
+                    <span class="text-medical-text-primary font-medium text-sm sm:hidden truncate">
+                      {currentView === 'dashboard' && t('nav.dashboard')}
+                      {currentView === 'intake' && t('nav.assessment')}
+                      {currentView === 'patient-detail' &&
+                        `${t('nav.patientDetails')}${selectedPatientId ? ` - #${selectedPatientId.slice(0, 8).toUpperCase()}` : ''}`}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div class="flex items-center">
+                  <h1 class="text-lg font-semibold text-medical-text-primary">
+                    {t('app.title')}
+                  </h1>
+                </div>
+              )}
+            </div>
 
+            {/* Center Section - Action Button (when applicable) */}
+            <div class="hidden sm:flex items-center shrink-0">
               {currentView === 'dashboard' && (
                 <Button
                   variant="primary"
                   size="sm"
                   onClick={handleStartAssessment}
-                  className={`shrink-0 ${isRTL ? 'mr-2' : 'ml-2'}`}
                 >
-                  <span class="hidden sm:inline">{t('nav.newAssessment')}</span>
-                  <span class="sm:hidden">{t('nav.new')}</span>
+                  {t('nav.newAssessment')}
                 </Button>
               )}
             </div>
-          </ResponsiveContainer>
-        </nav>
-      )}
+
+            {/* Right Section - Controls */}
+            <div
+              class={`flex items-center gap-2 shrink-0 ${isRTL ? 'flex-row-reverse' : ''}`}
+            >
+              {/* Mobile New Assessment Button */}
+              <div class="sm:hidden">
+                {currentView === 'dashboard' && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleStartAssessment}
+                    aria-label={t('nav.newAssessment')}
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 4v16m8-8H4"
+                      />
+                    </svg>
+                  </Button>
+                )}
+              </div>
+
+              {/* Language Switcher */}
+              <div class="relative">
+                <LanguageSwitcher variant="dropdown" size="sm" />
+              </div>
+
+              {/* PWA Status */}
+              {pwaInitialized && (
+                <div class="">
+                  <PWAConnectionStatus />
+                </div>
+              )}
+            </div>
+          </div>
+        </ResponsiveContainer>
+      </header>
 
       <ResponsiveContainer maxWidth="3xl" padding="md" className="safe-bottom">
-        {/* PWA Components */}
-        {pwaInitialized && (
-          <>
-            <AppUpdateNotification />
-            <PWAInstallBanner />
-          </>
-        )}
-
         {/* Toast Notifications */}
         {toast && (
           <Toast
@@ -236,13 +268,14 @@ export function App() {
         )}
 
         {/* Global Toast Container for Error Handling Service */}
-        <ToastContainer position="top-right" maxToasts={3} />
+        <ToastContainer position="bottom-right" maxToasts={3} />
 
         {/* Home View */}
         {(!currentView || currentView === 'home') && (
           <div class="text-center animate-fade-in">
             <Card variant="elevated" padding="lg" className="max-w-2xl mx-auto">
               <div class="mb-8">
+                {/* Logo */}
                 <svg
                   class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6"
                   viewBox="0 0 512 512"
@@ -269,13 +302,13 @@ export function App() {
                   <circle cx="180" cy="180" r="16" fill="#DC2626" />
                   <circle cx="332" cy="180" r="16" fill="#D97706" />
                   <circle cx="180" cy="332" r="16" fill="#059669" />
-                  <circle cx="332" cy="332" r="16" fill="#374151" />
+                  <circle cx="332" cy="332" r="16" fill="#6A6C6D" />
                 </svg>
                 <h1 class="text-responsive-2xl font-bold text-medical-text-primary mb-3">
-                  {t('home.title')}
+                  {t('app.title')}
                 </h1>
                 <p class="text-responsive-base text-medical-text-secondary mb-8 max-w-md mx-auto">
-                  {t('home.subtitle')}
+                  {t('app.subtitle')}
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
@@ -302,6 +335,7 @@ export function App() {
 
               {/* Feature highlights */}
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-200">
+                {/* Triage Protocols */}
                 <div class="text-center">
                   <div class="w-12 h-12 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <svg
@@ -309,16 +343,21 @@ export function App() {
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <circle cx="10" cy="10" r="9" />
+                      <path
+                        d="M10 6a1 1 0 011 1v2h2a1 1 0 110 2h-2v2a1 1 0 11-2 0v-2H7a1 1 0 110-2h2V7a1 1 0 011-1z"
+                        fill="white"
+                      />
                     </svg>
                   </div>
                   <h3 class="text-sm font-medium text-medical-text-primary mb-1">
-                    {t('home.features.startProtocol')}
+                    {t('home.features.triageProtocol')}
                   </h3>
                   <p class="text-xs text-medical-text-secondary">
-                    {t('home.features.startProtocolDesc')}
+                    {t('home.features.triageProtocolDesc')}
                   </p>
                 </div>
+                {/* Offline App */}
                 <div class="text-center">
                   <div class="w-12 h-12 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <svg
@@ -340,6 +379,7 @@ export function App() {
                     {t('home.features.offlineReadyDesc')}
                   </p>
                 </div>
+                {/* Secure */}
                 <div class="text-center">
                   <div class="w-12 h-12 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <svg
@@ -492,6 +532,9 @@ export function App() {
           </div>
         )}
       </ResponsiveContainer>
+
+      {/* PWA Prompts */}
+      {pwaInitialized && <PWAPrompts />}
     </div>
   );
 }

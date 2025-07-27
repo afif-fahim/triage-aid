@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'preact/hooks';
 import { i18nService, type SupportedLanguage } from '../services/I18nService';
+import { useTranslation } from '../hooks';
 import { Button } from './ui';
 
 interface LanguageSwitcherProps {
@@ -18,6 +19,7 @@ export function LanguageSwitcher({
   variant = 'dropdown',
   size = 'sm',
 }: LanguageSwitcherProps) {
+  const { t } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>(
     i18nService.getCurrentLanguage()
   );
@@ -63,16 +65,22 @@ export function LanguageSwitcher({
 
   // Dropdown variant
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative language-switcher-container ${className}`}>
       <Button
         variant="ghost"
         size={size}
         onClick={() => setIsOpen(!isOpen)}
-        className="font-medium flex items-center gap-1"
+        className="font-medium flex items-center gap-1 min-w-[44px] justify-center"
+        aria-label={t('nav.changeLanguage')}
+        aria-expanded={isOpen}
+        aria-haspopup="true"
       >
-        <span>{currentLangInfo?.nativeName}</span>
+        <span className="hidden sm:inline">{currentLangInfo?.nativeName}</span>
+        <span className="sm:hidden text-xs font-bold">
+          {currentLangInfo?.code.toUpperCase()}
+        </span>
         <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -90,28 +98,39 @@ export function LanguageSwitcher({
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-10"
+            className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
+            aria-hidden="true"
           />
 
-          {/* Dropdown menu */}
-          <div className="absolute top-full mt-1 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-20 min-w-[120px]">
+          {/* Dropdown menu - positioned based on text direction */}
+          <div
+            className={`
+              absolute top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-[120px]
+              ${currentLanguage === 'ar' ? 'left-0' : 'right-0'}
+            `}
+            role="menu"
+            aria-orientation="vertical"
+          >
             {availableLanguages.map(language => (
               <button
                 key={language.code}
                 onClick={() => handleLanguageChange(language.code)}
+                role="menuitem"
                 className={`
                   w-full px-3 py-2 text-left hover:bg-gray-50 first:rounded-t-lg last:rounded-b-lg
-                  flex items-center justify-between
+                  flex items-center justify-between transition-colors duration-150
                   ${currentLanguage === language.code ? 'bg-blue-50 text-blue-700' : 'text-gray-700'}
+                  ${language.code === 'ar' ? 'text-right' : 'text-left'}
                 `}
               >
                 <span className="font-medium">{language.nativeName}</span>
                 {currentLanguage === language.code && (
                   <svg
-                    className="w-4 h-4"
+                    className="w-4 h-4 flex-shrink-0"
                     fill="currentColor"
                     viewBox="0 0 20 20"
+                    aria-hidden="true"
                   >
                     <path
                       fillRule="evenodd"

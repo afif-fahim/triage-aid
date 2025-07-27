@@ -42,6 +42,10 @@ npm run predeploy       # Pre-deployment build
 npm run deploy          # Deploy to GitHub Pages
 ```
 
+### NEVER CREATE THESE unless specified explicitly
+- Any type of test files
+- Markdown files
+
 ## Build Configuration
 - **Base Path**: `/triage-aid` for GitHub Pages deployment
 - **Chunk Optimization**: Manual chunking for vendor, UI, services, and locales

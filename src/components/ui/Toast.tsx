@@ -17,6 +17,12 @@ interface ToastProps {
   onClose: () => void;
   actions?: ToastAction[];
   className?: string;
+  position?:
+    | 'top-right'
+    | 'top-left'
+    | 'bottom-right'
+    | 'bottom-left'
+    | 'top-center';
 }
 
 export function Toast({
@@ -26,6 +32,7 @@ export function Toast({
   onClose,
   actions = [],
   className = '',
+  position = 'bottom-right',
 }: ToastProps) {
   useEffect(() => {
     if (duration > 0) {
@@ -34,6 +41,15 @@ export function Toast({
     }
     return undefined;
   }, [duration, onClose]);
+
+  // Position classes
+  const positionClasses = {
+    'top-right': 'top-4 right-4',
+    'top-left': 'top-4 left-4',
+    'bottom-right': 'bottom-4 right-4',
+    'bottom-left': 'bottom-4 left-4',
+    'top-center': 'top-4 left-1/2 transform -translate-x-1/2',
+  };
 
   const typeStyles = {
     success: {
@@ -92,6 +108,11 @@ export function Toast({
 
   const style = typeStyles[type];
 
+  // Animation class based on position
+  const animationClass = position.includes('bottom')
+    ? 'animate-slide-up'
+    : 'animate-slide-down';
+
   const handleActionClick = async (action: ToastAction) => {
     try {
       await action.action();
@@ -103,9 +124,9 @@ export function Toast({
   return (
     <div
       className={`
-        fixed top-4 right-4 z-50 max-w-sm w-full
+        fixed ${positionClasses[position]} z-50 max-w-sm w-full
         ${style.bg} border rounded-lg shadow-lg
-        animate-slide-down
+        ${animationClass}
         ${className}
       `}
       role="alert"
