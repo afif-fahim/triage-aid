@@ -845,43 +845,45 @@ export function PatientIntakeForm({
         </Card>
 
         {/* Form Actions */}
-        <Card
-          variant="default"
-          padding="md"
-          className="sticky bottom-4 safe-bottom"
-        >
-          <div class="flex flex-col sm:flex-row gap-3">
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              disabled={isSubmitting || !isFormComplete()}
-              loading={isSubmitting}
-              className="sm:flex-1"
-            >
-              {isEditing ? t('common.update') : t('common.save')}
-            </Button>
+        <div class="sticky bottom-4 safe-bottom flex justify-center">
+          <Card
+            variant="default"
+            padding="md"
+            className="bg-white/30 backdrop-blur-md max-w-md w-full"
+          >
+            <div class="flex gap-2">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={isSubmitting || !isFormComplete()}
+                loading={isSubmitting}
+                className="flex-[2] disabled:!bg-gray-400 disabled:hover:!bg-gray-400 disabled:!text-white-600"
+              >
+                {isEditing ? t('common.update') : t('common.save')}
+              </Button>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              fullWidth
-              onClick={handleCancel}
-              disabled={isSubmitting}
-              className="sm:w-auto sm:px-8"
-            >
-              {t('common.cancel')}
-            </Button>
-          </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                fullWidth
+                onClick={handleCancel}
+                disabled={isSubmitting}
+                className="flex-1"
+              >
+                {t('common.cancel')}
+              </Button>
+            </div>
 
-          {!isFormComplete() && (
-            <p class="text-xs text-medical-text-muted mt-2 text-center">
-              {t('intake.completeRequired')}
-            </p>
-          )}
-        </Card>
+            {!isFormComplete() && (
+              <p class="text-xs text-medical-text-muted mt-1.5 text-center">
+                {t('intake.completeRequired')}
+              </p>
+            )}
+          </Card>
+        </div>
       </form>
     </div>
   );

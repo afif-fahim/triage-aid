@@ -14,8 +14,8 @@
 
   "home.startAssessment": "بدء تقييم المريض",
   "home.viewDashboard": "عرض لوحة التحكم",
-  "home.features.startProtocol": "بروتوكول START",
-  "home.features.startProtocolDesc": "تقييم فرز آلي",
+  "home.features.triageProtocol": "بروتوكولات الفرز",
+  "home.features.triageProtocolDesc": "أنظمة تقييم معتمدة",
   "home.features.offlineReady": "جاهز بدون إنترنت",
   "home.features.offlineReadyDesc": "يعمل بدون إنترنت",
   "home.features.secure": "آمن",

@@ -23,20 +23,11 @@ interface ToastWithId extends ToastNotification {
 }
 
 export function ToastContainer({
-  position = 'top-right',
+  position = 'bottom-right',
   maxToasts = 5,
   className = '',
 }: ToastContainerProps) {
   const [toasts, setToasts] = useState<ToastWithId[]>([]);
-
-  // Position classes
-  const positionClasses = {
-    'top-right': 'top-4 right-4',
-    'top-left': 'top-4 left-4',
-    'bottom-right': 'bottom-4 right-4',
-    'bottom-left': 'bottom-4 left-4',
-    'top-center': 'top-4 left-1/2 transform -translate-x-1/2',
-  };
 
   const addToast = (notification: ToastNotification) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -71,7 +62,6 @@ export function ToastContainer({
     <div
       className={`
         fixed z-50 flex flex-col gap-2 max-w-sm w-full
-        ${positionClasses[position]}
         ${className}
       `}
       role="region"
@@ -80,7 +70,6 @@ export function ToastContainer({
       {toasts.map((toast, index) => (
         <div
           key={toast.id}
-          className="animate-slide-down"
           style={{
             animationDelay: `${index * 100}ms`,
           }}
@@ -90,6 +79,7 @@ export function ToastContainer({
             type={toast.type}
             duration={toast.duration}
             actions={toast.actions}
+            position={position}
             onClose={() => removeToast(toast.id)}
           />
         </div>

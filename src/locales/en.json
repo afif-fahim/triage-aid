@@ -14,8 +14,8 @@
 
   "home.startAssessment": "Start Patient Assessment",
   "home.viewDashboard": "View Dashboard",
-  "home.features.startProtocol": "START Protocol",
-  "home.features.startProtocolDesc": "Automated triage assessment",
+  "home.features.triageProtocol": "Triage Protocols",
+  "home.features.triageProtocolDesc": "Validated assessment systems",
   "home.features.offlineReady": "Offline Ready",
   "home.features.offlineReadyDesc": "Works without internet",
   "home.features.secure": "Secure",

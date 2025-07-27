@@ -58,8 +58,8 @@ export interface TranslationKeys {
   // Home Screen
   'home.startAssessment': string;
   'home.viewDashboard': string;
-  'home.features.startProtocol': string;
-  'home.features.startProtocolDesc': string;
+  'home.features.triageProtocol': string;
+  'home.features.triageProtocolDesc': string;
   'home.features.offlineReady': string;
   'home.features.offlineReadyDesc': string;
   'home.features.secure': string;

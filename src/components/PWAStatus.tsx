@@ -10,17 +10,42 @@ interface PWAStatusProps {
   className?: string;
 }
 
-export function PWAStatus({ className = '' }: PWAStatusProps) {
+// Connection Status Indicator (for header)
+export function PWAConnectionStatus({ className = '' }: PWAStatusProps) {
+  const { t } = useTranslation();
+  const [status, setStatus] = useState<PWAStatusType>(pwaService.getStatus());
+
+  useEffect(() => {
+    const unsubscribeStatus = pwaService.onStatusChange(setStatus);
+    return () => {
+      unsubscribeStatus();
+    };
+  }, []);
+
+  return (
+    <div className={`flex items-center gap-1 ${className}`}>
+      <div
+        className={`w-2 h-2 rounded-full ${
+          status.isOnline ? 'bg-green-500' : 'bg-red-500'
+        }`}
+        title={status.isOnline ? t('pwa.online') : t('pwa.offline')}
+      />
+    </div>
+  );
+}
+
+// PWA Prompts (for outside header)
+export function PWAPrompts({ className = '' }: PWAStatusProps) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<PWAStatusType>(pwaService.getStatus());
   const [updateInfo, setUpdateInfo] = useState<PWAUpdateInfo>({
     available: false,
     waiting: false,
   });
-  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
+  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
     // Subscribe to status changes
@@ -51,19 +76,6 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
     };
   }, []);
 
-  const handleApplyUpdate = async () => {
-    if (!updateInfo.waiting) return;
-
-    setIsUpdating(true);
-    try {
-      await pwaService.applyUpdate();
-      setShowUpdatePrompt(false);
-    } catch (error) {
-      console.error('Failed to apply update:', error);
-      setIsUpdating(false);
-    }
-  };
-
   const handleInstallApp = async () => {
     setIsInstalling(true);
     try {
@@ -78,26 +90,29 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
     }
   };
 
-  const handleDismissUpdate = () => {
-    setShowUpdatePrompt(false);
-  };
-
   const handleDismissInstall = () => {
     setShowInstallPrompt(false);
   };
 
-  return (
-    <div className={`pwa-status ${className}`}>
-      {/* Connection Status Indicator */}
-      <div className="flex items-center gap-1">
-        <div
-          className={`w-2 h-2 rounded-full ${
-            status.isOnline ? 'bg-green-500' : 'bg-red-500'
-          }`}
-          title={status.isOnline ? t('pwa.online') : t('pwa.offline')}
-        />
-      </div>
+  const handleApplyUpdate = async () => {
+    if (!updateInfo.waiting) return;
 
+    setIsUpdating(true);
+    try {
+      await pwaService.applyUpdate();
+      setShowUpdatePrompt(false);
+    } catch (error) {
+      console.error('Failed to apply update:', error);
+      setIsUpdating(false);
+    }
+  };
+
+  const handleDismissUpdate = () => {
+    setShowUpdatePrompt(false);
+  };
+
+  return (
+    <div className={`pwa-prompts ${className}`}>
       {/* Install App Prompt */}
       {showInstallPrompt && !status.isInstalled && (
         <div className="install-prompt">
@@ -127,7 +142,7 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
       )}
 
       {/* Update Available Prompt */}
-      {showUpdatePrompt && (
+      {showUpdatePrompt && updateInfo.available && (
         <div className="update-prompt">
           <div className="update-content">
             <div className="update-icon">🔄</div>
@@ -155,24 +170,14 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
       )}
 
       <style jsx>{`
-        .pwa-status {
+        .pwa-prompts {
           position: relative;
-        }
-
-        @keyframes pulse {
-          0%,
-          100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.5;
-          }
         }
 
         .update-prompt,
         .install-prompt {
           position: fixed;
-          top: 1rem;
+          bottom: 1rem;
           right: 1rem;
           background: white;
           border-radius: 8px;
@@ -185,11 +190,11 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
 
         @keyframes slideIn {
           from {
-            transform: translateX(100%);
+            transform: translateY(100px);
             opacity: 0;
           }
           to {
-            transform: translateX(0);
+            transform: translateY(0);
             opacity: 1;
           }
         }
@@ -278,4 +283,9 @@ export function PWAStatus({ className = '' }: PWAStatusProps) {
       `}</style>
     </div>
   );
+}
+
+// Legacy component for backward compatibility
+export function PWAStatus({ className = '' }: PWAStatusProps) {
+  return <PWAConnectionStatus className={className} />;
 }

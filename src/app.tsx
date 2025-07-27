@@ -12,7 +12,7 @@ import {
   FallbackErrorState,
   LoadingSpinner,
 } from './components/ui';
-import { PWAStatus } from './components/PWAStatus';
+import { PWAConnectionStatus, PWAPrompts } from './components/PWAStatus';
 
 // Lazy load heavy components
 const PatientIntakeForm = lazy(() =>
@@ -159,7 +159,7 @@ export function App() {
       dir={direction}
     >
       {/* Header Layout */}
-      <header class="bg-medical-surface shadow-sm border-b border-gray-200 safe-top sticky top-0 z-50">
+      <header class="bg-white/50 backdrop-blur-md shadow-sm border-b border-gray-200 safe-top sticky top-0 z-50">
         <ResponsiveContainer maxWidth="full" padding="sm">
           <div class="flex items-center justify-between min-h-[60px] gap-2">
             {/* Left Section - Navigation */}
@@ -247,7 +247,7 @@ export function App() {
               {/* PWA Status */}
               {pwaInitialized && (
                 <div class="">
-                  <PWAStatus />
+                  <PWAConnectionStatus />
                 </div>
               )}
             </div>
@@ -268,13 +268,14 @@ export function App() {
         )}
 
         {/* Global Toast Container for Error Handling Service */}
-        <ToastContainer position="top-right" maxToasts={3} />
+        <ToastContainer position="bottom-right" maxToasts={3} />
 
         {/* Home View */}
         {(!currentView || currentView === 'home') && (
           <div class="text-center animate-fade-in">
             <Card variant="elevated" padding="lg" className="max-w-2xl mx-auto">
               <div class="mb-8">
+                {/* Logo */}
                 <svg
                   class="w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-6"
                   viewBox="0 0 512 512"
@@ -301,7 +302,7 @@ export function App() {
                   <circle cx="180" cy="180" r="16" fill="#DC2626" />
                   <circle cx="332" cy="180" r="16" fill="#D97706" />
                   <circle cx="180" cy="332" r="16" fill="#059669" />
-                  <circle cx="332" cy="332" r="16" fill="#374151" />
+                  <circle cx="332" cy="332" r="16" fill="#6A6C6D" />
                 </svg>
                 <h1 class="text-responsive-2xl font-bold text-medical-text-primary mb-3">
                   {t('app.title')}
@@ -334,6 +335,7 @@ export function App() {
 
               {/* Feature highlights */}
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8 pt-8 border-t border-gray-200">
+                {/* Triage Protocols */}
                 <div class="text-center">
                   <div class="w-12 h-12 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <svg
@@ -341,16 +343,21 @@ export function App() {
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <circle cx="10" cy="10" r="9" />
+                      <path
+                        d="M10 6a1 1 0 011 1v2h2a1 1 0 110 2h-2v2a1 1 0 11-2 0v-2H7a1 1 0 110-2h2V7a1 1 0 011-1z"
+                        fill="white"
+                      />
                     </svg>
                   </div>
                   <h3 class="text-sm font-medium text-medical-text-primary mb-1">
-                    {t('home.features.startProtocol')}
+                    {t('home.features.triageProtocol')}
                   </h3>
                   <p class="text-xs text-medical-text-secondary">
-                    {t('home.features.startProtocolDesc')}
+                    {t('home.features.triageProtocolDesc')}
                   </p>
                 </div>
+                {/* Offline App */}
                 <div class="text-center">
                   <div class="w-12 h-12 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <svg
@@ -372,6 +379,7 @@ export function App() {
                     {t('home.features.offlineReadyDesc')}
                   </p>
                 </div>
+                {/* Secure */}
                 <div class="text-center">
                   <div class="w-12 h-12 bg-opacity-10 rounded-lg flex items-center justify-center mx-auto mb-3">
                     <svg
@@ -524,6 +532,9 @@ export function App() {
           </div>
         )}
       </ResponsiveContainer>
+
+      {/* PWA Prompts */}
+      {pwaInitialized && <PWAPrompts />}
     </div>
   );
 }
