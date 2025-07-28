@@ -231,5 +231,19 @@
   "pwa.offline": "بدون إنترنت",
   "pwa.online": "متصل",
   "pwa.workingOffline": "يعمل بدون إنترنت",
-  "pwa.backOnline": "عاد الاتصال"
+  "pwa.backOnline": "عاد الاتصال",
+
+  "voice.title": "الإدخال الصوتي",
+  "voice.start": "بدء التسجيل",
+  "voice.stop": "توقف",
+  "voice.error": "خطأ في التعرف على الصوت",
+  "voice.errorAutoHide": "ستختفي هذه الرسالة تلقائياً.",
+  "voice.transcription": "النسخ الصوتي",
+  "voice.clear": "مسح",
+  "voice.placeholder": "سيظهر النسخ الصوتي هنا. يمكنك تحرير النص قبل المعالجة.",
+  "voice.listening": "يستمع...",
+  "voice.hide": "إخفاء النسخ",
+  "voice.processAI": "معالجة بالذكاء الاصطناعي",
+  "voice.language": "اللغة",
+  "voice.arabicSoon": "دعم العربية قريباً"
 }

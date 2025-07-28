@@ -231,5 +231,19 @@
   "pwa.offline": "Offline",
   "pwa.online": "Online",
   "pwa.workingOffline": "Working offline",
-  "pwa.backOnline": "Back online"
+  "pwa.backOnline": "Back online",
+
+  "voice.title": "Voice Input",
+  "voice.start": "Start Recording",
+  "voice.stop": "Stop",
+  "voice.error": "Voice Recognition Error",
+  "voice.errorAutoHide": "This message will disappear automatically.",
+  "voice.transcription": "Transcription",
+  "voice.clear": "Clear",
+  "voice.placeholder": "Voice transcription will appear here. You can edit the text before processing.",
+  "voice.listening": "Listening...",
+  "voice.hide": "Hide Transcription",
+  "voice.processAI": "Process with AI",
+  "voice.language": "Language",
+  "voice.arabicSoon": "Arabic support coming soon"
 }

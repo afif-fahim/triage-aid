@@ -1,24 +1,19 @@
 # Implementation Plan
 
 - [x] 1. Set up voice recognition infrastructure and core services
-
-
-
-
-
   - Create VoiceRecognitionService using Web Speech API with error handling and permission management
   - Implement basic voice status management and event handling system
   - Add voice recognition types and interfaces to the types directory
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
 - [ ] 2. Create voice UI components and integration points
-  - [ ] 2.1 Implement VoiceTriageComponent with transcription display
+  - [x] 2.1 Implement VoiceTriageComponent with transcription display
     - Create component with voice toggle, recording indicator, and transcription textarea
     - Add real-time transcription display with editing capabilities
     - Implement voice status indicators and error messaging
     - _Requirements: 1.1, 1.2, 1.3, 4.1, 4.2_
 
-  - [ ] 2.2 Integrate voice functionality into PatientIntakeForm
+  - [x] 2.2 Integrate voice functionality into PatientIntakeForm
     - Add voice mode toggle to existing PatientIntakeForm component
     - Implement conditional rendering of voice components
     - Ensure voice integration doesn't break existing form functionality

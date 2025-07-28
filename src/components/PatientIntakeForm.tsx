@@ -11,12 +11,15 @@ import { triageEngine } from '../services/TriageEngine';
 import { dataService } from '../services/DataService';
 import { Card, Button, ResponsiveGrid } from './ui/';
 import { useTranslation, useFormNavigationGuard } from '../hooks';
+import { VoiceTriageComponent } from './VoiceTriageComponent';
 
 interface PatientIntakeFormProps {
   onSubmit?: (patientId: string) => void;
   onCancel?: () => void;
   existingPatient?: PatientDataInput;
   isEditing?: boolean;
+  voiceEnabled?: boolean;
+  onVoiceToggle?: (enabled: boolean) => void;
 }
 
 interface FormErrors {
@@ -64,6 +67,8 @@ export function PatientIntakeForm({
   onCancel,
   existingPatient,
   isEditing = false,
+  voiceEnabled = false,
+  onVoiceToggle,
 }: PatientIntakeFormProps) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -73,6 +78,9 @@ export function PatientIntakeForm({
     null
   );
   const [showPreview, setShowPreview] = useState(false);
+
+  // Voice-related state
+  const [voiceMode, setVoiceMode] = useState(voiceEnabled);
 
   // Initialize form with existing patient data if editing
   useEffect(() => {
@@ -94,6 +102,11 @@ export function PatientIntakeForm({
       });
     }
   }, [existingPatient]);
+
+  // Sync voice mode with prop
+  useEffect(() => {
+    setVoiceMode(voiceEnabled);
+  }, [voiceEnabled]);
 
   // Check if form is dirty (has unsaved changes)
   const isFormDirty = useCallback((): boolean => {
@@ -331,17 +344,80 @@ export function PatientIntakeForm({
     return Math.round((completedFields.length / requiredFields.length) * 100);
   };
 
+  // Handle voice mode toggle
+  const handleVoiceToggle = () => {
+    const newVoiceMode = !voiceMode;
+    setVoiceMode(newVoiceMode);
+
+    if (onVoiceToggle) {
+      onVoiceToggle(newVoiceMode);
+    }
+  };
+
+  // Handle voice text generation
+  const handleVoiceTextGenerated = (text: string) => {
+    console.info(text);
+    // TODO: Process voice transcription text in future tasks
+  };
+
+  // Handle AI field population (placeholder for future implementation)
+  const handleVoiceFieldsPopulated = (fields: Record<string, unknown>) => {
+    console.info(fields);
+    // TODO: Implement AI field population in future tasks
+  };
+
   return (
     <div class="max-w-4xl mx-auto space-y-6">
       {/* Header Card */}
       <Card variant="default" padding="md">
         <div class="text-center sm:text-left">
-          <h2 class="text-responsive-xl font-bold text-medical-text-primary mb-2">
-            {isEditing ? t('patient.edit.title') : t('patient.intake.title')}
-          </h2>
-          <p class="text-medical-text-secondary text-responsive-sm mb-4">
-            {t('assessment.start.sub')}
-          </p>
+          <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+            <div class="flex-1">
+              <h2 class="text-responsive-xl font-bold text-medical-text-primary mb-2">
+                {isEditing
+                  ? t('patient.edit.title')
+                  : t('patient.intake.title')}
+              </h2>
+              <p class="text-medical-text-secondary text-responsive-sm">
+                {t('assessment.start.sub')}
+              </p>
+            </div>
+
+            {/* Voice Mode Toggle */}
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={voiceMode}
+                  onChange={handleVoiceToggle}
+                  class="sr-only"
+                />
+                <div
+                  class={`
+                  relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                  ${voiceMode ? 'bg-medical-primary' : 'bg-gray-300'}
+                `}
+                >
+                  <span
+                    class={`
+                    inline-block h-4 w-4 transform rounded-full bg-white transition-transform
+                    ${voiceMode ? 'translate-x-6' : 'translate-x-1'}
+                  `}
+                  />
+                </div>
+                <span class="text-sm font-medium text-medical-text-primary flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      fillRule="evenodd"
+                      d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Voice Mode
+                </span>
+              </label>
+            </div>
+          </div>
 
           {/* Progress Indicator */}
           <div class="mt-4">
@@ -393,6 +469,16 @@ export function PatientIntakeForm({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Voice Triage Component */}
+      {voiceMode && (
+        <VoiceTriageComponent
+          onTextGenerated={handleVoiceTextGenerated}
+          onFieldsPopulated={handleVoiceFieldsPopulated}
+          isEnabled={voiceMode}
+          language="en"
+        />
       )}
 
       <form onSubmit={handleSubmit} class="space-y-6">

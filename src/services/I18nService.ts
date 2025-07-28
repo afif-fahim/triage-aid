@@ -252,6 +252,21 @@ export interface TranslationKeys {
   'pwa.online': string;
   'pwa.workingOffline': string;
   'pwa.backOnline': string;
+
+  // Voice Recognition
+  'voice.title': string;
+  'voice.start': string;
+  'voice.stop': string;
+  'voice.error': string;
+  'voice.errorAutoHide': string;
+  'voice.transcription': string;
+  'voice.clear': string;
+  'voice.placeholder': string;
+  'voice.listening': string;
+  'voice.hide': string;
+  'voice.processAI': string;
+  'voice.language': string;
+  'voice.arabicSoon': string;
 }
 
 export type TranslationKey = keyof TranslationKeys;

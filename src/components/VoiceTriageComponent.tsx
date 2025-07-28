@@ -1,0 +1,409 @@
+/**
+ * Voice Triage Component
+ * Provides voice-to-text functionality with transcription display and editing
+ */
+
+import { useState, useEffect, useRef, useCallback } from 'preact/hooks';
+import type { JSX } from 'preact';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
+import { Alert } from './ui/Alert';
+import { voiceRecognitionService } from '../services/VoiceRecognitionService';
+import { useTranslation } from '../hooks/useTranslation';
+import {
+  getVoiceErrorMessage,
+  getVoiceStatusMessage,
+  formatConfidence,
+  isConfidenceAcceptable,
+} from '../utils/voiceUtils';
+import type {
+  VoiceError,
+  VoiceStatus,
+  VoiceRecognitionResult,
+  VoiceLanguage,
+} from '../types/VoiceRecognition';
+
+interface VoiceTriageComponentProps {
+  onTextGenerated?: (text: string) => void;
+  onFieldsPopulated?: (fields: Record<string, unknown>) => void; // Will be properly typed when AI integration is added
+  isEnabled?: boolean;
+  language?: VoiceLanguage;
+  className?: string;
+}
+
+export function VoiceTriageComponent({
+  onTextGenerated,
+  onFieldsPopulated,
+  isEnabled = true,
+  language = 'en',
+  className = '',
+}: VoiceTriageComponentProps) {
+  const { t } = useTranslation();
+
+  // Voice recognition state
+  const [isListening, setIsListening] = useState(false);
+  const [transcribedText, setTranscribedText] = useState('');
+  const [interimText, setInterimText] = useState('');
+  const [voiceStatus, setVoiceStatus] = useState<VoiceStatus | null>(null);
+  const [voiceError, setVoiceError] = useState<VoiceError | null>(null);
+  const [lastResult, setLastResult] = useState<VoiceRecognitionResult | null>(
+    null
+  );
+
+  // UI state
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showTranscription, setShowTranscription] = useState(false);
+
+  // Refs
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const finalTranscriptRef = useRef('');
+
+  // Handle transcription results
+  const handleTranscription = useCallback(
+    (result: VoiceRecognitionResult) => {
+      setLastResult(result);
+
+      if (result.isFinal) {
+        // Add final result to transcript
+        const newFinalText = `${finalTranscriptRef.current + result.transcript} `;
+        finalTranscriptRef.current = newFinalText;
+        setTranscribedText(newFinalText);
+        setInterimText('');
+
+        // Notify parent component
+        if (onTextGenerated) {
+          onTextGenerated(newFinalText.trim());
+        }
+      } else {
+        // Show interim result
+        setInterimText(result.transcript);
+      }
+    },
+    [onTextGenerated]
+  );
+
+  // Handle voice recognition errors
+  const handleVoiceError = useCallback((error: VoiceError) => {
+    setVoiceError(error);
+    setIsListening(false);
+
+    // Auto-clear recoverable errors after 5 seconds
+    if (error.recoverable) {
+      setTimeout(() => {
+        setVoiceError(null);
+      }, 5000);
+    }
+  }, []);
+
+  // Handle voice status changes
+  const handleStatusChange = useCallback((status: VoiceStatus) => {
+    setVoiceStatus(status);
+    setIsListening(status.isListening);
+  }, []);
+
+  // Initialize voice recognition service
+  useEffect(() => {
+    // Set up event listeners
+    voiceRecognitionService.onTranscription(handleTranscription);
+    voiceRecognitionService.onError(handleVoiceError);
+    voiceRecognitionService.onStatusChange(handleStatusChange);
+
+    // Set language
+    voiceRecognitionService.setLanguage(language);
+
+    // Cleanup on unmount
+    return () => {
+      voiceRecognitionService.destroy();
+    };
+  }, [language, handleTranscription, handleVoiceError, handleStatusChange]);
+
+  // Toggle voice recognition
+  const toggleVoiceRecognition = async () => {
+    if (!voiceStatus?.isSupported) {
+      setVoiceError({
+        type: 'unsupported',
+        message: 'Voice recognition is not supported in this browser',
+        recoverable: false,
+      });
+      return;
+    }
+
+    try {
+      if (isListening) {
+        voiceRecognitionService.stopListening();
+      } else {
+        // Clear previous error
+        setVoiceError(null);
+
+        // Show transcription area when starting
+        setShowTranscription(true);
+
+        await voiceRecognitionService.startListening();
+      }
+    } catch (error) {
+      console.error('Failed to toggle voice recognition:', error);
+      setVoiceError({
+        type: 'recognition',
+        message: 'Failed to start voice recognition',
+        recoverable: true,
+      });
+    }
+  };
+
+  // Handle manual text editing
+  const handleTextChange = (e: JSX.TargetedEvent<HTMLTextAreaElement>) => {
+    const newText = (e.target as HTMLTextAreaElement).value;
+    setTranscribedText(newText);
+    finalTranscriptRef.current = newText;
+
+    if (onTextGenerated) {
+      onTextGenerated(newText);
+    }
+  };
+
+  // Clear transcription
+  const clearTranscription = () => {
+    setTranscribedText('');
+    setInterimText('');
+    finalTranscriptRef.current = '';
+    setShowTranscription(false);
+    setVoiceError(null);
+
+    if (onTextGenerated) {
+      onTextGenerated('');
+    }
+  };
+
+  // Process with AI (placeholder for future implementation)
+  const processWithAI = () => {
+    if (!transcribedText.trim()) return;
+
+    setIsProcessing(true);
+
+    // TODO: Implement AI processing in future task
+    setTimeout(() => {
+      setIsProcessing(false);
+      // Placeholder for AI results
+      if (onFieldsPopulated) {
+        onFieldsPopulated({});
+      }
+    }, 2000);
+  };
+
+  // Get recording indicator color
+  const getRecordingIndicatorColor = () => {
+    if (voiceError && !voiceError.recoverable) return 'bg-red-500';
+    if (isListening) return 'bg-red-500 animate-pulse';
+    if (voiceStatus?.isSupported) return 'bg-green-500';
+    return 'bg-gray-400';
+  };
+
+  // Get voice button variant
+  const getVoiceButtonVariant = () => {
+    if (voiceError && !voiceError.recoverable) return 'danger';
+    if (isListening) return 'danger';
+    return 'primary';
+  };
+
+  // Get confidence indicator
+  const renderConfidenceIndicator = () => {
+    if (!lastResult || !lastResult.isFinal) return null;
+
+    const isAcceptable = isConfidenceAcceptable(lastResult.confidence);
+    const confidenceText = formatConfidence(lastResult.confidence);
+
+    return (
+      <div
+        className={`text-xs ${isAcceptable ? 'text-green-600' : 'text-yellow-600'}`}
+      >
+        Confidence: {confidenceText}
+      </div>
+    );
+  };
+
+  if (!isEnabled) {
+    return null;
+  }
+
+  return (
+    <Card className={`voice-triage-component ${className}`} padding="md">
+      <div className="space-y-4">
+        {/* Header with voice toggle */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {t('voice.title', 'Voice Input')}
+            </h3>
+
+            {/* Recording indicator */}
+            <div className="flex items-center space-x-2">
+              <div
+                className={`w-3 h-3 rounded-full ${getRecordingIndicatorColor()}`}
+                aria-label={isListening ? 'Recording' : 'Not recording'}
+              />
+              <span className="text-sm text-gray-600">
+                {voiceStatus
+                  ? getVoiceStatusMessage(voiceStatus)
+                  : 'Initializing...'}
+              </span>
+            </div>
+          </div>
+
+          {/* Voice toggle button */}
+          <Button
+            variant={getVoiceButtonVariant()}
+            size="md"
+            onClick={toggleVoiceRecognition}
+            disabled={!voiceStatus?.isSupported}
+            aria-label={isListening ? 'Stop recording' : 'Start recording'}
+          >
+            {isListening ? (
+              <>
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {t('voice.stop', 'Stop')}
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {t('voice.start', 'Start Recording')}
+              </>
+            )}
+          </Button>
+        </div>
+
+        {/* Error display */}
+        {voiceError && (
+          <Alert
+            variant="danger"
+            dismissible
+            onDismiss={() => setVoiceError(null)}
+          >
+            <div className="space-y-2">
+              <p className="font-medium">
+                {t('voice.error', 'Voice Recognition Error')}
+              </p>
+              <p className="text-sm">{getVoiceErrorMessage(voiceError)}</p>
+              {voiceError.recoverable && (
+                <p className="text-xs text-gray-600">
+                  {t(
+                    'voice.errorAutoHide',
+                    'This message will disappear automatically.'
+                  )}
+                </p>
+              )}
+            </div>
+          </Alert>
+        )}
+
+        {/* Transcription display */}
+        {showTranscription && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="transcription"
+                className="block text-sm font-medium text-gray-700"
+              >
+                {t('voice.transcription', 'Transcription')}
+              </label>
+              <div className="flex items-center space-x-2">
+                {renderConfidenceIndicator()}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearTranscription}
+                  aria-label="Clear transcription"
+                >
+                  {t('voice.clear', 'Clear')}
+                </Button>
+              </div>
+            </div>
+
+            {/* Transcription textarea */}
+            <div className="relative">
+              <textarea
+                ref={textareaRef}
+                id="transcription"
+                value={transcribedText + interimText}
+                onChange={handleTextChange}
+                placeholder={t(
+                  'voice.placeholder',
+                  'Voice transcription will appear here. You can edit the text before processing.'
+                )}
+                className={`
+                  w-full min-h-[120px] p-3 border border-gray-300 rounded-lg
+                  focus:ring-2 focus:ring-medical-primary focus:border-medical-primary
+                  resize-vertical font-mono text-sm
+                  ${interimText ? 'bg-blue-50' : 'bg-white'}
+                `}
+                rows={5}
+              />
+
+              {/* Interim text indicator */}
+              {interimText && (
+                <div className="absolute bottom-2 right-2 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                  {t('voice.listening', 'Listening...')}
+                </div>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                size="md"
+                onClick={() => setShowTranscription(false)}
+              >
+                {t('voice.hide', 'Hide Transcription')}
+              </Button>
+
+              <Button
+                variant="primary"
+                size="md"
+                onClick={processWithAI}
+                disabled={!transcribedText.trim() || isProcessing}
+                loading={isProcessing}
+              >
+                {t('voice.processAI', 'Process with AI')}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Language indicator */}
+        <div className="text-xs text-gray-500 border-t pt-3">
+          <div className="flex items-center justify-between">
+            <span>
+              {t('voice.language', 'Language')}:{' '}
+              {language === 'en' ? 'English' : 'Arabic (Coming Soon)'}
+            </span>
+            {language === 'ar' && (
+              <span className="text-yellow-600">
+                {t('voice.arabicSoon', 'Arabic support coming soon')}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
