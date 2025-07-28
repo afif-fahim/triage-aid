@@ -44,3 +44,22 @@ export {
   PatientDataValidator,
   VALIDATION_MESSAGES,
 } from './ValidationSchemas';
+
+// Voice Recognition Types
+export type {
+  VoiceError,
+  VoiceStatus,
+  VoiceLanguage,
+  VoiceSettings,
+  VoiceRecognitionResult,
+  VoiceRecognitionService,
+  SpeechRecognitionEvent,
+  SpeechRecognitionErrorEvent,
+  SpeechRecognition,
+  SpeechRecognitionConstructor,
+  SpeechRecognitionResultList,
+  SpeechRecognitionResult,
+  SpeechRecognitionAlternative,
+  SpeechGrammarList,
+  SpeechGrammar,
+} from './VoiceRecognition';

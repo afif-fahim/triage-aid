@@ -48,6 +48,7 @@ export default [
         MessageChannel: 'readonly',
         caches: 'readonly',
         KeyboardEvent: 'readonly',
+        EventTarget: 'readonly',
       },
     },
     plugins: {
