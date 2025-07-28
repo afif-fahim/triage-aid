@@ -13,6 +13,7 @@ export * from './FallbackErrorState';
 export * from './LoadingState';
 export * from './EmptyState';
 export * from './Modal';
+export * from './ModalOverlay';
 export * from './Checkbox';
 export * from './Select';
 export * from './FileInput';
