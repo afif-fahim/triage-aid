@@ -4,7 +4,7 @@
  */
 
 import type { ComponentChildren } from 'preact';
-import { useEffect } from 'preact/hooks';
+import { ModalOverlay } from './ModalOverlay';
 
 export interface ConfirmationDialogProps {
   isOpen: boolean;
@@ -29,38 +29,14 @@ export function ConfirmationDialog({
   onCancel,
   children,
 }: ConfirmationDialogProps) {
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
-        onCancel();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen, onCancel]);
-
-  if (!isOpen) {
-    return null;
-  }
-
   return (
-    <div
-      className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
-      onClick={onCancel}
+    <ModalOverlay
+      isOpen={isOpen}
+      onClose={onCancel}
+      closeOnBackdrop={true}
+      contentClassName="max-w-md w-full"
     >
-      <div
-        className="bg-white rounded-xl shadow-2xl border border-gray-200 p-6 max-w-md w-full animate-in zoom-in-95 duration-200"
-        onClick={e => e.stopPropagation()}
-      >
+      <div className="p-6">
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
           <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
@@ -105,6 +81,6 @@ export function ConfirmationDialog({
           </button>
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }

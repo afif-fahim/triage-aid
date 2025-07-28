@@ -6,6 +6,7 @@
 import { useEffect, useRef } from 'preact/hooks';
 import type { ComponentChildren } from 'preact';
 import { Button } from './Button';
+import { ModalOverlay } from './ModalOverlay';
 
 interface ModalProps {
   isOpen: boolean;
@@ -39,46 +40,13 @@ export function Modal({
 
       // Focus the modal
       modalRef.current?.focus();
-
-      // Prevent body scroll
-      document.body.style.overflow = 'hidden';
     } else {
       // Restore focus to the previously focused element
       if (previousActiveElement.current) {
         previousActiveElement.current.focus();
       }
-
-      // Restore body scroll
-      document.body.style.overflow = '';
     }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
   }, [isOpen]);
-
-  // Handle escape key
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, onClose]);
-
-  const handleBackdropClick = (event: MouseEvent) => {
-    if (closeOnBackdrop && event.target === event.currentTarget) {
-      onClose();
-    }
-  };
 
   const getSizeClasses = () => {
     switch (size) {
@@ -97,28 +65,20 @@ export function Modal({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div
-      class="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={handleBackdropClick}
+    <ModalOverlay
+      isOpen={isOpen}
+      onClose={onClose}
+      closeOnBackdrop={closeOnBackdrop}
+      contentClassName={`${getSizeClasses()} ${className}`}
     >
-      {/* Backdrop */}
-      <div class="absolute inset-0 bg-black bg-opacity-50 transition-opacity" />
-
-      {/* Modal */}
       <div
         ref={modalRef}
         tabIndex={-1}
-        class={`
-          relative bg-white rounded-lg shadow-xl max-h-full overflow-hidden
-          ${getSizeClasses()}
-          ${className}
-        `}
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
+        class="w-full h-full"
       >
         {/* Header */}
         {(title || showCloseButton) && (
@@ -162,6 +122,6 @@ export function Modal({
           {children}
         </div>
       </div>
-    </div>
+    </ModalOverlay>
   );
 }
