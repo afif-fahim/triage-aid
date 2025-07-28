@@ -2,104 +2,73 @@
 
 ## Root Directory Structure
 ```
-├── src/                    # Source code
-├── public/                 # Static assets and PWA files
-├── dist/                   # Production build output
-├── .kiro/                  # Kiro AI assistant configuration
-├── .github/                # GitHub workflows and templates
-├── node_modules/           # Dependencies
-└── config files            # Build and tool configurations
+├── .kiro/              # Kiro AI assistant configuration
+├── .github/            # GitHub workflows and templates
+├── .vscode/            # VS Code workspace settings
+├── public/             # Static assets and PWA manifest
+├── src/                # Source code
+├── dist/               # Production build output
+├── dev-dist/           # Development build output
+└── node_modules/       # Dependencies
 ```
 
 ## Source Code Organization (`src/`)
-
-### Core Application Files
-- `main.tsx` - Application entry point with service initialization
-- `app.tsx` - Main app component with routing and layout
-- `app.css` - Global application styles
-- `index.css` - Base CSS imports and global styles
-
-### Component Architecture (`src/components/`)
 ```
-components/
-├── ui/                     # Reusable UI components (buttons, cards, etc.)
-├── PatientDashboard.tsx    # Main dashboard view
-├── PatientIntakeForm.tsx   # Patient assessment form
-├── PatientDetailView.tsx   # Individual patient details
-├── PatientListItem.tsx     # Dashboard list item component
-├── LanguageSwitcher.tsx    # Language selection component
-├── PWAInstallBanner.tsx    # PWA installation prompt
-├── PWAStatus.tsx           # PWA connection status
-└── index.ts               # Component exports
+src/
+├── components/         # React/Preact components
+│   ├── ui/            # Reusable UI components (Button, Modal, etc.)
+│   ├── PatientDashboard.tsx
+│   ├── PatientIntakeForm.tsx
+│   └── PatientDetailView.tsx
+├── services/          # Business logic and data services
+│   ├── DataService.ts      # Database operations (Dexie/IndexedDB)
+│   ├── SecurityService.ts  # Encryption and security
+│   ├── I18nService.ts      # Internationalization
+│   ├── PWAService.ts       # Progressive Web App features
+│   └── TriageEngine.ts     # START algorithm implementation
+├── hooks/             # Custom React/Preact hooks
+│   ├── useRouter.ts        # Custom routing logic
+│   ├── useTranslation.ts   # i18n hook
+│   └── usePatientData.ts   # Patient data management
+├── types/             # TypeScript type definitions
+├── utils/             # Utility functions and helpers
+├── locales/           # Translation files (en.json, ar.json)
+├── assets/            # Images, icons, and static resources
+├── main.tsx           # Application entry point
+├── app.tsx            # Main App component
+├── app.css            # Global styles
+└── index.css          # Base CSS and Tailwind imports
 ```
 
-### Business Logic (`src/services/`)
-- `DataService.ts` - Patient data CRUD operations
-- `DatabaseService.ts` - IndexedDB database management
-- `SecurityService.ts` - Encryption and data security
-- `TriageEngine.ts` - START algorithm implementation
-- `I18nService.ts` - Internationalization and localization
-- `PWAService.ts` - Progressive Web App functionality
-- `RouterService.ts` - Client-side routing
-- `ErrorHandlingService.ts` - Global error management
+## Component Architecture
+- **UI Components** (`src/components/ui/`): Reusable, styled components following design system
+- **Feature Components**: Domain-specific components for patient management
+- **Layout Components**: Navigation, headers, containers for responsive design
 
-### Custom Hooks (`src/hooks/`)
-- `useTranslation.ts` - Translation and RTL support
-- `useRouter.ts` - Navigation and routing
-- `useErrorHandler.ts` - Error handling utilities
-- `useNavigationGuard.ts` - Route protection
+## Service Layer Pattern
+- **DataService**: Handles all database operations with encryption
+- **SecurityService**: Manages patient data encryption/decryption
+- **I18nService**: Handles language switching and translations
+- **PWAService**: Manages offline capabilities and app installation
+- **TriageEngine**: Implements medical triage algorithms
 
-### Type Definitions (`src/types/`)
-- `PatientData.ts` - Patient record interfaces
-- `TriagePriority.ts` - Triage classification types
-- `AppState.ts` - Application state interfaces
-- `ValidationSchemas.ts` - Form validation types
-
-### Utilities (`src/utils/`)
-- `performance.ts` - Performance optimization helpers
-- `rtl.ts` - Right-to-left language utilities
-
-### Localization (`src/locales/`)
-- `en.json` - English translations
-- `ar.json` - Arabic translations
-
-## Naming Conventions
-
-### Files & Directories
+## File Naming Conventions
 - **Components**: PascalCase (e.g., `PatientDashboard.tsx`)
 - **Services**: PascalCase with Service suffix (e.g., `DataService.ts`)
-- **Hooks**: camelCase with use prefix (e.g., `useTranslation.ts`)
-- **Types**: PascalCase (e.g., `PatientData.ts`)
-- **Utilities**: camelCase (e.g., `performance.ts`)
+- **Hooks**: camelCase with use prefix (e.g., `useRouter.ts`)
+- **Types**: PascalCase (e.g., `Patient.ts`)
+- **Utilities**: camelCase (e.g., `formatDate.ts`)
 
-### Code Conventions
-- **React Components**: PascalCase function components
-- **Variables/Functions**: camelCase
-- **Constants**: UPPER_SNAKE_CASE
-- **CSS Classes**: Tailwind utility classes with medical- prefix for custom colors
-- **Database Fields**: camelCase matching TypeScript interfaces
+## Import Organization
+1. External libraries (preact, dexie)
+2. Internal services
+3. Internal components
+4. Internal hooks and utilities
+5. Type imports (with `type` keyword)
 
-## Architecture Patterns
-
-### Component Structure
-- Lazy loading for heavy components to improve initial load time
-- Error boundaries around major component sections
-- Suspense fallbacks with loading spinners
-- Responsive design with mobile-first approach
-
-### Data Flow
-1. **Patient Assessment** → Form validation → Triage calculation
-2. **Data Encryption** → Local storage → Dashboard display  
-3. **Status Updates** → Re-encryption → Persistence
-
-### Service Layer
-- Services are singleton instances imported throughout the app
-- Async initialization pattern for services requiring setup
-- Error handling with user-friendly toast notifications
-- Offline-first data persistence with IndexedDB
-
-### Styling Architecture
-- Tailwind CSS with custom medical theme colors
-- RTL support through custom Tailwind plugin
-- Responsive utilities with mobile-first breakpoints
-- Component-scoped styles when needed
+## Configuration Files
+- **TypeScript**: `tsconfig.json`, `tsconfig.app.json`, `tsconfig.node.json`
+- **Tailwind**: `tailwind.config.js` with medical color palette
+- **Vite**: `vite.config.ts` with PWA and optimization settings
+- **ESLint**: `eslint.config.js` with medical app specific rules
+- **Prettier**: `.prettierrc` for consistent formatting

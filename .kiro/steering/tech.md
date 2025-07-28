@@ -1,60 +1,56 @@
 # Technology Stack & Build System
 
 ## Core Technologies
-- **Frontend Framework**: Preact + TypeScript for lightweight, performant UI
-- **Styling**: Tailwind CSS with custom medical-themed color palette
+- **Frontend Framework**: Preact (lightweight React alternative)
+- **Language**: TypeScript with strict configuration
+- **Styling**: Tailwind CSS with medical-themed color palette
 - **Build System**: Vite with optimized bundling for mobile devices
-- **Data Storage**: Dexie.js (IndexedDB) with Web Crypto API encryption
-- **PWA Features**: Vite PWA plugin with Workbox for advanced caching
+- **PWA**: Vite PWA plugin with Workbox for advanced caching
 
-## Key Dependencies
-- **preact**: Lightweight React alternative for better performance
-- **dexie**: Modern IndexedDB wrapper for client-side database operations
-- **vite-plugin-pwa**: PWA capabilities with service worker management
-- **tailwindcss**: Utility-first CSS framework with custom medical theme
+## Key Libraries
+- **Database**: Dexie.js (IndexedDB wrapper) with Web Crypto API encryption
+- **Routing**: Custom router implementation in `src/hooks/useRouter.ts`
+- **Internationalization**: Custom i18n service with English/Arabic support
+- **State Management**: Preact hooks (useState, useEffect, useContext)
 
 ## Development Tools
-- **ESLint**: Code linting with TypeScript and React hooks rules
-- **Prettier**: Code formatting with consistent style
-- **TypeScript**: Static type checking with strict configuration
-- **PostCSS**: CSS processing with Tailwind and autoprefixer
+- **Linting**: ESLint with TypeScript and React Hooks plugins
+- **Formatting**: Prettier with consistent code style
+- **Type Checking**: TypeScript with strict mode enabled
+- **Package Manager**: npm
+
+## Build Configuration
+- **Target**: ES2022 with modern browser support
+- **Bundle Optimization**: Manual chunks for vendor, UI, services, and locales
+- **PWA Features**: Service worker with offline caching strategies
+- **Deployment**: GitHub Pages with automated deployment
 
 ## Common Commands
 
 ### Development
 ```bash
-npm run dev              # Start development server
-npm run build           # Build for production
-npm run preview         # Preview production build
+npm run dev              # Start development server (Vite)
+npm run build           # Build for production (TypeScript + Vite)
+npm run preview         # Preview production build locally
 ```
 
 ### Code Quality
 ```bash
-npm run lint            # Run ESLint
-npm run lint:fix        # Fix ESLint issues automatically
+npm run lint            # Run ESLint checks
+npm run lint:fix        # Auto-fix ESLint issues
 npm run format          # Format code with Prettier
-npm run format:check    # Check code formatting
+npm run format:check    # Check Prettier formatting
 ```
 
 ### Deployment
 ```bash
-npm run predeploy       # Pre-deployment build
+npm run predeploy       # Runs build automatically
 npm run deploy          # Deploy to GitHub Pages
 ```
 
-### NEVER CREATE THESE unless specified explicitly
-- Any type of test files
-- Markdown files
-
-## Build Configuration
-- **Base Path**: `/triage-aid` for GitHub Pages deployment
-- **Chunk Optimization**: Manual chunking for vendor, UI, services, and locales
-- **PWA Caching**: Comprehensive caching strategy for offline functionality
-- **Bundle Size**: Optimized for mobile devices with 500KB chunk size warning limit
-- **Minification**: Terser with console removal for production builds
-
-## Performance Optimizations
-- Lazy loading for heavy components (Dashboard, Intake Form, Patient Detail)
-- Service worker caching with runtime strategies
-- Optimized dependency bundling
-- Image and font caching strategies
+## Architecture Patterns
+- **Service-based architecture** with dedicated services for data, security, i18n, PWA
+- **Component composition** with reusable UI components in `src/components/ui/`
+- **Custom hooks** for shared logic (router, translation, data fetching)
+- **Error boundaries** for graceful error handling
+- **Lazy loading** for performance optimization
