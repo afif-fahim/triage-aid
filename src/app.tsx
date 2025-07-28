@@ -460,6 +460,30 @@ export function App() {
                   {t('home.githubProject')}
                 </Button>
               </div>
+
+              {/* Hackathon Attribution */}
+              <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+                <p class="text-sm text-medical-text-secondary">
+                  Built for{' '}
+                  <a
+                    href="https://www.deendevelopers.com/gaza"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-medical-primary hover:text-blue-700 hover:underline"
+                  >
+                    <span class="inline-flex items-center gap-1">
+                      Hack for Gaza
+                      <img
+                        src="https://flagcdn.com/16x12/ps.png"
+                        width="16"
+                        height="12"
+                        alt="Palestine"
+                        class="inline-block"
+                      />
+                    </span>
+                  </a>
+                </p>
+              </div>
             </Card>
           </div>
         )}
