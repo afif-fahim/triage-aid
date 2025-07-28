@@ -195,7 +195,7 @@ export function PatientDashboard({
   }
 
   return (
-    <div className={`space-y-4 sm:space-y-6 ${className}`}>
+    <div className={`space-y-4 sm:space-y-6 pb-8 ${className}`}>
       {/* Dashboard Header */}
       <Card variant="default" padding="md">
         <div className="flex flex-col gap-4">
@@ -235,25 +235,25 @@ export function PatientDashboard({
 
           {/* Priority Count Badges */}
           <ResponsiveGrid cols={{ xs: 2, sm: 4 }} gap="sm" className="mt-4">
-            <div className="flex items-center space-x-2 bg-red-50 text-red-700 px-3 py-2 rounded-lg text-sm font-medium">
+            <div className="flex items-center space-x-2 bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-red rounded-full flex-shrink-0"></div>
               <span className="truncate">
                 {priorityCounts.red} {t('triage.red')}
               </span>
             </div>
-            <div className="flex items-center space-x-2 bg-yellow-50 text-yellow-700 px-3 py-2 rounded-lg text-sm font-medium">
+            <div className="flex items-center space-x-2 bg-yellow-100 text-yellow-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-yellow rounded-full flex-shrink-0"></div>
               <span className="truncate">
                 {priorityCounts.yellow} {t('triage.yellow')}
               </span>
             </div>
-            <div className="flex items-center space-x-2 bg-green-50 text-green-700 px-3 py-2 rounded-lg text-sm font-medium">
+            <div className="flex items-center space-x-2 bg-green-100 text-green-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-green rounded-full flex-shrink-0"></div>
               <span className="truncate">
                 {priorityCounts.green} {t('triage.green')}
               </span>
             </div>
-            <div className="flex items-center space-x-2 bg-gray-50 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium">
+            <div className="flex items-center space-x-2 bg-gray-200 text-gray-700 px-3 py-2 rounded-lg text-sm font-medium">
               <div className="w-3 h-3 bg-triage-black rounded-full flex-shrink-0"></div>
               <span className="truncate">
                 {priorityCounts.black} {t('triage.black')}

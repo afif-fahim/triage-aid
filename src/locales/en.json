@@ -136,6 +136,7 @@
   "status.transferred": "Transferred",
   "status.discharged": "Discharged",
 
+  "common.add": "Add",
   "common.save": "Save",
   "common.cancel": "Cancel",
   "common.delete": "Delete",

@@ -313,11 +313,21 @@ export function PatientDetailView({
                 {t('common.error')}
               </h3>
               <p className="text-sm text-red-700 mt-1">{error}</p>
-              <div className="mt-2 flex space-x-2">
-                <Button variant="danger" size="sm" onClick={loadPatient}>
+              <div className="mt-2 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                <Button
+                  variant="danger"
+                  size="sm"
+                  onClick={loadPatient}
+                  className="w-full sm:w-auto"
+                >
                   {t('common.tryAgain')}
                 </Button>
-                <Button variant="secondary" size="sm" onClick={onClose}>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={onClose}
+                  className="w-full sm:w-auto"
+                >
                   {t('common.close')}
                 </Button>
               </div>
@@ -333,14 +343,14 @@ export function PatientDetailView({
   }
 
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`space-y-4 sm:space-y-6 pb-8 px-2 sm:px-0 ${className}`}>
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div className="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+          <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-4">
             {/* Priority indicator */}
             <div
-              className="flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium"
+              className="flex items-center space-x-2 px-3 py-2 rounded-full text-sm font-medium w-fit"
               style={{
                 backgroundColor: `${patient.priority.color}15`,
                 color: patient.priority.color,
@@ -355,27 +365,33 @@ export function PatientDetailView({
               </span>
             </div>
 
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">
                 {t('patient.details')} {formatPatientId(patient.id)}
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-gray-600 mt-1 text-sm sm:text-base">
                 {patient.priority.description}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
             {!isEditing && (
               <Button
                 variant="primary"
                 size="md"
                 onClick={() => setIsEditing(true)}
+                className="w-full sm:w-auto"
               >
                 {t('patient.edit')}
               </Button>
             )}
-            <Button variant="secondary" size="md" onClick={onClose}>
+            <Button
+              variant="secondary"
+              size="md"
+              onClick={onClose}
+              className="w-full sm:w-auto"
+            >
               {t('common.close')}
             </Button>
           </div>
@@ -384,15 +400,15 @@ export function PatientDetailView({
         {/* Error message */}
         {error && (
           <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
-            <p className="text-red-700 text-sm">{error}</p>
+            <p className="text-red-700 text-sm break-words">{error}</p>
           </div>
         )}
       </div>
 
       {/* Patient Information */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {/* Basic Information */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             {t('intake.basicInfo')}
           </h2>
@@ -408,7 +424,7 @@ export function PatientDetailView({
                   onChange={e =>
                     handleFieldChange('ageGroup', e.currentTarget.value)
                   }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="child">{t('intake.ageGroup.child')}</option>
                   <option value="adult">{t('intake.ageGroup.adult')}</option>
@@ -431,7 +447,7 @@ export function PatientDetailView({
                       e.currentTarget.value || undefined
                     )
                   }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="">{t('validation.selectOption')}</option>
                   <option value="ambulatory">
@@ -472,11 +488,12 @@ export function PatientDetailView({
                 </span>
 
                 {!isEditing && patient.status === 'active' && (
-                  <div className="flex space-x-1">
+                  <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2 mt-2">
                     <Button
                       variant="success"
                       size="sm"
                       onClick={() => handleStatusChange('treated')}
+                      className="w-full sm:w-auto text-xs sm:text-sm"
                     >
                       {t('status.treated')}
                     </Button>
@@ -484,16 +501,18 @@ export function PatientDetailView({
                       variant="secondary"
                       size="sm"
                       onClick={() => handleStatusChange('transferred')}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                      className="bg-purple-600 hover:bg-purple-700 text-white w-full sm:w-auto text-xs sm:text-sm"
                     >
                       {t('status.transferred')}
                     </Button>
-                    <button
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleStatusChange('discharged')}
-                      className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded hover:bg-gray-200 transition-colors"
+                      className="bg-gray-100 text-gray-700 hover:bg-gray-200 w-full sm:w-auto text-xs sm:text-sm"
                     >
                       {t('status.discharged')}
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>
@@ -522,7 +541,7 @@ export function PatientDetailView({
         </div>
 
         {/* Vital Signs */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
             {t('intake.vitals')}
           </h2>
@@ -546,7 +565,7 @@ export function PatientDetailView({
                         : null
                     )
                   }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   placeholder={t('intake.pulsePlaceholder')}
                 />
               ) : (
@@ -566,7 +585,7 @@ export function PatientDetailView({
                   onChange={e =>
                     handleFieldChange('vitals.breathing', e.currentTarget.value)
                   }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="normal">{t('intake.breathing.normal')}</option>
                   <option value="labored">
@@ -596,7 +615,7 @@ export function PatientDetailView({
                       e.currentTarget.value
                     )
                   }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="normal">
                     {t('intake.circulation.normal')}
@@ -629,7 +648,7 @@ export function PatientDetailView({
                       e.currentTarget.value
                     )
                   }
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 >
                   <option value="alert">
                     {t('intake.consciousness.alert')}
@@ -669,7 +688,7 @@ export function PatientDetailView({
                           : null
                       )
                     }
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                     placeholder={t('intake.respiratoryPlaceholder')}
                   />
                 ) : (
@@ -685,7 +704,7 @@ export function PatientDetailView({
       </div>
 
       {/* Injuries */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           {t('intake.injuries')}
         </h2>
@@ -700,16 +719,17 @@ export function PatientDetailView({
                   onChange={e =>
                     handleInjuryChange(index, e.currentTarget.value)
                   }
-                  className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="flex-1 min-w-0 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   placeholder={t('intake.injuriesPlaceholder')}
                 />
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => removeInjury(index)}
-                  className="text-red-600 hover:text-red-700 p-1"
-                  title={t('common.delete')}
+                  className="p-2 flex-shrink-0 bg-transparent text-red-600 hover:text-red-700 hover:bg-red-50 border-none"
                 >
                   <svg
-                    className="w-5 h-5"
+                    className="w-4 h-4 sm:w-5 sm:h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -721,13 +741,15 @@ export function PatientDetailView({
                       d="M6 18L18 6M6 6l12 12"
                     />
                   </svg>
-                </button>
+                </Button>
               </div>
             ))}
 
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={addInjury}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center space-x-1"
+              className="bg-transparent text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-none text-sm font-medium flex items-center space-x-1 py-2"
             >
               <svg
                 className="w-4 h-4"
@@ -742,8 +764,8 @@ export function PatientDetailView({
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-              <span>Add</span>
-            </button>
+              <span>{t('common.add')}</span>
+            </Button>
           </div>
         ) : (
           <div>
@@ -766,7 +788,7 @@ export function PatientDetailView({
       </div>
 
       {/* Notes */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           {t('intake.notes')}
         </h2>
@@ -776,7 +798,7 @@ export function PatientDetailView({
             value={editForm.notes || ''}
             onChange={e => handleFieldChange('notes', e.currentTarget.value)}
             rows={4}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-y"
             placeholder={t('intake.notesPlaceholder')}
           />
         ) : (
@@ -796,33 +818,42 @@ export function PatientDetailView({
 
       {/* Action Buttons */}
       {isEditing && (
-        <div className="flex justify-between items-center bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <Button
-            variant="danger"
-            size="md"
-            onClick={() => setShowDeleteConfirm(true)}
-          >
-            {t('patient.delete')}
-          </Button>
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
+            <Button
+              variant="danger"
+              size="md"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-full sm:w-auto order-2 sm:order-1"
+            >
+              {t('patient.delete')}
+            </Button>
 
-          <div className="flex space-x-3">
-            <button
-              onClick={handleCancel}
-              disabled={isSaving}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-colors disabled:opacity-50"
-            >
-              {t('common.cancel')}
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors disabled:opacity-50 flex items-center space-x-2"
-            >
-              {isSaving && (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-              )}
-              <span>{isSaving ? t('common.updating') : t('patient.save')}</span>
-            </button>
+            <div className="flex flex-col gap-2 sm:flex-row sm:gap-3 order-1 sm:order-2">
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={handleCancel}
+                disabled={isSaving}
+                className="bg-gray-600 text-white hover:bg-gray-700 w-full sm:w-auto"
+              >
+                {t('common.cancel')}
+              </Button>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="w-full sm:w-auto flex items-center justify-center space-x-2"
+              >
+                {isSaving && (
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                )}
+                <span>
+                  {isSaving ? t('common.updating') : t('patient.save')}
+                </span>
+              </Button>
+            </div>
           </div>
         </div>
       )}

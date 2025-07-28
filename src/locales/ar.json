@@ -136,6 +136,7 @@
   "status.transferred": "تم النقل",
   "status.discharged": "تم الخروج",
 
+  "common.add": "اضف",
   "common.save": "حفظ",
   "common.cancel": "إلغاء",
   "common.delete": "حذف",

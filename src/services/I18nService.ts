@@ -188,6 +188,7 @@ export interface TranslationKeys {
   'status.discharged': string;
 
   // Common Actions
+  'common.add': string;
   'common.save': string;
   'common.cancel': string;
   'common.delete': string;
