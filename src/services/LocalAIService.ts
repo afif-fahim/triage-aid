@@ -11,6 +11,7 @@ import type {
   ModelStatus,
   StoredModel,
 } from '../types/VoiceRecognition';
+import { modelDownloadService, type ModelDownloadOptions } from './ModelDownloadService';
 
 // Configure Transformers.js environment
 env.allowRemoteModels = true;
@@ -48,37 +49,15 @@ class LocalAIService implements ILocalAIService {
 
   private async getStoredModel(): Promise<StoredModel | null> {
     try {
-      // Use IndexedDB to check for stored models
-      const db = await this.openModelDB();
-      const transaction = db.transaction(['models'], 'readonly');
-      const store = transaction.objectStore('models');
-      const request = store.get('current-model');
-
-      return new Promise((resolve, reject) => {
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => reject(request.error);
-      });
+      // Use ModelDownloadService to get stored model
+      return await modelDownloadService.getStoredModel('LaMini-Flan-T5-248M-1.0.0');
     } catch (error) {
       console.error('Error accessing stored model:', error);
       return null;
     }
   }
 
-  private async openModelDB(): Promise<IDBDatabase> {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open('TriageAI_Models', 1);
 
-      request.onerror = () => reject(request.error);
-      request.onsuccess = () => resolve(request.result);
-
-      request.onupgradeneeded = event => {
-        const db = (event.target as IDBOpenDBRequest).result;
-        if (!db.objectStoreNames.contains('models')) {
-          db.createObjectStore('models', { keyPath: 'id' });
-        }
-      };
-    });
-  }
 
   isModelAvailable(): boolean {
     return this.modelStatus === 'ready' && this.modelInfo !== null;
@@ -100,48 +79,38 @@ class LocalAIService implements ILocalAIService {
     this.modelStatus = 'downloading';
 
     try {
-      if (onProgress) {
-        onProgress(10);
-      }
+      // Use ModelDownloadService for downloading
+      const downloadOptions: ModelDownloadOptions = {
+        modelName: 'LaMini-Flan-T5-248M',
+        modelUrl: this.getModelUrl(),
+        version: '1.0.0',
+        language: 'en',
+        expectedSize: 248000000,
+        resumable: true
+      };
 
-      console.info('Initializing Transformers.js pipeline...');
+      // Convert ModelDownloadService progress to simple percentage
+      const progressCallback = onProgress ? (downloadProgress: any) => {
+        // Map download progress (0-90%) + pipeline initialization (90-100%)
+        const percentage = Math.min(downloadProgress.percentage * 0.9, 90);
+        onProgress(percentage);
+      } : undefined;
 
-      // Initialize the pipeline - this will download the model automatically
-      this.pipeline = await pipeline(
-        'text2text-generation',
-        this.getModelUrl(),
-        {
-          progress_callback: (progress: any) => {
-            if (onProgress && progress?.progress !== undefined) {
-              // Convert progress to percentage (10% base + 80% for model loading + 10% finalization)
-              const modelProgress = 10 + progress.progress * 80;
-              onProgress(Math.min(modelProgress, 90));
-            }
-          },
-        }
+      const storedModel = await modelDownloadService.downloadModel(
+        downloadOptions,
+        progressCallback
       );
 
       if (onProgress) {
         onProgress(95);
       }
 
-      // Create a stored model record for compatibility
-      const storedModel: StoredModel = {
-        id: 'current-model',
-        name: 'LaMini-Flan-T5-248M',
-        version: '1.0.0',
-        language: 'en',
-        size: 248000000, // Approximate size in bytes
-        downloadDate: new Date(),
-        modelData: new ArrayBuffer(0), // Not storing actual model data
-        metadata: {
-          accuracy: 0.88,
-          speed: 200,
-          memoryUsage: 248000000,
-        },
-      };
-
-      await this.storeModel(storedModel);
+      // Initialize the pipeline with the downloaded model
+      console.info('Initializing Transformers.js pipeline...');
+      this.pipeline = await pipeline(
+        'text2text-generation',
+        this.getModelUrl()
+      );
 
       this.modelInfo = {
         name: storedModel.name,
@@ -170,17 +139,7 @@ class LocalAIService implements ILocalAIService {
     return 'Xenova/LaMini-Flan-T5-248M';
   }
 
-  private async storeModel(model: StoredModel): Promise<void> {
-    const db = await this.openModelDB();
-    const transaction = db.transaction(['models'], 'readwrite');
-    const store = transaction.objectStore('models');
 
-    return new Promise((resolve, reject) => {
-      const request = store.put(model);
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  }
 
   getModelInfo(): ModelInfo | null {
     return this.modelInfo;
@@ -225,7 +184,7 @@ class LocalAIService implements ILocalAIService {
       const analysis = this.parseLaminiResponse(result);
       analysis.method = 'lamini';
       return analysis;
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Fallback to rule-based analysis and inform the user
       const ruleAnalysis = await this.analyzeTextWithRules(text);
       ruleAnalysis.method = 'rules';
@@ -477,15 +436,8 @@ Respond with JSON:
 
   async clearModel(): Promise<void> {
     try {
-      const db = await this.openModelDB();
-      const transaction = db.transaction(['models'], 'readwrite');
-      const store = transaction.objectStore('models');
-
-      await new Promise<void>((resolve, reject) => {
-        const request = store.delete('current-model');
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject(request.error);
-      });
+      // Use ModelDownloadService to delete the model
+      await modelDownloadService.deleteStoredModel('LaMini-Flan-T5-248M-1.0.0');
 
       // Clean up the pipeline
       if (this.pipeline) {

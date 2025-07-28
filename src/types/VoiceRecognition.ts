@@ -201,3 +201,53 @@ export interface LocalAIService {
   // Cleanup
   destroy(): void;
 }
+
+export interface DownloadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
+  speed: number; // bytes per second
+  timeRemaining: number; // seconds
+}
+
+export interface ModelDownloadOptions {
+  modelName: string;
+  modelUrl: string;
+  version: string;
+  language: VoiceLanguage;
+  expectedSize?: number;
+  resumable?: boolean;
+}
+
+export interface ModelDownloadService {
+  // Download management
+  downloadModel(
+    options: ModelDownloadOptions,
+    onProgress?: (progress: DownloadProgress) => void
+  ): Promise<StoredModel>;
+  
+  pauseDownload(modelId: string): Promise<void>;
+  resumeDownload(modelId: string, onProgress?: (progress: DownloadProgress) => void): Promise<void>;
+  cancelDownload(modelId: string): Promise<void>;
+  retryDownload(
+    modelId: string,
+    options: ModelDownloadOptions,
+    onProgress?: (progress: DownloadProgress) => void
+  ): Promise<StoredModel>;
+
+  // Model storage
+  getStoredModel(modelId: string): Promise<StoredModel | null>;
+  listStoredModels(): Promise<StoredModel[]>;
+  deleteStoredModel(modelId: string): Promise<void>;
+
+  // Storage management
+  getStorageUsage(): Promise<{ used: number; available: number }>;
+  cleanupOldCache(maxAge?: number): Promise<void>;
+
+  // Status
+  getDownloadStatus(modelId: string): { 
+    status: 'idle' | 'downloading' | 'paused' | 'completed' | 'error';
+    progress: DownloadProgress;
+    error?: string;
+  } | null;
+}
