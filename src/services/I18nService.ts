@@ -16,6 +16,8 @@ export interface TranslationKeys {
   'nav.newAssessment': string;
   'nav.new': string;
   'nav.breadcrumb': string;
+  'nav.navigateTo': string;
+  'nav.home': string;
   'nav.unsavedChanges': string;
   'nav.unsavedFormChanges': string;
   'nav.changeLanguage': string;

@@ -370,34 +370,35 @@ class RouterService {
   private generateBreadcrumbs(): BreadcrumbItem[] {
     if (!this.currentRoute) return [];
 
-    const breadcrumbs: BreadcrumbItem[] = [{ label: 'TriageAid', path: '/' }];
+    const breadcrumbs: BreadcrumbItem[] = [{ label: 'nav.home', path: '/' }];
 
     switch (this.currentRoute.view) {
       case 'home':
         if (breadcrumbs[0]) {
           breadcrumbs[0].active = true;
+          delete breadcrumbs[0].path; // Remove path for active item
         }
         break;
 
       case 'dashboard':
-        breadcrumbs.push({ label: 'Dashboard', active: true });
+        breadcrumbs.push({ label: 'nav.dashboard', active: true });
         break;
 
       case 'intake':
         breadcrumbs.push(
-          { label: 'Dashboard', path: '/dashboard' },
-          { label: 'New Assessment', active: true }
+          { label: 'nav.dashboard', path: '/dashboard' },
+          { label: 'nav.newAssessment', active: true }
         );
         break;
 
       case 'patient-detail': {
         const patientId = this.currentRoute.params?.id;
         breadcrumbs.push(
-          { label: 'Dashboard', path: '/dashboard' },
+          { label: 'nav.dashboard', path: '/dashboard' },
           {
             label: patientId
               ? `Patient #${patientId.slice(0, 8).toUpperCase()}`
-              : 'Patient Details',
+              : 'nav.patientDetails',
             active: true,
           }
         );

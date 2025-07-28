@@ -40,7 +40,7 @@ import { useTranslation, useRouter } from './hooks';
 
 export function App() {
   const { t, isRTL, direction } = useTranslation();
-  const { currentView, params, navigate, navigateToView } = useRouter();
+  const { currentView, params, navigateToView, goBack } = useRouter();
   const [toast, setToast] = useState<ToastNotification | null>(null);
   const [pwaInitialized, setPwaInitialized] = useState(false);
   const [i18nInitialized, setI18nInitialized] = useState(false);
@@ -120,8 +120,8 @@ export function App() {
     setToast(null);
   };
 
-  const handleBackToHome = () => {
-    navigate('/');
+  const handleBackToPrev = () => {
+    goBack();
     setToast(null);
   };
 
@@ -169,7 +169,7 @@ export function App() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={handleBackToHome}
+                    onClick={handleBackToPrev}
                     className="text-medical-primary hover:text-blue-700 font-medium shrink-0"
                   >
                     {t('nav.back')}
@@ -204,7 +204,7 @@ export function App() {
                   size="sm"
                   onClick={handleStartAssessment}
                 >
-                  {t('nav.newAssessment')}
+                  + {t('nav.newAssessment')}
                 </Button>
               )}
             </div>
@@ -497,7 +497,7 @@ export function App() {
                   title={t('error.dashboardError')}
                   message={t('error.dashboardErrorDesc')}
                   onRetry={handleViewDashboard}
-                  onReset={handleBackToHome}
+                  onReset={handleBackToPrev}
                 />
               }
             >
