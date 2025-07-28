@@ -21,6 +21,7 @@ export default [
         document: 'readonly',
         console: 'readonly',
         navigator: 'readonly',
+        indexedDB: 'readonly',
         HTMLFormElement: 'readonly',
         HTMLInputElement: 'readonly',
         HTMLSelectElement: 'readonly',
@@ -49,6 +50,9 @@ export default [
         caches: 'readonly',
         KeyboardEvent: 'readonly',
         EventTarget: 'readonly',
+        Worker: 'readonly',
+        IDBDatabase: 'readonly',
+        IDBOpenDBRequest: 'readonly',
       },
     },
     plugins: {

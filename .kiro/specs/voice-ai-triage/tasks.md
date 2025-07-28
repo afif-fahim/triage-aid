@@ -6,7 +6,7 @@
   - Add voice recognition types and interfaces to the types directory
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5_
 
-- [ ] 2. Create voice UI components and integration points
+- [x] 2. Create voice UI components and integration points
   - [x] 2.1 Implement VoiceTriageComponent with transcription display
     - Create component with voice toggle, recording indicator, and transcription textarea
     - Add real-time transcription display with editing capabilities
@@ -20,7 +20,7 @@
     - _Requirements: 1.1, 7.1, 7.2, 7.3_
 
 - [ ] 3. Implement local AI model infrastructure
-  - [ ] 3.1 Create LocalAIService with model management
+  - [x] 3.1 Create LocalAIService with model management
     - Implement service for loading and managing local AI models
     - Add model status tracking and initialization methods
     - Create interfaces for AI model communication and responses

@@ -62,4 +62,10 @@ export type {
   SpeechRecognitionAlternative,
   SpeechGrammarList,
   SpeechGrammar,
+  // AI Model Types
+  ModelInfo,
+  TriageAnalysis,
+  StoredModel,
+  ModelStatus,
+  LocalAIService,
 } from './VoiceRecognition';

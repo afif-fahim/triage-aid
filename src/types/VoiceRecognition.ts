@@ -98,7 +98,7 @@ export interface SpeechRecognition extends EventTarget {
   onsoundstart: ((this: SpeechRecognition, ev: Event) => any) | null;
   onsoundend: ((this: SpeechRecognition, ev: Event) => any) | null;
   onspeechstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onspeechend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onspeechend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
   onstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
 }
 
@@ -135,4 +135,69 @@ export interface SpeechGrammarList {
 export interface SpeechGrammar {
   src: string;
   weight: number;
+}
+
+// AI Model Types
+export interface ModelInfo {
+  name: string;
+  size: number;
+  version: string;
+  downloadDate: Date;
+  language: VoiceLanguage;
+}
+
+export interface TriageAnalysis {
+  confidence: number;
+  extractedFields: {
+    ageGroup?: 'child' | 'adult';
+    breathing?: 'normal' | 'labored' | 'absent';
+    circulation?: 'normal' | 'bleeding' | 'shock';
+    consciousness?: 'alert' | 'verbal' | 'pain' | 'unresponsive';
+    mobility?: 'ambulatory' | 'non-ambulatory';
+    pulse?: number;
+    respiratoryRate?: number;
+    capillaryRefill?: number;
+    radialPulse?: 'present' | 'absent';
+    injuries?: string[];
+    notes?: string;
+  };
+  reasoning: string;
+  suggestions: string[];
+  method?: 'lamini' | 'rules' | 'unknown';
+  error?: string;
+}
+
+export interface StoredModel {
+  id: string;
+  name: string;
+  version: string;
+  language: VoiceLanguage;
+  size: number;
+  downloadDate: Date;
+  modelData: ArrayBuffer;
+  metadata: {
+    accuracy: number;
+    speed: number;
+    memoryUsage: number;
+  };
+}
+
+export type ModelStatus = 'not-downloaded' | 'downloading' | 'ready' | 'error';
+
+export interface LocalAIService {
+  // Model management
+  isModelAvailable(): boolean;
+  downloadModel(onProgress?: (progress: number) => void): Promise<void>;
+  getModelInfo(): ModelInfo | null;
+  getModelStatus(): ModelStatus;
+
+  // AI processing
+  processTriageText(text: string): Promise<TriageAnalysis>;
+
+  // Configuration
+  setModelPath(path: string): void;
+  clearModel(): Promise<void>;
+
+  // Cleanup
+  destroy(): void;
 }

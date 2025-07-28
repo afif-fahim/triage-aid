@@ -7,7 +7,6 @@
 - I value shipping over perfect architecture
 
 ## What to do
-- Always assume this is a POC (Proof of Concept) unless explicitly told otherwise
 - Keep it simple and direct - don't overthink it
 - Start with the most obvious solution that works
 - No frameworks unless absolutely necessary
