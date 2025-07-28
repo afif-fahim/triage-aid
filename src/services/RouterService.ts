@@ -417,6 +417,13 @@ class RouterService {
   }
 
   /**
+   * Get current breadcrumbs
+   */
+  getCurrentBreadcrumbs(): BreadcrumbItem[] {
+    return this.generateBreadcrumbs();
+  }
+
+  /**
    * Get current view
    */
   getCurrentView(): AppView | null {

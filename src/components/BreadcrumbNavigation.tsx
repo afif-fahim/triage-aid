@@ -18,14 +18,24 @@ export function BreadcrumbNavigation({
   const [breadcrumbs, setBreadcrumbs] = useState<BreadcrumbItem[]>([]);
 
   useEffect(() => {
+    // Get initial breadcrumbs
+    const initialBreadcrumbs = routerService.getCurrentBreadcrumbs();
+    setBreadcrumbs(initialBreadcrumbs);
+
     // Subscribe to breadcrumb changes
-    const unsubscribe = routerService.onBreadcrumbChange(setBreadcrumbs);
+    const unsubscribe = routerService.onBreadcrumbChange(newBreadcrumbs => {
+      setBreadcrumbs(newBreadcrumbs);
+    });
 
     return unsubscribe;
   }, []);
 
-  if (breadcrumbs.length <= 1) {
-    return null; // Don't show breadcrumbs for single-level navigation
+  // Show breadcrumbs for all navigation levels except home
+  if (
+    breadcrumbs.length === 0 ||
+    (breadcrumbs.length === 1 && breadcrumbs[0]?.active)
+  ) {
+    return null; // Don't show breadcrumbs on home page
   }
 
   const handleBreadcrumbClick = async (item: BreadcrumbItem) => {
