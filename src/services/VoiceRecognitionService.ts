@@ -38,6 +38,8 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
       window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognitionConstructor) {
+      console.warn('Speech recognition not supported in this browser');
+      this.recognition = null;
       this.emitError({
         type: 'unsupported',
         message: 'Speech recognition is not supported in this browser',
@@ -47,12 +49,20 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
     }
 
     try {
+      // Clean up existing recognition if it exists
+      if (this.recognition) {
+        this.stopListening();
+      }
+
       this.recognition = new SpeechRecognitionConstructor();
 
       this.setupRecognitionConfig();
       this.setupEventHandlers();
+
+      console.info('Speech recognition initialized successfully');
     } catch (error) {
       console.error('Failed to initialize speech recognition:', error);
+      this.recognition = null;
       this.emitError({
         type: 'unsupported',
         message: 'Failed to initialize speech recognition',
@@ -230,6 +240,10 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
     };
   }
 
+  isInitialized(): boolean {
+    return Boolean(this.recognition);
+  }
+
   private checkPermission(): boolean {
     // This is a simplified check - in reality, we can only know
     // permission status after attempting to start recognition
@@ -293,15 +307,30 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
     this.statusCallback = callback;
   }
 
+  reinitialize(): void {
+    console.info('Reinitializing VoiceRecognitionService...');
+    // Don't destroy callbacks, just reinitialize the recognition
+    if (this.recognition) {
+      console.info('Stopping existing recognition before reinitializing');
+      this.stopListening();
+    }
+    this.initializeRecognition();
+
+    // Emit status change after reinitialization
+    this.emitStatusChange();
+  }
+
   destroy(): void {
     if (this.recognition) {
       this.stopListening();
-      this.recognition = null;
+      // Don't set recognition to null in destroy - this breaks reinitialization
+      // Instead, just stop listening and clean up event handlers
     }
 
-    this.transcriptionCallback = null;
-    this.errorCallback = null;
-    this.statusCallback = null;
+    // Don't clear callbacks in destroy - they should persist across toggles
+    // this.transcriptionCallback = null;
+    // this.errorCallback = null;
+    // this.statusCallback = null;
     this.isCurrentlyListening = false;
   }
 }

@@ -44,12 +44,17 @@ export interface VoiceRecognitionService {
   setLanguage(language: VoiceLanguage): void;
   setSensitivity(level: number): void;
 
+  // Status
+  getStatus(): VoiceStatus;
+  isInitialized(): boolean;
+
   // Events
   onTranscription(callback: (result: VoiceRecognitionResult) => void): void;
   onError(callback: (error: VoiceError) => void): void;
   onStatusChange(callback: (status: VoiceStatus) => void): void;
 
-  // Cleanup
+  // Cleanup and reinitialization
+  reinitialize(): void;
   destroy(): void;
 }
 

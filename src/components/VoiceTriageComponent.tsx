@@ -106,6 +106,13 @@ export function VoiceTriageComponent({
 
   // Initialize voice recognition service
   useEffect(() => {
+    console.info(
+      'VoiceTriageComponent: Initializing voice recognition service'
+    );
+
+    // Reinitialize the service to ensure it's in a clean state
+    voiceRecognitionService.reinitialize();
+
     // Set up event listeners
     voiceRecognitionService.onTranscription(handleTranscription);
     voiceRecognitionService.onError(handleVoiceError);
@@ -116,18 +123,39 @@ export function VoiceTriageComponent({
 
     // Get initial status
     const initialStatus = voiceRecognitionService.getStatus();
-    console.info('Voice recognition initial status:', initialStatus);
     setVoiceStatus(initialStatus);
     setIsListening(initialStatus.isListening);
 
     // Cleanup on unmount
     return () => {
+      console.info(
+        'VoiceTriageComponent: Cleaning up voice recognition service'
+      );
       voiceRecognitionService.destroy();
     };
   }, [language, handleTranscription, handleVoiceError, handleStatusChange]);
 
   // Check if all required APIs are supported
   const checkBrowserSupport = (): boolean => {
+    // Check if service is properly initialized
+    if (!voiceRecognitionService.isInitialized()) {
+      console.warn(
+        'Voice recognition service not initialized, attempting to reinitialize...'
+      );
+      voiceRecognitionService.reinitialize();
+
+      // Check again after reinitialize
+      if (!voiceRecognitionService.isInitialized()) {
+        setVoiceError({
+          type: 'unsupported',
+          message:
+            'Speech recognition is not supported in this browser. Please use a modern browser like Chrome, Edge, or Safari.',
+          recoverable: false,
+        });
+        return false;
+      }
+    }
+
     // Check for Speech Recognition API
     if (!voiceStatus?.isSupported) {
       setVoiceError({
