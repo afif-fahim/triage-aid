@@ -241,6 +241,7 @@
   "voice.transcription": "Transcription",
   "voice.clear": "Clear",
   "voice.placeholder": "Voice transcription will appear here. You can edit the text before processing.",
+  "voice.listeningPlaceholder": "Voice recording in progress... Stop recording to edit text.",
   "voice.listening": "Listening...",
   "voice.hide": "Hide Transcription",
   "voice.processAI": "Process with AI",

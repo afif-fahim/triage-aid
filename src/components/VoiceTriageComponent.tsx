@@ -520,23 +520,45 @@ export function VoiceTriageComponent({
                 id="transcription"
                 value={transcribedText + interimText}
                 onChange={handleTextChange}
-                placeholder={t(
-                  'voice.placeholder',
-                  'Voice transcription will appear here. You can edit the text before processing.'
-                )}
+                disabled={isListening}
+                placeholder={
+                  isListening
+                    ? t(
+                        'voice.listeningPlaceholder',
+                        'Voice recording in progress... Stop recording to edit text.'
+                      )
+                    : t(
+                        'voice.placeholder',
+                        'Voice transcription will appear here. You can edit the text before processing.'
+                      )
+                }
                 className={`
                   w-full min-h-[120px] p-3 border border-gray-300 rounded-lg
                   focus:ring-2 focus:ring-medical-primary focus:border-medical-primary
-                  resize-vertical font-mono text-sm
-                  ${interimText ? 'bg-blue-50' : 'bg-white'}
+                  resize-vertical font-mono text-sm transition-colors
+                  ${interimText ? 'bg-blue-50' : isListening ? 'bg-gray-50' : 'bg-white'}
+                  ${isListening ? 'cursor-not-allowed opacity-75' : ''}
                 `}
                 rows={5}
+                aria-label={
+                  isListening
+                    ? 'Transcription area - disabled during voice recording'
+                    : 'Transcription area - editable'
+                }
               />
 
-              {/* Interim text indicator */}
-              {interimText && (
-                <div className="absolute bottom-2 right-2 text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
-                  {t('voice.listening', 'Listening...')}
+              {/* Voice recording indicator */}
+              {isListening && (
+                <div className="absolute bottom-2 right-2 flex items-center space-x-2">
+                  {interimText && (
+                    <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                      {t('voice.listening', 'Listening...')}
+                    </div>
+                  )}
+                  <div className="flex items-center text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded">
+                    <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse mr-1"></div>
+                    Recording
+                  </div>
                 </div>
               )}
             </div>

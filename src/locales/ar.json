@@ -241,6 +241,7 @@
   "voice.transcription": "النسخ الصوتي",
   "voice.clear": "مسح",
   "voice.placeholder": "سيظهر النسخ الصوتي هنا. يمكنك تحرير النص قبل المعالجة.",
+  "voice.listeningPlaceholder": "التسجيل الصوتي قيد التقدم... أوقف التسجيل لتحرير النص.",
   "voice.listening": "يستمع...",
   "voice.hide": "إخفاء النسخ",
   "voice.processAI": "معالجة بالذكاء الاصطناعي",

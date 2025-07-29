@@ -262,6 +262,7 @@ export interface TranslationKeys {
   'voice.transcription': string;
   'voice.clear': string;
   'voice.placeholder': string;
+  'voice.listeningPlaceholder': string;
   'voice.listening': string;
   'voice.hide': string;
   'voice.processAI': string;
