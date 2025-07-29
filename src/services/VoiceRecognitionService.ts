@@ -28,6 +28,7 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
   private statusCallback: ((status: VoiceStatus) => void) | null = null;
 
   constructor() {
+    console.info('Initializing VoiceRecognitionService...');
     this.initializeRecognition();
   }
 
@@ -47,6 +48,7 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
 
     try {
       this.recognition = new SpeechRecognitionConstructor();
+
       this.setupRecognitionConfig();
       this.setupEventHandlers();
     } catch (error) {
@@ -133,30 +135,59 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
   private handleRecognitionError(event: SpeechRecognitionErrorEvent): void {
     let errorType: VoiceError['type'] = 'recognition';
     let recoverable = true;
+    let message = event.message || `Speech recognition error: ${event.error}`;
 
     switch (event.error) {
       case 'not-allowed':
       case 'permission-denied':
         errorType = 'permission';
         recoverable = false;
+        message =
+          'Microphone permission was denied. Please allow microphone access and try again.';
         break;
       case 'network':
         errorType = 'network';
         recoverable = true;
+        message =
+          'Network connection is required for voice recognition. Please check your connection.';
         break;
       case 'no-speech':
+        errorType = 'recognition';
+        recoverable = true;
+        message = 'No speech detected. Please try speaking more clearly.';
+        break;
       case 'audio-capture':
         errorType = 'recognition';
         recoverable = true;
+        message =
+          'Audio capture failed. Please check your microphone and try again.';
+        break;
+      case 'service-not-allowed':
+        errorType = 'permission';
+        recoverable = false;
+        message =
+          'Speech recognition service is not allowed. Please enable it in your browser settings.';
+        break;
+      case 'bad-grammar':
+        errorType = 'recognition';
+        recoverable = true;
+        message = 'Speech recognition grammar error. Please try again.';
+        break;
+      case 'language-not-supported':
+        errorType = 'unsupported';
+        recoverable = false;
+        message =
+          'The selected language is not supported for speech recognition.';
         break;
       default:
         errorType = 'recognition';
         recoverable = true;
+        message = `Speech recognition error: ${event.error}. Please try again.`;
     }
 
     this.emitError({
       type: errorType,
-      message: event.message || `Speech recognition error: ${event.error}`,
+      message,
       recoverable,
     });
 
@@ -190,7 +221,7 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
     }
   }
 
-  private getStatus(): VoiceStatus {
+  getStatus(): VoiceStatus {
     return {
       isSupported: Boolean(this.recognition),
       hasPermission: this.checkPermission(),
@@ -202,7 +233,9 @@ export class VoiceRecognitionService implements IVoiceRecognitionService {
   private checkPermission(): boolean {
     // This is a simplified check - in reality, we can only know
     // permission status after attempting to start recognition
-    return navigator.permissions !== undefined;
+    // We'll assume permission is available if the API is supported
+    // The actual permission check happens when getUserMedia is called
+    return Boolean(this.recognition);
   }
 
   // Public API methods

@@ -55,6 +55,7 @@ export function VoiceTriageComponent({
   // UI state
   const [isProcessing, setIsProcessing] = useState(false);
   const [showTranscription, setShowTranscription] = useState(false);
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
 
   // Refs
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -113,21 +114,115 @@ export function VoiceTriageComponent({
     // Set language
     voiceRecognitionService.setLanguage(language);
 
+    // Get initial status
+    const initialStatus = voiceRecognitionService.getStatus();
+    console.info('Voice recognition initial status:', initialStatus);
+    setVoiceStatus(initialStatus);
+    setIsListening(initialStatus.isListening);
+
     // Cleanup on unmount
     return () => {
       voiceRecognitionService.destroy();
     };
   }, [language, handleTranscription, handleVoiceError, handleStatusChange]);
 
-  // Toggle voice recognition
-  const toggleVoiceRecognition = async () => {
+  // Check if all required APIs are supported
+  const checkBrowserSupport = (): boolean => {
+    // Check for Speech Recognition API
     if (!voiceStatus?.isSupported) {
       setVoiceError({
         type: 'unsupported',
-        message: 'Voice recognition is not supported in this browser',
+        message:
+          'Speech recognition is not supported in this browser. Please use a modern browser like Chrome, Edge, or Safari.',
         recoverable: false,
       });
-      return;
+      return false;
+    }
+
+    // Check for Media Devices API
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setVoiceError({
+        type: 'unsupported',
+        message:
+          'Microphone access is not supported in this browser. Please use a modern browser with HTTPS.',
+        recoverable: false,
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  // Request microphone permission
+  const requestMicrophonePermission = async (): Promise<boolean> => {
+    setIsRequestingPermission(true);
+
+    try {
+      // Request microphone permission
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+
+      // Stop the stream immediately as we only needed permission
+      stream.getTracks().forEach(track => track.stop());
+
+      return true;
+    } catch (error: any) {
+      console.error('Microphone permission error:', error);
+
+      let errorMessage = 'Microphone access is required for voice input.';
+      let errorType: VoiceError['type'] = 'permission';
+      let recoverable = true;
+
+      switch (error.name) {
+        case 'NotAllowedError':
+          errorMessage =
+            "Microphone permission was denied. Please click the microphone icon in your browser's address bar and allow access, then try again.";
+          recoverable = true;
+          break;
+        case 'NotFoundError':
+          errorMessage =
+            'No microphone found. Please connect a microphone and try again.';
+          recoverable = true;
+          break;
+        case 'NotSupportedError':
+          errorMessage =
+            'Microphone access is not supported in this browser or requires HTTPS.';
+          errorType = 'unsupported';
+          recoverable = false;
+          break;
+        case 'NotReadableError':
+          errorMessage =
+            'Microphone is already in use by another application. Please close other applications using the microphone and try again.';
+          recoverable = true;
+          break;
+        case 'OverconstrainedError':
+          errorMessage =
+            'Microphone constraints could not be satisfied. Please try again.';
+          recoverable = true;
+          break;
+        default:
+          errorMessage = `Microphone access failed: ${error.message || error.name}. Please try again.`;
+          recoverable = true;
+      }
+
+      setVoiceError({
+        type: errorType,
+        message: errorMessage,
+        recoverable,
+      });
+
+      return false;
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  };
+
+  // Toggle voice recognition
+  const toggleVoiceRecognition = async () => {
+    // Check browser support first
+    if (!checkBrowserSupport()) {
+      return; // Error already set in checkBrowserSupport
     }
 
     try {
@@ -137,16 +232,23 @@ export function VoiceTriageComponent({
         // Clear previous error
         setVoiceError(null);
 
+        // Request microphone permission first
+        const hasPermission = await requestMicrophonePermission();
+        if (!hasPermission) {
+          return; // Error already set in requestMicrophonePermission
+        }
+
         // Show transcription area when starting
         setShowTranscription(true);
 
+        // Start voice recognition
         await voiceRecognitionService.startListening();
       }
     } catch (error) {
       console.error('Failed to toggle voice recognition:', error);
       setVoiceError({
         type: 'recognition',
-        message: 'Failed to start voice recognition',
+        message: 'Failed to start voice recognition. Please try again.',
         recoverable: true,
       });
     }
@@ -269,10 +371,40 @@ export function VoiceTriageComponent({
             variant={getVoiceButtonVariant()}
             size="md"
             onClick={toggleVoiceRecognition}
-            disabled={!voiceStatus?.isSupported}
-            aria-label={isListening ? 'Stop recording' : 'Start recording'}
+            disabled={!voiceStatus?.isSupported || isRequestingPermission}
+            loading={isRequestingPermission}
+            aria-label={
+              isRequestingPermission
+                ? 'Requesting microphone permission'
+                : isListening
+                  ? 'Stop recording'
+                  : 'Start recording'
+            }
           >
-            {isListening ? (
+            {isRequestingPermission ? (
+              <>
+                <svg
+                  className="w-4 h-4 mr-2 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Requesting Permission...
+              </>
+            ) : isListening ? (
               <>
                 <svg
                   className="w-4 h-4 mr-2"

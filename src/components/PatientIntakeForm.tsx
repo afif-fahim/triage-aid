@@ -10,6 +10,7 @@ import type { TriagePriority } from '../types/TriagePriority';
 import { triageEngine } from '../services/TriageEngine';
 import { dataService } from '../services/DataService';
 import { formPopulationService } from '../services/FormPopulationService';
+import { localAIService } from '../services/LocalAIService';
 import { Card, Button, ResponsiveGrid } from './ui/';
 import { useTranslation, useFormNavigationGuard } from '../hooks';
 import { VoiceTriageComponent } from './VoiceTriageComponent';
@@ -427,9 +428,24 @@ export function PatientIntakeForm({
   };
 
   // Handle voice text generation
-  const handleVoiceTextGenerated = (text: string) => {
-    console.info(text);
-    // TODO: Process voice transcription text in future tasks
+  const handleVoiceTextGenerated = async (text: string) => {
+    if (!text.trim()) return;
+
+    try {
+      // Use LocalAIService to process the transcribed text
+      const analysis = await localAIService.processTriageText(text.trim());
+
+      // Automatically populate form fields from AI analysis
+      handleVoiceFieldsPopulated(analysis);
+    } catch (error) {
+      console.error('Failed to process voice text:', error);
+      // Show error but don't block the user - they can still use the transcribed text manually
+      setErrors(prev => ({
+        ...prev,
+        general:
+          'Voice processing failed, but you can still edit the form manually.',
+      }));
+    }
   };
 
   // Handle AI field population
@@ -752,49 +768,46 @@ export function PatientIntakeForm({
               {t('intake.ageGroup')} <span class="text-medical-error">*</span>
             </label>
             <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => handleInputChange('ageGroup', 'child')}
-                  class={getFieldClassName(
-                    'ageGroup',
-                    `
-                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                    ${
-                      formData.ageGroup === 'child'
-                        ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
-                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
-                    }
+              <button
+                type="button"
+                onClick={() => handleInputChange('ageGroup', 'child')}
+                class={getFieldClassName(
+                  'ageGroup',
                   `
-                  )}
-                  title={getFieldTooltip('ageGroup') || undefined}
-                >
-                  <div class="text-2xl mb-1">👶</div>
-                  {t('intake.ageGroup.child')}
-                </button>
+                  relative touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                  ${
+                    formData.ageGroup === 'child'
+                      ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                  }
+                `
+                )}
+                title={getFieldTooltip('ageGroup') || undefined}
+              >
+                <div class="text-2xl mb-1">👶</div>
+                {t('intake.ageGroup.child')}
                 {renderAiFieldBadge('ageGroup')}
-              </div>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => handleInputChange('ageGroup', 'adult')}
-                  class={getFieldClassName(
-                    'ageGroup',
-                    `
-                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                    ${
-                      formData.ageGroup === 'adult'
-                        ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
-                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
-                    }
+              </button>
+              <button
+                type="button"
+                onClick={() => handleInputChange('ageGroup', 'adult')}
+                class={getFieldClassName(
+                  'ageGroup',
                   `
-                  )}
-                  title={getFieldTooltip('ageGroup') || undefined}
-                >
-                  <div class="text-2xl mb-1">👤</div>
-                  {t('intake.ageGroup.adult')}
-                </button>
-              </div>
+                  relative touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                  ${
+                    formData.ageGroup === 'adult'
+                      ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
+                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                  }
+                `
+                )}
+                title={getFieldTooltip('ageGroup') || undefined}
+              >
+                <div class="text-2xl mb-1">👤</div>
+                {t('intake.ageGroup.adult')}
+                {renderAiFieldBadge('ageGroup')}
+              </button>
             </ResponsiveGrid>
             {errors.ageGroup && (
               <p class="text-medical-error text-sm mt-2 flex items-center gap-1">
@@ -1029,52 +1042,49 @@ export function PatientIntakeForm({
                 {t('intake.mobility')} <span class="text-medical-error">*</span>
               </label>
               <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => handleInputChange('mobility', 'ambulatory')}
-                    class={getFieldClassName(
-                      'mobility',
-                      `
-                      touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                      ${
-                        formData.mobility === 'ambulatory'
-                          ? 'border-medical-success bg-green-50 text-green-700 shadow-sm'
-                          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
-                      }
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('mobility', 'ambulatory')}
+                  class={getFieldClassName(
+                    'mobility',
                     `
-                    )}
-                    title={getFieldTooltip('mobility') || undefined}
-                  >
-                    <div class="text-2xl mb-1">🚶</div>
-                    {t('intake.mobility.ambulatory')}
-                  </button>
-                </div>
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleInputChange('mobility', 'non-ambulatory')
+                    relative touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                    ${
+                      formData.mobility === 'ambulatory'
+                        ? 'border-medical-success bg-green-50 text-green-700 shadow-sm'
+                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
                     }
-                    class={getFieldClassName(
-                      'mobility',
-                      `
-                      touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                      ${
-                        formData.mobility === 'non-ambulatory'
-                          ? 'border-medical-warning bg-orange-50 text-orange-700 shadow-sm'
-                          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
-                      }
+                  `
+                  )}
+                  title={getFieldTooltip('mobility') || undefined}
+                >
+                  <div class="text-2xl mb-1">🚶</div>
+                  {t('intake.mobility.ambulatory')}
+                  {renderAiFieldBadge('mobility')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleInputChange('mobility', 'non-ambulatory')
+                  }
+                  class={getFieldClassName(
+                    'mobility',
                     `
-                    )}
-                    title={getFieldTooltip('mobility') || undefined}
-                  >
-                    <div class="text-2xl mb-1">🛏️</div>
-                    {t('intake.mobility.immobile')}
-                  </button>
-                </div>
+                    relative touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                    ${
+                      formData.mobility === 'non-ambulatory'
+                        ? 'border-medical-warning bg-orange-50 text-orange-700 shadow-sm'
+                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                    }
+                  `
+                  )}
+                  title={getFieldTooltip('mobility') || undefined}
+                >
+                  <div class="text-2xl mb-1">🛏️</div>
+                  {t('intake.mobility.immobile')}
+                  {renderAiFieldBadge('mobility')}
+                </button>
               </ResponsiveGrid>
-              {renderAiFieldBadge('mobility')}
               {errors.mobility && (
                 <p class="text-medical-error text-sm mt-2 flex items-center gap-1">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
