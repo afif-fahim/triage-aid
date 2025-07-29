@@ -25,12 +25,25 @@ export class PWAService {
   }
 
   /**
-   * Initialize the PWA service and register service worker
+   * Initialize the PWA service and connect to existing service worker
    */
   async initialize(): Promise<void> {
     if ('serviceWorker' in navigator) {
       try {
-        await this.registerServiceWorker();
+        // Check if service worker is already registered (by Vite PWA plugin)
+        const existingRegistration =
+          await navigator.serviceWorker.getRegistration();
+
+        if (!existingRegistration) {
+          // If no registration exists, register it ourselves
+          await this.registerServiceWorker();
+        } else {
+          console.info(
+            'PWA Service: Using existing service worker registration'
+          );
+          this.registration = existingRegistration;
+        }
+
         this.setupServiceWorkerListeners();
         console.info('PWA Service: Initialized successfully');
       } catch (error) {
@@ -48,8 +61,13 @@ export class PWAService {
    */
   private async registerServiceWorker(): Promise<void> {
     try {
-      this.registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/',
+      // Use import.meta.env.BASE_URL to get the correct base path
+      // This will be '/triage-aid/' in production and '/' in development
+      const baseUrl = import.meta.env.BASE_URL;
+      const swPath = `${baseUrl}/sw.js`;
+
+      this.registration = await navigator.serviceWorker.register(swPath, {
+        scope: baseUrl,
       });
 
       console.info(

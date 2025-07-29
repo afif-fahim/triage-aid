@@ -77,31 +77,31 @@ export default defineConfig({
         categories: ['medical', 'health', 'productivity', 'utilities'],
         icons: [
           {
-            src: '/icons/manifest-icon-192.maskable.png',
+            src: 'icons/manifest-icon-192.maskable.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/manifest-icon-192.maskable.png',
+            src: 'icons/manifest-icon-192.maskable.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'maskable'
           },
           {
-            src: '/icons/manifest-icon-512.maskable.png',
+            src: 'icons/manifest-icon-512.maskable.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: '/icons/manifest-icon-512.maskable.png',
+            src: 'icons/manifest-icon-512.maskable.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
           },
           {
-            src: '/icons/apple-icon-180.png',
+            src: 'icons/apple-icon-180.png',
             sizes: '180x180',
             type: 'image/png',
             purpose: 'any'
@@ -115,7 +115,7 @@ export default defineConfig({
             url: '/triage-aid/intake',
             icons: [
               {
-                src: '/icons/manifest-icon-192.maskable.png',
+                src: 'icons/manifest-icon-192.maskable.png',
                 sizes: '192x192'
               }
             ]
@@ -127,7 +127,7 @@ export default defineConfig({
             url: '/triage-aid/dashboard',
             icons: [
               {
-                src: '/icons/manifest-icon-192.maskable.png',
+                src: 'icons/manifest-icon-192.maskable.png',
                 sizes: '192x192'
               }
             ]
