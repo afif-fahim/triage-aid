@@ -46,7 +46,7 @@
     - _Requirements: 2.5, 3.1, 3.2, 3.3, 3.4_
 
 - [ ] 5. Add voice settings and configuration management
-  - [ ] 5.1 Create VoiceSettingsService and configuration UI
+  - [x] 5.1 Create VoiceSettingsService and configuration UI
     - Implement settings service for voice AI preferences
     - Create settings UI for model download, language selection, and voice sensitivity
     - Add model status display and management interface

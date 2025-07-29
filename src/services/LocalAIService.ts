@@ -18,7 +18,18 @@ import {
 
 // Configure Transformers.js environment
 env.allowRemoteModels = true;
-env.allowLocalModels = true;
+env.allowLocalModels = false;
+env.useBrowserCache = true;
+
+// Model configuration - easily changeable for different models
+const MODEL_CONFIG = {
+  id: 'Qwen/Qwen2-0.5B-Instruct',
+  name: 'Qwen2-0.5B-Instruct',
+  version: '1.0.0',
+  expectedSize: 500000000, // ~500MB
+  task: 'text-generation' as const,
+  language: 'en' as const,
+};
 
 class LocalAIService implements ILocalAIService {
   private modelInfo: ModelInfo | null = null;
@@ -54,7 +65,7 @@ class LocalAIService implements ILocalAIService {
     try {
       // Use ModelDownloadService to get stored model
       return await modelDownloadService.getStoredModel(
-        'LaMini-Flan-T5-248M-1.0.0'
+        `${MODEL_CONFIG.name}-${MODEL_CONFIG.version}`
       );
     } catch (error) {
       console.error('Error accessing stored model:', error);
@@ -66,10 +77,10 @@ class LocalAIService implements ILocalAIService {
     return this.modelStatus === 'ready' && this.modelInfo !== null;
   }
 
-  isLaminiModelReady(): boolean {
+  isAIModelReady(): boolean {
     return (
       this.isModelAvailable() &&
-      this.modelInfo?.name === 'LaMini-Flan-T5-248M' &&
+      this.modelInfo?.name === MODEL_CONFIG.name &&
       this.pipeline !== null
     );
   }
@@ -84,11 +95,11 @@ class LocalAIService implements ILocalAIService {
     try {
       // Use ModelDownloadService for downloading
       const downloadOptions: ModelDownloadOptions = {
-        modelName: 'LaMini-Flan-T5-248M',
+        modelName: MODEL_CONFIG.name,
         modelUrl: this.getModelUrl(),
-        version: '1.0.0',
-        language: 'en',
-        expectedSize: 248000000,
+        version: MODEL_CONFIG.version,
+        language: MODEL_CONFIG.language,
+        expectedSize: MODEL_CONFIG.expectedSize,
         resumable: true,
       };
 
@@ -111,11 +122,8 @@ class LocalAIService implements ILocalAIService {
       }
 
       // Initialize the pipeline with the downloaded model
-      console.info('Initializing Transformers.js pipeline...');
-      this.pipeline = await pipeline(
-        'text2text-generation',
-        this.getModelUrl()
-      );
+      console.info('Initializing AI model pipeline...');
+      this.pipeline = await pipeline(MODEL_CONFIG.task, this.getModelUrl());
 
       this.modelInfo = {
         name: storedModel.name,
@@ -136,12 +144,40 @@ class LocalAIService implements ILocalAIService {
       console.error('Model download/initialization failed:', error);
       this.modelStatus = 'error';
       this.pipeline = null;
-      throw error;
+
+      // Provide more specific error messages
+      let errorMessage = 'Failed to download or initialize the AI model';
+      if (error instanceof Error) {
+        if (
+          error.message.includes('404') ||
+          error.message.includes('not found')
+        ) {
+          errorMessage =
+            'AI model not found. Please check your internet connection and try again.';
+        } else if (
+          error.message.includes('network') ||
+          error.message.includes('fetch')
+        ) {
+          errorMessage =
+            'Network error while downloading AI model. Please check your internet connection.';
+        } else if (
+          error.message.includes('quota') ||
+          error.message.includes('storage')
+        ) {
+          errorMessage =
+            'Not enough storage space to download the AI model. Please free up space and try again.';
+        } else {
+          errorMessage = `AI model initialization failed: ${error.message}`;
+        }
+      }
+
+      throw new Error(errorMessage);
     }
   }
 
   private getModelUrl(): string {
-    return 'Xenova/LaMini-Flan-T5-248M';
+    // Return the configured model ID for Transformers.js
+    return MODEL_CONFIG.id;
   }
 
   getModelInfo(): ModelInfo | null {
@@ -167,9 +203,9 @@ class LocalAIService implements ILocalAIService {
       let analysis: TriageAnalysis;
 
       if (this.isModelAvailable()) {
-        // Try to use LaMini model first
-        analysis = await this.analyzeTextWithLamini(text);
-        analysis.method = 'lamini';
+        // Try to use AI model first
+        analysis = await this.analyzeTextWithAI(text);
+        analysis.method = 'ai';
       } else {
         // Use rule-based analysis
         analysis = await this.analyzeTextWithRules(text);
@@ -377,26 +413,26 @@ class LocalAIService implements ILocalAIService {
     return recommendations;
   }
 
-  private async analyzeTextWithLamini(text: string): Promise<TriageAnalysis> {
+  private async analyzeTextWithAI(text: string): Promise<TriageAnalysis> {
     const storedModel = await this.getStoredModel();
     if (!storedModel) {
-      throw new Error('LaMini model not found in storage');
+      throw new Error('AI model not found in storage');
     }
 
-    // Create the prompt for LaMini-Flan-T5-248M
+    // Create the prompt for AI model inference
     const prompt = this.createTriagePrompt(text);
 
     try {
       // Use Web Workers for model inference to avoid blocking the main thread
-      const result = await this.runLaminiInference(prompt, storedModel);
-      const analysis = this.parseLaminiResponse(result);
-      analysis.method = 'lamini';
+      const result = await this.runAIInference(prompt, storedModel);
+      const analysis = this.parseAIResponse(result);
+      analysis.method = 'ai';
       return analysis;
     } catch (error: any) {
       // Fallback to rule-based analysis and inform the user
       const ruleAnalysis = await this.analyzeTextWithRules(text);
       ruleAnalysis.method = 'rules';
-      ruleAnalysis.error = `Lamini model failed: ${error?.message || error}`;
+      ruleAnalysis.error = `AI model failed: ${error?.message || error}`;
       ruleAnalysis.reasoning = `Fallback to rule-based analysis due to AI model error. ${
         ruleAnalysis.reasoning || ''
       }`;
@@ -448,18 +484,15 @@ RESPONSE FORMAT (valid JSON only):
 }`;
   }
 
-  private async runLaminiInference(
+  private async runAIInference(
     prompt: string,
     _model: StoredModel
   ): Promise<string> {
     try {
       // Initialize the pipeline if not already done
       if (!this.pipeline) {
-        console.info('Loading text generation model...');
-        this.pipeline = await pipeline(
-          'text2text-generation',
-          this.getModelUrl()
-        );
+        console.info('Loading AI model...');
+        this.pipeline = await pipeline(MODEL_CONFIG.task, this.getModelUrl());
       }
 
       // Generate response using the model
@@ -481,13 +514,13 @@ RESPONSE FORMAT (valid JSON only):
 
       return generatedText;
     } catch (error) {
-      console.error('Transformers.js inference failed:', error);
+      console.error('AI model inference failed:', error);
       // Fallback to rule-based analysis and inform the user
       throw error; // Let the caller handle the fallback and user notification
     }
   }
 
-  private parseLaminiResponse(response: string): TriageAnalysis {
+  private parseAIResponse(response: string): TriageAnalysis {
     try {
       // Clean the response to extract JSON
       let cleanResponse = response.trim();
@@ -501,17 +534,17 @@ RESPONSE FORMAT (valid JSON only):
       const parsed = JSON.parse(cleanResponse);
 
       // Validate and sanitize the response structure
-      const validatedResponse = this.validateAndSanitizeLaminiResponse(parsed);
+      const validatedResponse = this.validateAndSanitizeAIResponse(parsed);
 
       return validatedResponse;
     } catch (error) {
-      console.error('Failed to parse LaMini response:', error);
+      console.error('Failed to parse AI response:', error);
       // Try to extract partial information from malformed response
-      return this.extractPartialLaminiResponse(response);
+      return this.extractPartialAIResponse(response);
     }
   }
 
-  private validateAndSanitizeLaminiResponse(parsed: any): TriageAnalysis {
+  private validateAndSanitizeAIResponse(parsed: any): TriageAnalysis {
     // Validate confidence score
     let confidence = 0.5; // Default confidence
     if (typeof parsed.confidence === 'number') {
@@ -630,7 +663,7 @@ RESPONSE FORMAT (valid JSON only):
     };
   }
 
-  private extractPartialLaminiResponse(response: string): TriageAnalysis {
+  private extractPartialAIResponse(response: string): TriageAnalysis {
     // Fallback method to extract partial information from malformed AI response
     console.warn(
       'Attempting to extract partial information from malformed AI response'
@@ -851,7 +884,10 @@ RESPONSE FORMAT (valid JSON only):
     const circulationResult = this.getHighestScoringField(circulationScore);
 
     if (circulationResult.field && circulationResult.score > 0.4) {
-      extractedFields.circulation = circulationResult.field as any;
+      extractedFields.circulation = circulationResult.field as
+        | 'normal'
+        | 'bleeding'
+        | 'shock';
       fieldConfidences.circulation = circulationResult.score;
 
       if (circulationResult.field === 'bleeding') {
@@ -1278,7 +1314,9 @@ RESPONSE FORMAT (valid JSON only):
   async clearModel(): Promise<void> {
     try {
       // Use ModelDownloadService to delete the model
-      await modelDownloadService.deleteStoredModel('LaMini-Flan-T5-248M-1.0.0');
+      await modelDownloadService.deleteStoredModel(
+        `${MODEL_CONFIG.name}-${MODEL_CONFIG.version}`
+      );
 
       // Clean up the pipeline
       if (this.pipeline) {

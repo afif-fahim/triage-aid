@@ -410,9 +410,7 @@ export function VoiceTriageComponent({
             }
           >
             {isRequestingPermission ? (
-              <>
-                Requesting Permission...
-              </>
+              <>Requesting Permission...</>
             ) : isListening ? (
               <>
                 <svg

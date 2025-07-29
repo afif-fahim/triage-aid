@@ -7,3 +7,4 @@ export * from './ErrorHandlingService';
 export * from './RouterService';
 export * from './VoiceRecognitionService';
 export * from './LocalAIService';
+export * from './VoiceSettingsService';

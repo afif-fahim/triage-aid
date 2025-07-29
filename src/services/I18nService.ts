@@ -268,6 +268,47 @@ export interface TranslationKeys {
   'voice.processAI': string;
   'voice.language': string;
   'voice.arabicSoon': string;
+
+  // Voice Settings
+  'voice.settings.general': string;
+  'voice.settings.enableVoiceAI': string;
+  'voice.settings.enableVoiceAIDesc': string;
+  'voice.settings.language': string;
+  'voice.settings.sensitivity': string;
+  'voice.settings.sensitivityDesc': string;
+  'voice.settings.autoPopulate': string;
+  'voice.settings.autoPopulateDesc': string;
+  'voice.settings.downloadOnWifi': string;
+  'voice.settings.downloadOnWifiDesc': string;
+  'voice.settings.aiModel': string;
+  'voice.settings.modelStatus': string;
+  'voice.settings.modelNotDownloaded': string;
+  'voice.settings.modelDownloading': string;
+  'voice.settings.modelReady': string;
+  'voice.settings.modelError': string;
+  'voice.settings.modelUnknown': string;
+  'voice.settings.modelInfo': string;
+  'voice.settings.modelName': string;
+  'voice.settings.modelSize': string;
+  'voice.settings.modelVersion': string;
+  'voice.settings.downloadDate': string;
+  'voice.settings.downloading': string;
+  'voice.settings.downloadModel': string;
+  'voice.settings.deleteModel': string;
+  'voice.settings.retryDownload': string;
+  'voice.settings.storage': string;
+  'voice.settings.storageUsed': string;
+  'voice.settings.storageAvailable': string;
+  'voice.settings.storageUsage': string;
+  'voice.settings.reset': string;
+  'voice.settings.resetDesc': string;
+  'voice.settings.resetSettings': string;
+
+  // Settings
+  'settings.title': string;
+  'settings.tabs.voice': string;
+  'settings.tabs.general': string;
+  'settings.generalComingSoon': string;
 }
 
 export type TranslationKey = keyof TranslationKeys;

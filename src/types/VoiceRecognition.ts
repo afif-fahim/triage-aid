@@ -168,7 +168,7 @@ export interface TriageAnalysis {
   };
   reasoning: string;
   suggestions: string[];
-  method?: 'lamini' | 'rules' | 'unknown';
+  method?: 'ai' | 'rules' | 'unknown';
   error?: string;
 }
 
