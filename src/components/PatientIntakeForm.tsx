@@ -9,9 +9,11 @@ import type { PatientDataInput, PatientData } from '../types/PatientData';
 import type { TriagePriority } from '../types/TriagePriority';
 import { triageEngine } from '../services/TriageEngine';
 import { dataService } from '../services/DataService';
+import { formPopulationService } from '../services/FormPopulationService';
 import { Card, Button, ResponsiveGrid } from './ui/';
 import { useTranslation, useFormNavigationGuard } from '../hooks';
 import { VoiceTriageComponent } from './VoiceTriageComponent';
+import type { TriageAnalysis } from '../types/VoiceRecognition';
 
 interface PatientIntakeFormProps {
   onSubmit?: (patientId: string) => void;
@@ -81,6 +83,8 @@ export function PatientIntakeForm({
 
   // Voice-related state
   const [voiceMode, setVoiceMode] = useState(voiceEnabled);
+  const [aiPopulationResult, setAiPopulationResult] = useState<any>(null);
+  const [showAiSuggestions, setShowAiSuggestions] = useState(false);
 
   // Initialize form with existing patient data if editing
   useEffect(() => {
@@ -201,6 +205,12 @@ export function PatientIntakeForm({
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
+    // Mark field as user-modified if it was AI-populated
+    const fieldPath = field.includes('.') ? field : field;
+    if (formPopulationService.isFieldAutoPopulated(fieldPath)) {
+      formPopulationService.markFieldAsUserModified(fieldPath, value);
+    }
+
     // Clear field-specific error when user starts typing
     if (errors[field as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [field]: undefined }));
@@ -306,6 +316,11 @@ export function PatientIntakeForm({
       setPreviewPriority(null);
       setShowPreview(false);
 
+      // Clear AI population data
+      formPopulationService.clearPopulationData();
+      setAiPopulationResult(null);
+      setShowAiSuggestions(false);
+
       if (onSubmit) {
         onSubmit(newPatientId);
       }
@@ -322,6 +337,11 @@ export function PatientIntakeForm({
     setErrors({});
     setPreviewPriority(null);
     setShowPreview(false);
+
+    // Clear AI population data
+    formPopulationService.clearPopulationData();
+    setAiPopulationResult(null);
+    setShowAiSuggestions(false);
 
     if (onCancel) {
       onCancel();
@@ -344,6 +364,58 @@ export function PatientIntakeForm({
     return Math.round((completedFields.length / requiredFields.length) * 100);
   };
 
+  // Get field styling based on AI population status
+  const getFieldClassName = (fieldName: string, baseClassName: string = '') => {
+    const indicatorClass =
+      formPopulationService.getFieldIndicatorClass(fieldName);
+    return `${baseClassName} ${indicatorClass}`.trim();
+  };
+
+  // Get field tooltip for AI populated fields
+  const getFieldTooltip = (fieldName: string) => {
+    return formPopulationService.getFieldTooltip(fieldName);
+  };
+
+  // Render AI field badge
+  const renderAiFieldBadge = (fieldName: string) => {
+    const fieldStatus = formPopulationService.getFieldStatus(fieldName);
+    if (!fieldStatus.isAutoPopulated) return null;
+
+    let badgeClass = 'ai-field-badge ';
+    let badgeText = '';
+
+    if (fieldStatus.isUserModified) {
+      badgeClass += 'user-modified';
+      badgeText = 'Modified';
+    } else if (fieldStatus.confidence) {
+      if (fieldStatus.confidence >= 0.8) {
+        badgeClass += 'high-confidence';
+        badgeText = 'AI';
+      } else if (fieldStatus.confidence >= 0.6) {
+        badgeClass += 'medium-confidence';
+        badgeText = 'AI';
+      } else {
+        badgeClass += 'low-confidence';
+        badgeText = 'AI?';
+      }
+    }
+
+    return (
+      <span
+        className={badgeClass}
+        title={getFieldTooltip(fieldName) || undefined}
+      >
+        {badgeText}
+      </span>
+    );
+  };
+
+  // Dismiss AI suggestions
+  const dismissAiSuggestions = () => {
+    setShowAiSuggestions(false);
+    setAiPopulationResult(null);
+  };
+
   // Handle voice mode toggle
   const handleVoiceToggle = () => {
     const newVoiceMode = !voiceMode;
@@ -360,10 +432,55 @@ export function PatientIntakeForm({
     // TODO: Process voice transcription text in future tasks
   };
 
-  // Handle AI field population (placeholder for future implementation)
-  const handleVoiceFieldsPopulated = (fields: Record<string, unknown>) => {
-    console.info(fields);
-    // TODO: Implement AI field population in future tasks
+  // Handle AI field population
+  const handleVoiceFieldsPopulated = (analysis: TriageAnalysis) => {
+    try {
+      // Use FormPopulationService to populate fields
+      const populationResult = formPopulationService.populateFromAI(
+        analysis,
+        formData,
+        {
+          overwriteExisting: false,
+          minimumConfidence: 0.3,
+          preserveUserEdits: true,
+        }
+      );
+
+      // Update form data with AI suggestions
+      if (populationResult.formData) {
+        setFormData(prev => ({
+          ...prev,
+          ...populationResult.formData,
+          // Handle injuries array conversion
+          injuries: Array.isArray(populationResult.formData.injuries)
+            ? populationResult.formData.injuries.join(', ')
+            : populationResult.formData.injuries || prev.injuries,
+        }));
+      }
+
+      // Store AI population result for UI display
+      setAiPopulationResult(populationResult);
+      setShowAiSuggestions(true);
+
+      // Clear any existing errors for populated fields
+      const newErrors = { ...errors };
+      populationResult.populatedFields.forEach(field => {
+        const fieldKey = field.fieldName.replace(
+          'vitals.',
+          ''
+        ) as keyof FormErrors;
+        if (newErrors[fieldKey]) {
+          delete newErrors[fieldKey];
+        }
+      });
+      setErrors(newErrors);
+    } catch (error) {
+      console.error('Failed to populate form from AI analysis:', error);
+      setErrors(prev => ({
+        ...prev,
+        general: 'Failed to process AI suggestions. Please try again.',
+      }));
+    }
   };
 
   return (
@@ -481,6 +598,118 @@ export function PatientIntakeForm({
         />
       )}
 
+      {/* AI Suggestions Display */}
+      {showAiSuggestions && aiPopulationResult && (
+        <Card
+          variant="outlined"
+          padding="md"
+          className="border-blue-200 bg-blue-50"
+        >
+          <div className="space-y-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 text-blue-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <h3 className="font-semibold text-blue-900">
+                  AI Suggestions Applied
+                </h3>
+                <span className="text-sm text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
+                  {(aiPopulationResult.confidence * 100).toFixed(1)}% confidence
+                </span>
+              </div>
+              <button
+                onClick={dismissAiSuggestions}
+                className="text-blue-600 hover:text-blue-800 p-1"
+                aria-label="Dismiss suggestions"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Populated Fields Summary */}
+            {aiPopulationResult.populatedFields.length > 0 && (
+              <div className="text-sm text-blue-800">
+                <p className="font-medium mb-2">
+                  Populated {aiPopulationResult.populatedFields.length}{' '}
+                  field(s):
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {aiPopulationResult.populatedFields.map((field: any) => (
+                    <span
+                      key={field.fieldName}
+                      className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs"
+                    >
+                      {field.fieldName.replace('vitals.', '')} (
+                      {(field.confidence * 100).toFixed(0)}%)
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Warnings */}
+            {aiPopulationResult.warnings.length > 0 && (
+              <div className="text-sm">
+                <p className="font-medium text-amber-800 mb-1">
+                  ⚠️ Please Review:
+                </p>
+                <ul className="text-amber-700 space-y-1">
+                  {aiPopulationResult.warnings.map(
+                    (warning: string, index: number) => (
+                      <li key={index} className="text-xs">
+                        • {warning}
+                      </li>
+                    )
+                  )}
+                </ul>
+              </div>
+            )}
+
+            {/* Suggestions */}
+            {aiPopulationResult.suggestions.length > 0 && (
+              <div className="text-sm">
+                <p className="font-medium text-blue-800 mb-1">
+                  💡 Suggestions:
+                </p>
+                <ul className="text-blue-700 space-y-1">
+                  {aiPopulationResult.suggestions
+                    .slice(0, 3)
+                    .map((suggestion: string, index: number) => (
+                      <li key={index} className="text-xs">
+                        • {suggestion}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="text-xs text-blue-600 border-t border-blue-200 pt-2">
+              Fields with colored borders were auto-populated. You can edit any
+              field to override AI suggestions.
+            </div>
+          </div>
+        </Card>
+      )}
+
       <form onSubmit={handleSubmit} class="space-y-6">
         {/* General Error */}
         {errors.general && (
@@ -523,36 +752,49 @@ export function PatientIntakeForm({
               {t('intake.ageGroup')} <span class="text-medical-error">*</span>
             </label>
             <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
-              <button
-                type="button"
-                onClick={() => handleInputChange('ageGroup', 'child')}
-                class={`
-                  touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                  ${
-                    formData.ageGroup === 'child'
-                      ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
-                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
-                  }
-                `}
-              >
-                <div class="text-2xl mb-1">👶</div>
-                {t('intake.ageGroup.child')}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleInputChange('ageGroup', 'adult')}
-                class={`
-                  touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                  ${
-                    formData.ageGroup === 'adult'
-                      ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
-                      : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
-                  }
-                `}
-              >
-                <div class="text-2xl mb-1">👤</div>
-                {t('intake.ageGroup.adult')}
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('ageGroup', 'child')}
+                  class={getFieldClassName(
+                    'ageGroup',
+                    `
+                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                    ${
+                      formData.ageGroup === 'child'
+                        ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
+                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                    }
+                  `
+                  )}
+                  title={getFieldTooltip('ageGroup') || undefined}
+                >
+                  <div class="text-2xl mb-1">👶</div>
+                  {t('intake.ageGroup.child')}
+                </button>
+                {renderAiFieldBadge('ageGroup')}
+              </div>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => handleInputChange('ageGroup', 'adult')}
+                  class={getFieldClassName(
+                    'ageGroup',
+                    `
+                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                    ${
+                      formData.ageGroup === 'adult'
+                        ? 'border-medical-primary bg-blue-50 text-medical-primary shadow-sm'
+                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                    }
+                  `
+                  )}
+                  title={getFieldTooltip('ageGroup') || undefined}
+                >
+                  <div class="text-2xl mb-1">👤</div>
+                  {t('intake.ageGroup.adult')}
+                </button>
+              </div>
             </ResponsiveGrid>
             {errors.ageGroup && (
               <p class="text-medical-error text-sm mt-2 flex items-center gap-1">
@@ -580,7 +822,7 @@ export function PatientIntakeForm({
 
           <ResponsiveGrid cols={{ xs: 1, md: 2 }} gap="md">
             {/* Pulse */}
-            <div>
+            <div className="relative">
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 {t('intake.pulse')}
               </label>
@@ -593,8 +835,10 @@ export function PatientIntakeForm({
                 placeholder={t('intake.pulsePlaceholder')}
                 min="20"
                 max="250"
-                class="form-input"
+                class={getFieldClassName('vitals.pulse', 'form-input')}
+                title={getFieldTooltip('vitals.pulse') || undefined}
               />
+              {renderAiFieldBadge('vitals.pulse')}
               {errors.pulse && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -610,7 +854,7 @@ export function PatientIntakeForm({
             </div>
 
             {/* Respiratory Rate */}
-            <div>
+            <div className="relative">
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 {t('intake.respiratoryRate')}
               </label>
@@ -623,8 +867,13 @@ export function PatientIntakeForm({
                 placeholder={t('intake.respiratoryPlaceholder')}
                 min="5"
                 max="60"
-                class="form-input"
+                class={getFieldClassName(
+                  'vitals.respiratoryRate',
+                  'form-input'
+                )}
+                title={getFieldTooltip('vitals.respiratoryRate') || undefined}
               />
+              {renderAiFieldBadge('vitals.respiratoryRate')}
               {errors.respiratoryRate && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -652,7 +901,7 @@ export function PatientIntakeForm({
 
           <div class="space-y-6">
             {/* Breathing Status */}
-            <div>
+            <div className="relative">
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 {t('intake.breathing')}{' '}
                 <span class="text-medical-error">*</span>
@@ -662,7 +911,8 @@ export function PatientIntakeForm({
                 onChange={e =>
                   handleInputChange('breathing', e.currentTarget.value)
                 }
-                class="form-select"
+                class={getFieldClassName('vitals.breathing', 'form-select')}
+                title={getFieldTooltip('vitals.breathing') || undefined}
               >
                 <option value="">{t('validation.selectOption')}</option>
                 <option value="normal">
@@ -675,6 +925,7 @@ export function PatientIntakeForm({
                   ❌ {t('intake.breathing.absent')}
                 </option>
               </select>
+              {renderAiFieldBadge('vitals.breathing')}
               {errors.breathing && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -690,7 +941,7 @@ export function PatientIntakeForm({
             </div>
 
             {/* Circulation Status */}
-            <div>
+            <div className="relative">
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 {t('intake.circulation')}{' '}
                 <span class="text-medical-error">*</span>
@@ -700,7 +951,8 @@ export function PatientIntakeForm({
                 onChange={e =>
                   handleInputChange('circulation', e.currentTarget.value)
                 }
-                class="form-select"
+                class={getFieldClassName('vitals.circulation', 'form-select')}
+                title={getFieldTooltip('vitals.circulation') || undefined}
               >
                 <option value="">{t('validation.selectOption')}</option>
                 <option value="normal">
@@ -713,6 +965,7 @@ export function PatientIntakeForm({
                   ⚠️ {t('intake.circulation.shock')}
                 </option>
               </select>
+              {renderAiFieldBadge('vitals.circulation')}
               {errors.circulation && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -728,7 +981,7 @@ export function PatientIntakeForm({
             </div>
 
             {/* Consciousness Level */}
-            <div>
+            <div className="relative">
               <label class="block text-sm font-medium text-medical-text-primary mb-2">
                 {t('intake.consciousness')}{' '}
                 <span class="text-medical-error">*</span>
@@ -738,7 +991,8 @@ export function PatientIntakeForm({
                 onChange={e =>
                   handleInputChange('consciousness', e.currentTarget.value)
                 }
-                class="form-select"
+                class={getFieldClassName('vitals.consciousness', 'form-select')}
+                title={getFieldTooltip('vitals.consciousness') || undefined}
               >
                 <option value="">{t('validation.selectOption')}</option>
                 <option value="alert">
@@ -754,6 +1008,7 @@ export function PatientIntakeForm({
                   😵 {t('intake.consciousness.unresponsive')}
                 </option>
               </select>
+              {renderAiFieldBadge('vitals.consciousness')}
               {errors.consciousness && (
                 <p class="text-medical-error text-sm mt-1 flex items-center gap-1">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -769,44 +1024,57 @@ export function PatientIntakeForm({
             </div>
 
             {/* Mobility Status */}
-            <div>
+            <div className="relative">
               <label class="block text-sm font-medium text-medical-text-primary mb-3">
                 {t('intake.mobility')} <span class="text-medical-error">*</span>
               </label>
               <ResponsiveGrid cols={{ xs: 2 }} gap="sm">
-                <button
-                  type="button"
-                  onClick={() => handleInputChange('mobility', 'ambulatory')}
-                  class={`
-                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                    ${
-                      formData.mobility === 'ambulatory'
-                        ? 'border-medical-success bg-green-50 text-green-700 shadow-sm'
-                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange('mobility', 'ambulatory')}
+                    class={getFieldClassName(
+                      'mobility',
+                      `
+                      touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                      ${
+                        formData.mobility === 'ambulatory'
+                          ? 'border-medical-success bg-green-50 text-green-700 shadow-sm'
+                          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                      }
+                    `
+                    )}
+                    title={getFieldTooltip('mobility') || undefined}
+                  >
+                    <div class="text-2xl mb-1">🚶</div>
+                    {t('intake.mobility.ambulatory')}
+                  </button>
+                </div>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleInputChange('mobility', 'non-ambulatory')
                     }
-                  `}
-                >
-                  <div class="text-2xl mb-1">🚶</div>
-                  {t('intake.mobility.ambulatory')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleInputChange('mobility', 'non-ambulatory')
-                  }
-                  class={`
-                    touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
-                    ${
-                      formData.mobility === 'non-ambulatory'
-                        ? 'border-medical-warning bg-orange-50 text-orange-700 shadow-sm'
-                        : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
-                    }
-                  `}
-                >
-                  <div class="text-2xl mb-1">🛏️</div>
-                  {t('intake.mobility.immobile')}
-                </button>
+                    class={getFieldClassName(
+                      'mobility',
+                      `
+                      touch-target p-4 border-2 rounded-xl text-center transition-all duration-200 font-medium
+                      ${
+                        formData.mobility === 'non-ambulatory'
+                          ? 'border-medical-warning bg-orange-50 text-orange-700 shadow-sm'
+                          : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100'
+                      }
+                    `
+                    )}
+                    title={getFieldTooltip('mobility') || undefined}
+                  >
+                    <div class="text-2xl mb-1">🛏️</div>
+                    {t('intake.mobility.immobile')}
+                  </button>
+                </div>
               </ResponsiveGrid>
+              {renderAiFieldBadge('mobility')}
               {errors.mobility && (
                 <p class="text-medical-error text-sm mt-2 flex items-center gap-1">
                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

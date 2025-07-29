@@ -225,9 +225,12 @@ export interface ModelDownloadService {
     options: ModelDownloadOptions,
     onProgress?: (progress: DownloadProgress) => void
   ): Promise<StoredModel>;
-  
+
   pauseDownload(modelId: string): Promise<void>;
-  resumeDownload(modelId: string, onProgress?: (progress: DownloadProgress) => void): Promise<void>;
+  resumeDownload(
+    modelId: string,
+    onProgress?: (progress: DownloadProgress) => void
+  ): Promise<void>;
   cancelDownload(modelId: string): Promise<void>;
   retryDownload(
     modelId: string,
@@ -245,7 +248,7 @@ export interface ModelDownloadService {
   cleanupOldCache(maxAge?: number): Promise<void>;
 
   // Status
-  getDownloadStatus(modelId: string): { 
+  getDownloadStatus(modelId: string): {
     status: 'idle' | 'downloading' | 'paused' | 'completed' | 'error';
     progress: DownloadProgress;
     error?: string;

@@ -35,7 +35,10 @@ export interface DownloadState {
 class ModelDownloadService {
   private downloads = new Map<string, DownloadState>();
   private abortControllers = new Map<string, AbortController>();
-  private progressCallbacks = new Map<string, (progress: DownloadProgress) => void>();
+  private progressCallbacks = new Map<
+    string,
+    (progress: DownloadProgress) => void
+  >();
   private readonly DB_NAME = 'TriageAI_Models';
   private readonly DB_VERSION = 1;
   // private readonly CHUNK_SIZE = 1024 * 1024; // 1MB chunks for resumable downloads - reserved for future use
@@ -48,7 +51,10 @@ class ModelDownloadService {
     try {
       await this.openDB();
     } catch (error) {
-      console.error('Failed to initialize ModelDownloadService database:', error);
+      console.error(
+        'Failed to initialize ModelDownloadService database:',
+        error
+      );
     }
   }
 
@@ -59,17 +65,19 @@ class ModelDownloadService {
       request.onerror = () => reject(request.error);
       request.onsuccess = () => resolve(request.result);
 
-      request.onupgradeneeded = (event) => {
+      request.onupgradeneeded = event => {
         const db = (event.target as IDBOpenDBRequest).result;
-        
+
         // Models store
         if (!db.objectStoreNames.contains('models')) {
           db.createObjectStore('models', { keyPath: 'id' });
         }
-        
+
         // Download cache store for resumable downloads
         if (!db.objectStoreNames.contains('download_cache')) {
-          const cacheStore = db.createObjectStore('download_cache', { keyPath: 'modelId' });
+          const cacheStore = db.createObjectStore('download_cache', {
+            keyPath: 'modelId',
+          });
           cacheStore.createIndex('timestamp', 'timestamp');
         }
       };
@@ -81,9 +89,12 @@ class ModelDownloadService {
     onProgress?: (progress: DownloadProgress) => void
   ): Promise<StoredModel> {
     const modelId = `${options.modelName}-${options.version}`;
-    
+
     // Check if already downloading
-    if (this.downloads.has(modelId) && this.downloads.get(modelId)?.status === 'downloading') {
+    if (
+      this.downloads.has(modelId) &&
+      this.downloads.get(modelId)?.status === 'downloading'
+    ) {
       throw new Error(`Model ${modelId} is already being downloaded`);
     }
 
@@ -101,12 +112,12 @@ class ModelDownloadService {
         total: options.expectedSize || 0,
         percentage: 0,
         speed: 0,
-        timeRemaining: 0
-      }
+        timeRemaining: 0,
+      },
     };
 
     this.downloads.set(modelId, downloadState);
-    
+
     if (onProgress) {
       this.progressCallbacks.set(modelId, onProgress);
     }
@@ -146,8 +157,8 @@ class ModelDownloadService {
         metadata: {
           accuracy: 0.85, // Default values - could be provided in options
           speed: 200,
-          memoryUsage: modelData.byteLength
-        }
+          memoryUsage: modelData.byteLength,
+        },
       };
 
       // Store the model
@@ -155,25 +166,25 @@ class ModelDownloadService {
 
       // Clean up download state and cache
       await this.cleanupDownload(modelId);
-      
+
       downloadState.status = 'completed';
       downloadState.progress.percentage = 100;
-      
+
       if (onProgress) {
         onProgress(downloadState.progress);
       }
 
       return storedModel;
-
     } catch (error) {
       downloadState.status = 'error';
-      downloadState.error = error instanceof Error ? error.message : 'Unknown error';
-      
+      downloadState.error =
+        error instanceof Error ? error.message : 'Unknown error';
+
       // Save resume data for potential retry
       if (options.resumable) {
         await this.saveResumeData(modelId, downloadState);
       }
-      
+
       throw error;
     } finally {
       this.abortControllers.delete(modelId);
@@ -204,7 +215,7 @@ class ModelDownloadService {
 
       const response = await fetch(url, {
         headers,
-        signal: abortController.signal
+        signal: abortController.signal,
       });
 
       if (!response.ok) {
@@ -216,8 +227,10 @@ class ModelDownloadService {
       }
 
       const contentLength = response.headers.get('content-length');
-      const totalSize = contentLength ? parseInt(contentLength, 10) + startByte : 0;
-      
+      const totalSize = contentLength
+        ? parseInt(contentLength, 10) + startByte
+        : 0;
+
       if (totalSize > 0) {
         downloadState.progress.total = totalSize;
       }
@@ -232,27 +245,34 @@ class ModelDownloadService {
 
       while (true) {
         const { done, value } = await reader.read();
-        
+
         if (done) break;
 
-        chunks.push(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength));
+        chunks.push(
+          value.buffer.slice(
+            value.byteOffset,
+            value.byteOffset + value.byteLength
+          )
+        );
         downloadedBytes += value.length;
 
         // Update progress
         const now = Date.now();
         const timeDiff = (now - lastProgressTime) / 1000;
-        
-        if (timeDiff >= 0.5) { // Update every 500ms
+
+        if (timeDiff >= 0.5) {
+          // Update every 500ms
           const bytesDiff = downloadedBytes - lastLoadedBytes;
           const speed = bytesDiff / timeDiff;
-          const timeRemaining = totalSize > 0 ? (totalSize - downloadedBytes) / speed : 0;
+          const timeRemaining =
+            totalSize > 0 ? (totalSize - downloadedBytes) / speed : 0;
 
           downloadState.progress = {
             loaded: downloadedBytes,
             total: totalSize,
             percentage: totalSize > 0 ? (downloadedBytes / totalSize) * 100 : 0,
             speed,
-            timeRemaining
+            timeRemaining,
           };
 
           const callback = this.progressCallbacks.get(modelId);
@@ -265,8 +285,8 @@ class ModelDownloadService {
             ...downloadState,
             resumeData: {
               downloadedBytes,
-              chunks: chunks.slice() // Create a copy
-            }
+              chunks: chunks.slice(), // Create a copy
+            },
           });
 
           lastProgressTime = now;
@@ -275,10 +295,13 @@ class ModelDownloadService {
       }
 
       // Combine all chunks into a single ArrayBuffer
-      const totalLength = chunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+      const totalLength = chunks.reduce(
+        (sum, chunk) => sum + chunk.byteLength,
+        0
+      );
       const result = new ArrayBuffer(totalLength);
       const resultView = new Uint8Array(result);
-      
+
       let offset = 0;
       for (const chunk of chunks) {
         resultView.set(new Uint8Array(chunk), offset);
@@ -286,7 +309,6 @@ class ModelDownloadService {
       }
 
       return result;
-
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         downloadState.status = 'paused';
@@ -317,10 +339,13 @@ class ModelDownloadService {
         }
 
         // Combine chunks
-        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const totalLength = chunks.reduce(
+          (sum, chunk) => sum + chunk.length,
+          0
+        );
         const result = new ArrayBuffer(totalLength);
         const resultView = new Uint8Array(result);
-        
+
         let offset = 0;
         for (const chunk of chunks) {
           resultView.set(chunk, offset);
@@ -330,7 +355,9 @@ class ModelDownloadService {
         return result;
       } else {
         // Fallback: return uncompressed data
-        console.warn('CompressionStream not available, storing uncompressed model');
+        console.warn(
+          'CompressionStream not available, storing uncompressed model'
+        );
         return data;
       }
     } catch (error) {
@@ -339,7 +366,9 @@ class ModelDownloadService {
     }
   }
 
-  private async decompressData(compressedData: ArrayBuffer): Promise<ArrayBuffer> {
+  private async decompressData(
+    compressedData: ArrayBuffer
+  ): Promise<ArrayBuffer> {
     try {
       // Use DecompressionStream if available
       if ('DecompressionStream' in window) {
@@ -360,10 +389,13 @@ class ModelDownloadService {
         }
 
         // Combine chunks
-        const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+        const totalLength = chunks.reduce(
+          (sum, chunk) => sum + chunk.length,
+          0
+        );
         const result = new ArrayBuffer(totalLength);
         const resultView = new Uint8Array(result);
-        
+
         let offset = 0;
         for (const chunk of chunks) {
           resultView.set(chunk, offset);
@@ -393,7 +425,10 @@ class ModelDownloadService {
     }
   }
 
-  async resumeDownload(modelId: string, _onProgress?: (progress: DownloadProgress) => void): Promise<void> {
+  async resumeDownload(
+    modelId: string,
+    _onProgress?: (progress: DownloadProgress) => void
+  ): Promise<void> {
     const downloadState = this.downloads.get(modelId);
     if (!downloadState || downloadState.status !== 'paused') {
       throw new Error('No paused download found for this model');
@@ -401,7 +436,9 @@ class ModelDownloadService {
 
     // This would require storing the original download options
     // For now, throw an error suggesting to restart the download
-    throw new Error('Resume functionality requires restarting the download with original options');
+    throw new Error(
+      'Resume functionality requires restarting the download with original options'
+    );
   }
 
   async cancelDownload(modelId: string): Promise<void> {
@@ -423,7 +460,7 @@ class ModelDownloadService {
   ): Promise<StoredModel> {
     // Clean up any existing download state
     await this.cancelDownload(modelId);
-    
+
     // Start fresh download
     return this.downloadModel(options, onProgress);
   }
@@ -444,12 +481,14 @@ class ModelDownloadService {
           const result = request.result;
           if (result) {
             // Decompress model data when retrieving
-            this.decompressData(result.modelData).then(decompressedData => {
-              resolve({
-                ...result,
-                modelData: decompressedData
-              });
-            }).catch(reject);
+            this.decompressData(result.modelData)
+              .then(decompressedData => {
+                resolve({
+                  ...result,
+                  modelData: decompressedData,
+                });
+              })
+              .catch(reject);
           } else {
             resolve(null);
           }
@@ -473,10 +512,12 @@ class ModelDownloadService {
         request.onsuccess = () => {
           const models = request.result || [];
           // Note: We don't decompress data for listing, only metadata
-          resolve(models.map(model => ({
-            ...model,
-            modelData: new ArrayBuffer(0) // Don't load full data for listing
-          })));
+          resolve(
+            models.map(model => ({
+              ...model,
+              modelData: new ArrayBuffer(0), // Don't load full data for listing
+            }))
+          );
         };
         request.onerror = () => reject(request.error);
       });
@@ -518,7 +559,10 @@ class ModelDownloadService {
     });
   }
 
-  private async saveResumeData(modelId: string, downloadState: DownloadState): Promise<void> {
+  private async saveResumeData(
+    modelId: string,
+    downloadState: DownloadState
+  ): Promise<void> {
     if (!downloadState.resumeData) return;
 
     try {
@@ -530,7 +574,7 @@ class ModelDownloadService {
         modelId,
         downloadedBytes: downloadState.resumeData.downloadedBytes,
         chunks: downloadState.resumeData.chunks,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       };
 
       await new Promise<void>((resolve, reject) => {
@@ -543,7 +587,9 @@ class ModelDownloadService {
     }
   }
 
-  private async getResumeData(modelId: string): Promise<{ downloadedBytes: number; chunks: ArrayBuffer[] } | null> {
+  private async getResumeData(
+    modelId: string
+  ): Promise<{ downloadedBytes: number; chunks: ArrayBuffer[] } | null> {
     try {
       const db = await this.openDB();
       const transaction = db.transaction(['download_cache'], 'readonly');
@@ -556,7 +602,7 @@ class ModelDownloadService {
           if (result) {
             resolve({
               downloadedBytes: result.downloadedBytes,
-              chunks: result.chunks
+              chunks: result.chunks,
             });
           } else {
             resolve(null);
@@ -592,7 +638,7 @@ class ModelDownloadService {
         const estimate = await navigator.storage.estimate();
         return {
           used: estimate.usage || 0,
-          available: estimate.quota || 0
+          available: estimate.quota || 0,
         };
       }
     } catch (error) {
@@ -602,7 +648,9 @@ class ModelDownloadService {
     return { used: 0, available: 0 };
   }
 
-  async cleanupOldCache(maxAge: number = 7 * 24 * 60 * 60 * 1000): Promise<void> {
+  async cleanupOldCache(
+    maxAge: number = 7 * 24 * 60 * 60 * 1000
+  ): Promise<void> {
     try {
       const db = await this.openDB();
       const transaction = db.transaction(['download_cache'], 'readwrite');
@@ -614,7 +662,7 @@ class ModelDownloadService {
 
       await new Promise<void>((resolve, reject) => {
         const request = index.openCursor(range);
-        request.onsuccess = (event) => {
+        request.onsuccess = event => {
           const cursor = (event.target as IDBRequest).result;
           if (cursor) {
             cursor.delete();

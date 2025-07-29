@@ -9,6 +9,7 @@ import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { Alert } from './ui/Alert';
 import { voiceRecognitionService } from '../services/VoiceRecognitionService';
+import { localAIService } from '../services/LocalAIService';
 import { useTranslation } from '../hooks/useTranslation';
 import {
   getVoiceErrorMessage,
@@ -21,11 +22,12 @@ import type {
   VoiceStatus,
   VoiceRecognitionResult,
   VoiceLanguage,
+  TriageAnalysis,
 } from '../types/VoiceRecognition';
 
 interface VoiceTriageComponentProps {
   onTextGenerated?: (text: string) => void;
-  onFieldsPopulated?: (fields: Record<string, unknown>) => void; // Will be properly typed when AI integration is added
+  onFieldsPopulated?: (analysis: TriageAnalysis) => void;
   isEnabled?: boolean;
   language?: VoiceLanguage;
   className?: string;
@@ -174,20 +176,33 @@ export function VoiceTriageComponent({
     }
   };
 
-  // Process with AI (placeholder for future implementation)
-  const processWithAI = () => {
+  // Process with AI
+  const processWithAI = async () => {
     if (!transcribedText.trim()) return;
 
     setIsProcessing(true);
 
-    // TODO: Implement AI processing in future task
-    setTimeout(() => {
-      setIsProcessing(false);
-      // Placeholder for AI results
+    try {
+      // Use LocalAIService to process the transcribed text
+      const analysis = await localAIService.processTriageText(
+        transcribedText.trim()
+      );
+
+      // Call the parent component with the AI analysis
       if (onFieldsPopulated) {
-        onFieldsPopulated({});
+        onFieldsPopulated(analysis);
       }
-    }, 2000);
+    } catch (error) {
+      console.error('AI processing failed:', error);
+      setVoiceError({
+        type: 'recognition',
+        message:
+          'Failed to process text with AI. Please try again or fill the form manually.',
+        recoverable: true,
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   // Get recording indicator color

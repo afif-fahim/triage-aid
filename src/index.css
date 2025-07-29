@@ -298,6 +298,110 @@ textarea:focus {
     opacity: 0.5;
   }
 }
+/* AI Form Population Field Indicators */
+.field-ai-high-confidence {
+  position: relative;
+  border-left: 3px solid #10b981 !important; /* green-500 */
+  background-color: #ecfdf5; /* green-50 */
+}
+
+.field-ai-medium-confidence {
+  position: relative;
+  border-left: 3px solid #f59e0b !important; /* amber-500 */
+  background-color: #fffbeb; /* amber-50 */
+}
+
+.field-ai-low-confidence {
+  position: relative;
+  border-left: 3px solid #ef4444 !important; /* red-500 */
+  background-color: #fef2f2; /* red-50 */
+}
+
+.field-user-modified {
+  position: relative;
+  border-left: 3px solid #3b82f6 !important; /* blue-500 */
+  background-color: #eff6ff; /* blue-50 */
+}
+
+/* AI indicator badges */
+.ai-field-badge {
+  position: absolute;
+  top: -8px;
+  right: 8px;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  font-weight: 500;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.ai-field-badge.high-confidence {
+  background-color: #10b981;
+  color: white;
+}
+
+.ai-field-badge.medium-confidence {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.ai-field-badge.low-confidence {
+  background-color: #ef4444;
+  color: white;
+}
+
+.ai-field-badge.user-modified {
+  background-color: #3b82f6;
+  color: white;
+}
+
+/* RTL adjustments for field indicators */
+[dir='rtl'] .field-ai-high-confidence,
+[dir='rtl'] .field-ai-medium-confidence,
+[dir='rtl'] .field-ai-low-confidence,
+[dir='rtl'] .field-user-modified {
+  border-left: none;
+  border-right: 3px solid;
+}
+
+[dir='rtl'] .ai-field-badge {
+  right: auto;
+  left: 8px;
+}
+
+/* Hover effects for AI populated fields */
+.field-ai-high-confidence:hover,
+.field-ai-medium-confidence:hover,
+.field-ai-low-confidence:hover {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Focus states for AI populated fields */
+.field-ai-high-confidence:focus-within,
+.field-ai-medium-confidence:focus-within,
+.field-ai-low-confidence:focus-within,
+.field-user-modified:focus-within {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+}
+
+/* Print styles for AI indicators */
+@media print {
+  /* Hide AI indicators in print */
+  .ai-field-badge {
+    display: none !important;
+  }
+
+  .field-ai-high-confidence,
+  .field-ai-medium-confidence,
+  .field-ai-low-confidence,
+  .field-user-modified {
+    border-left: none !important;
+    background-color: white !important;
+  }
+}
+
 /* Button visibility enhancements for Tailwind v4 compatibility */
 .btn,
 button[class*='bg-'],
